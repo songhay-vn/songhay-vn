@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
+import Image from "next/image"
 import type { Metadata } from "next"
 
 import { SiteMainContainer } from "@/components/news/site-main-container"
@@ -96,7 +97,14 @@ export default async function HomePage() {
       <SiteHeader navCategories={navCategories} />
 
       <SiteMainContainer className="flex flex-col gap-6 py-5 md:py-6">
-        <AdPlaceholder label="Top banner (Google AdSense)" />
+        <Image 
+          src="/banner.png" 
+          alt="Banner" 
+          width={1100} 
+          height={200} 
+          priority
+          className="h-auto w-full object-cover" 
+        />
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="flex flex-col gap-6">
