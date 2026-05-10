@@ -35,7 +35,7 @@ function createPublishedSearchWhere(normalizedQuery: string): Prisma.PostWhereIn
 export async function getHomepageData() {
   "use cache"
   cacheTag("homepage")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — homepage
 
   const [mostRead, latest, recommended, mostWatched] = await Promise.all([
     prisma.post.findMany({
@@ -67,7 +67,7 @@ export async function getHomepageData() {
 export async function getPostsByCategory(categorySlug: string) {
   "use cache"
   cacheTag("category-posts", `category:${categorySlug}`)
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — category listing
 
   return prisma.post.findMany({
     where: {
@@ -92,7 +92,7 @@ export async function getPostsByCategory(categorySlug: string) {
 export async function searchPublishedPosts(query: string, limit = 24) {
   "use cache"
   cacheTag("search-results")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — search results
 
   const normalizedQuery = normalizeSearchQuery(query)
   const safeLimit = Math.min(Math.max(limit, 1), 48)
@@ -136,7 +136,7 @@ export async function getPublishedSearchResults(
 ) {
   "use cache"
   cacheTag("search-results")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — search results paginated
 
   const normalizedQuery = normalizeSearchQuery(query)
   const safePage = Math.max(page, 1)
@@ -204,7 +204,7 @@ export async function getPublishedSearchResults(
 export async function searchPublishedPostSuggestions(query: string, limit = 6) {
   "use cache"
   cacheTag("search-results")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — search suggestions
 
   const normalizedQuery = normalizeSearchQuery(query)
   const safeLimit = Math.min(Math.max(limit, 1), SEARCH_SUGGEST_LIMIT_MAX)
@@ -229,7 +229,7 @@ export async function searchPublishedPostSuggestions(query: string, limit = 6) {
 export async function getCategoryBySlug(categorySlug: string) {
   "use cache"
   cacheTag("categories")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — category meta
 
   return prisma.category.findUnique({
     where: { slug: categorySlug },
@@ -239,7 +239,7 @@ export async function getCategoryBySlug(categorySlug: string) {
 export async function getPostByCategoryAndSlug(categorySlug: string, slug: string) {
   "use cache"
   cacheTag("post-detail", `post:${slug}`)
-  cacheLife({ revalidate: 600 })
+  cacheLife({ revalidate: 1800 })  // 30 min — article detail
 
   return prisma.post.findFirst({
     where: {
@@ -262,7 +262,7 @@ export async function getPostByCategoryAndSlug(categorySlug: string, slug: strin
 export async function getRelatedPosts(postId: string, categoryId: string, limit = 8) {
   "use cache"
   cacheTag("related-posts", `category:${categoryId}`)
-  cacheLife({ revalidate: 600 })
+  cacheLife({ revalidate: 1800 })  // 30 min — related posts
 
   return prisma.post.findMany({
     where: {
@@ -285,7 +285,7 @@ export async function getRelatedPosts(postId: string, categoryId: string, limit 
 export async function getTrendingPosts() {
   "use cache"
   cacheTag("trending-posts")
-  cacheLife({ revalidate: 600 })
+  cacheLife({ revalidate: 3600 })  // 1 hr — trending posts
 
   return prisma.post.findMany({
     where: {
@@ -333,7 +333,7 @@ export async function getRecommendedPosts(
 ) {
   "use cache"
   cacheTag("recommended-posts")
-  cacheLife({ revalidate: 600 })
+  cacheLife({ revalidate: 3600 })  // 1 hr — recommended posts
 
   const where: Prisma.PostWhereInput = {
     isPublished: true,
@@ -414,7 +414,7 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
 export async function getLatestByCategory(perCategory = 4, categoriesLimit = 6) {
   "use cache"
   cacheTag("latest-by-category")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — latest by category
 
   const topCategories = await prisma.category.findMany({
     where: { parentId: null },

@@ -134,6 +134,11 @@ export async function logPostHistory({
 
 import { revalidateTag, revalidatePath } from "next/cache"
 
+/**
+ * Full revalidation: use when a post's PUBLIC visibility changes
+ * (published, unpublished, trashed from published, restored to published).
+ * revalidatePath triggers an ISR page write — use sparingly.
+ */
 export async function revalidatePost(slug?: string, categorySlug?: string) {
   if (slug) revalidateTag(`post:${slug}`)
   if (categorySlug) {
@@ -148,4 +153,17 @@ export async function revalidatePost(slug?: string, categorySlug?: string) {
   revalidateTag("recommended-posts")
   revalidateTag("most-watched-videos")
   revalidatePath("/")
+}
+
+/**
+ * Tag-only revalidation: use for internal workflow transitions on NON-PUBLIC posts
+ * (DRAFT → PENDING_REVIEW → PENDING_PUBLISH → REJECTED, etc.).
+ * Only invalidates the Next.js Data Cache tags — NO ISR page writes.
+ */
+export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
+  if (slug) revalidateTag(`post:${slug}`)
+  if (categorySlug) {
+    revalidateTag(`category:${categorySlug}`)
+  }
+  // Do NOT revalidatePath here — no ISR write needed for non-public posts
 }

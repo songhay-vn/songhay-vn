@@ -13,7 +13,7 @@ function toPositiveInt(value: string | null, fallback: number) {
 async function getLatestByCategoryData(perCategory: number, categoriesLimit: number) {
   "use cache"
   cacheTag("latest-by-category", "homepage")
-  cacheLife({ revalidate: 300 })
+  cacheLife({ revalidate: 600 })  // 10 min — matches queries.ts
 
   const categories = await prisma.category.findMany({
     select: { id: true, name: true, slug: true },

@@ -3,6 +3,10 @@ import type { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
 import { getSiteUrl, toAbsoluteUrl, DEFAULT_OG_IMAGE_PATH } from "@/lib/seo"
 
+// Regenerate the sitemap at most once every 6 hours.
+// Without this, every Googlebot crawl triggers a fresh DB query + ISR write.
+export const revalidate = 21600
+
 const MAX_POSTS_PER_SITEMAP = 10000
 
 export async function generateSitemaps() {
@@ -73,7 +77,7 @@ export default async function sitemap(props: { id: number | string }): Promise<M
   if (includeStatic) {
     sitemapData.push({
       url: siteUrl,
-      lastModified: new Date(),
+      lastModified: new Date(0).toISOString(), // stable value — avoids cache invalidation on every render
       changeFrequency: "hourly",
       priority: 1,
     })
@@ -81,7 +85,7 @@ export default async function sitemap(props: { id: number | string }): Promise<M
     staticPages.forEach((item) => {
       sitemapData.push({
         url: item.url,
-        lastModified: new Date(),
+        lastModified: new Date(0).toISOString(), // stable value
         changeFrequency: item.changeFrequency,
         priority: item.priority,
       })

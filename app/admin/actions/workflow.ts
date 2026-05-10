@@ -18,6 +18,7 @@ import {
   ensurePermission,
   logPostHistory,
   revalidatePost,
+  revalidatePostTagsOnly,
 } from "@/app/admin/actions-helpers"
 
 export async function approvePendingPost(formData: FormData) {
@@ -71,7 +72,13 @@ export async function approvePendingPost(formData: FormData) {
     })
   }
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // Only full ISR revalidation if post is being published now
+  if (canPublishNow(currentUser.role)) {
+    await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  } else {
+    // PENDING_PUBLISH: not yet public, just invalidate tags
+    revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
+  }
   clearDataCache()
 
   return {
@@ -127,7 +134,8 @@ export async function rejectPendingPost(formData: FormData) {
     })
   }
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // Post rejected: not public — tag-only revalidation
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_rejected" }
 }
@@ -176,7 +184,8 @@ export async function submitPostToPendingReview(formData: FormData) {
     toStatus: updatedPost.editorialStatus,
   })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // PENDING_REVIEW: not public yet — tag-only
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_submitted_review" }
 }
@@ -230,7 +239,8 @@ export async function promotePostToPendingPublish(formData: FormData) {
     })
   }
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // PENDING_PUBLISH: not public yet — tag-only
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_submitted_publish" }
 }
@@ -272,7 +282,8 @@ export async function returnPostToPendingReview(formData: FormData) {
     toStatus: updatedPost.editorialStatus,
   })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // Returned to PENDING_REVIEW: not public — tag-only
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_returned_review" }
 }
@@ -312,7 +323,8 @@ export async function returnPostToPendingPublish(formData: FormData) {
     toStatus: updatedPost.editorialStatus,
   })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // Returned to PENDING_PUBLISH: not public yet — tag-only
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_returned_publish_queue" }
 }
@@ -359,7 +371,8 @@ export async function returnPostToDraft(formData: FormData) {
     toStatus: updatedPost.editorialStatus,
   })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // Returned to DRAFT: not public — tag-only
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_returned_draft" }
 }

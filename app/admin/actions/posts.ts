@@ -24,6 +24,7 @@ import {
   uniquePostSlug,
   logPostHistory,
   revalidatePost,
+  revalidatePostTagsOnly,
 } from "@/app/admin/actions-helpers"
 
 export async function createPost(formData: FormData) {
@@ -343,6 +344,9 @@ export async function movePostToTrash(formData: FormData) {
     fromStatus: existingPost.editorialStatus,
   })
 
+  // moveToTrash: post becomes non-public — do full revalidate only if it was published
+  // We always do full revalidate here since we don't have isPublished in select above;
+  // this is safe, just slightly more expensive. To optimize further, add isPublished to select.
   await revalidatePost(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_moved_trash" }
@@ -389,7 +393,9 @@ export async function restorePostFromTrash(formData: FormData) {
     toStatus: existingPost.editorialStatus,
   })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  // Restored from trash but still has its old editorialStatus (likely DRAFT)
+  // Use tag-only; if admin later publishes, that action will do full revalidation
+  revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
   clearDataCache()
   return { toast: "post_restored" }
 }
@@ -471,6 +477,7 @@ export async function bulkTrashPosts(formData: FormData) {
   })
 
   for (const post of posts) {
+    // Trashed posts become non-public — full revalidate to update homepage/category
     await revalidatePost(post.slug, post.category?.slug)
   }
   clearDataCache()
