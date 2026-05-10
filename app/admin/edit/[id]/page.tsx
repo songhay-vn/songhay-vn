@@ -40,7 +40,7 @@ import {
   sortCategoriesByTree,
   uniquePostSlug,
 } from "@/app/admin/edit/[id]/helpers"
-import { logPostHistory, revalidatePost } from "@/app/admin/actions-helpers"
+import { logPostHistory, revalidatePost, revalidatePostTagsOnly } from "@/app/admin/actions-helpers"
 
 
 export const metadata: Metadata = {
@@ -278,7 +278,14 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
       snapshotContent: content,
     })
 
-    await revalidatePost(updatedPost.slug, updatedPost.category?.slug)
+    // Heavy revalidation (ISR writes) only if the post IS or IS BECOMING public
+    if (isPublished || currentPost.isPublished) {
+      await revalidatePost(updatedPost.slug, updatedPost.category?.slug)
+    } else {
+      // Internal update for non-public post: just refresh tags
+      revalidatePostTagsOnly(updatedPost.slug, updatedPost.category?.slug)
+    }
+    
     clearDataCache()
     if (isDraft) {
       redirect("/admin?tab=personal-archive&toast=post_saved_draft")

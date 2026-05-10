@@ -131,7 +131,14 @@ export async function createPost(formData: FormData) {
     snapshotContent: post.content,
   })
 
-  await revalidatePost(post.slug, post.category?.slug)
+  // Only do heavy revalidation (ISR writes) if the post is actually going public
+  if (isPublished) {
+    await revalidatePost(post.slug, post.category?.slug)
+  } else {
+    // Just invalidate data cache tags for internal lists
+    revalidatePostTagsOnly(post.slug, post.category?.slug)
+  }
+  
   clearDataCache()
   if (editorialStatus === "DRAFT") {
     redirect("/admin?tab=personal-archive&toast=post_saved_draft")
@@ -232,6 +239,7 @@ export async function createPostForPreview(
     snapshotContent: post.content,
   })
 
+  // Preview creation: no revalidation needed as it's not public and doesn't affect lists
   return { postId: post.id }
 }
 

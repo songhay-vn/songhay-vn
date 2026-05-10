@@ -27,6 +27,9 @@ declare module "next/link" {
     target?: string
     rel?: string
     ariaLabel?: string
+    prefetch?: boolean | null
+    scroll?: boolean
+    replace?: boolean
   }
 
   const Link: (props: LinkProps) => import("react").ReactElement

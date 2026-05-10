@@ -38,6 +38,7 @@ export async function SiteHeader({ defaultSearchQuery, navCategories: propNavCat
             <li key={item.slug} className="group relative">
               <Link
                 href={`/${item.slug}`}
+                prefetch={false}
                 className="flex items-center gap-1 border-b-2 border-transparent pb-1 leading-none transition hover:border-white/90 hover:text-white/90"
               >
                 {item.name}
@@ -48,6 +49,7 @@ export async function SiteHeader({ defaultSearchQuery, navCategories: propNavCat
                     <li key={child.slug}>
                       <Link
                         href={`/${child.slug}`}
+                        prefetch={false}
                         className="block rounded px-3 py-2 transition hover:bg-zinc-100 hover:text-red-700"
                       >
                         {child.name}

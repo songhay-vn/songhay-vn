@@ -140,18 +140,24 @@ import { revalidateTag, revalidatePath } from "next/cache"
  * revalidatePath triggers an ISR page write — use sparingly.
  */
 export async function revalidatePost(slug?: string, categorySlug?: string) {
-  if (slug) revalidateTag(`post:${slug}`)
+  if (slug) {
+    revalidateTag(`post:${slug}`)
+    revalidateTag("post-detail")
+  }
   if (categorySlug) {
     revalidateTag(`category:${categorySlug}`)
+    revalidateTag("category-posts")
     revalidatePath(`/${categorySlug}`)
     if (slug) revalidatePath(`/${categorySlug}/${slug}`)
   }
   revalidateTag("homepage")
+  revalidateTag("categories")
   revalidateTag("latest-by-category")
   revalidateTag("trending-posts")
   revalidateTag("search-results")
   revalidateTag("recommended-posts")
   revalidateTag("most-watched-videos")
+  revalidateTag("related-posts")
   revalidatePath("/")
 }
 
@@ -161,9 +167,15 @@ export async function revalidatePost(slug?: string, categorySlug?: string) {
  * Only invalidates the Next.js Data Cache tags — NO ISR page writes.
  */
 export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
-  if (slug) revalidateTag(`post:${slug}`)
+  if (slug) {
+    revalidateTag(`post:${slug}`)
+    revalidateTag("post-detail")
+  }
   if (categorySlug) {
     revalidateTag(`category:${categorySlug}`)
+    revalidateTag("category-posts")
   }
+  revalidateTag("categories")
+  revalidateTag("latest-by-category")
   // Do NOT revalidatePath here — no ISR write needed for non-public posts
 }

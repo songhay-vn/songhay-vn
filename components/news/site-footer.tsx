@@ -50,6 +50,7 @@ export async function SiteFooter({ navCategories: propNavCategories }: SiteFoote
               <li key={`footer-nav-${item.slug}`}>
                 <Link
                   href={`/${item.slug}`}
+                  prefetch={false}
                   className="border-b-2 border-transparent pb-1 leading-none transition hover:border-white/90 hover:text-white/90"
                 >
                   {item.name}
@@ -75,6 +76,7 @@ export async function SiteFooter({ navCategories: propNavCategories }: SiteFoote
           </div>
           <Link
             href="/mien-tru-trach-nhiem"
+            prefetch={false}
             className="mt-2 inline-flex text-sm font-semibold text-rose-700 underline underline-offset-2 hover:text-rose-800"
           >
             Miễn trừ trách nhiệm

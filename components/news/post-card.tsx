@@ -18,6 +18,7 @@ type PostCardProps = {
   className?: string
   showExcerpt?: boolean
   commentCount?: number
+  prefetch?: boolean
 }
 
 export function PostCard({
@@ -33,6 +34,7 @@ export function PostCard({
   className,
   showExcerpt = true,
   commentCount = 0,
+  prefetch = false,
 }: PostCardProps) {
   const isOverlay = variant === "overlay"
   const isHorizontal = variant === "horizontal"
@@ -47,12 +49,16 @@ export function PostCard({
         className
       )}
     >
-      <Link href={href} className={cn(
-        "flex h-full w-full", 
-        isHorizontal ? "flex-row items-start gap-4 md:gap-6" : "flex-col",
-        // If the article is forced to flex-col on LG via className, the Link must follow
-        className?.includes("lg:flex-col") && "lg:flex-col lg:gap-3"
-      )}>
+      <Link 
+        href={href} 
+        prefetch={prefetch}
+        className={cn(
+          "flex h-full w-full", 
+          isHorizontal ? "flex-row items-start gap-4 md:gap-6" : "flex-col",
+          // If the article is forced to flex-col on LG via className, the Link must follow
+          className?.includes("lg:flex-col") && "lg:flex-col lg:gap-3"
+        )}
+      >
         {/* Thumbnail Area */}
         <div
           className={cn(

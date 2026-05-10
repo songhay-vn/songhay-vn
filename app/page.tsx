@@ -124,6 +124,7 @@ export default async function HomePage() {
                   variant="overlay"
                   className="h-full"
                   commentCount={heroSlots[0]._count.comments}
+                  prefetch={true}
                 />
               )}
             </div>
