@@ -17,15 +17,31 @@ import { JsonLd } from "@/components/seo/json-ld"
 import { getHomepageData, getNavCategories, type PostListItem, type CategoryWithChildren } from "@/lib/queries"
 import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, SITE_NAME, toAbsoluteUrl } from "@/lib/seo"
 import { ClientSideWidgets } from "@/components/news/client-side-widgets"
+import { ZaloChatButton } from "@/components/news/zalo-chat-button"
 
 const RecommendedForYou = dynamic(
   () => import("@/components/news/recommended-for-you").then((mod) => mod.RecommendedForYou),
   { loading: () => <div className="h-60 animate-pulse rounded-lg bg-zinc-100" /> }
 )
-const VideoMostWatched = dynamic(
-  () => import("@/components/news/video-most-watched").then((mod) => mod.VideoMostWatched),
-  { loading: () => <div className="h-80 animate-pulse rounded-lg bg-zinc-100" /> }
-)
+
+const VIEN_HAN_LAM_PRODUCTS = [
+  {
+    src: "/san-pham/z7812738571251_e7d7aee6346878819e8a8363092a30b2.jpg",
+    alt: "Sản phẩm Viện Hàn Lâm KH&CN Việt Nam 1",
+  },
+  {
+    src: "/san-pham/z7812738604084_b9afd759b2e4d3fcd7dd53de4ff34dfd.jpg",
+    alt: "Sản phẩm Viện Hàn Lâm KH&CN Việt Nam 2",
+  },
+  {
+    src: "/san-pham/z7812738687067_07b7f87d76ccfde40755a094f950eae8.jpg",
+    alt: "Sản phẩm Viện Hàn Lâm KH&CN Việt Nam 3",
+  },
+  {
+    src: "/san-pham/z7812739468535_e1e1b4f595f14b77428f45fde987e17e.jpg",
+    alt: "Sản phẩm Viện Hàn Lâm KH&CN Việt Nam 4",
+  },
+]
 
 
 const siteUrl = getSiteUrl()
@@ -56,7 +72,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [
-    { latest, mostRead, recommended, mostWatched, heroSlots = [] },
+    { latest, mostRead, recommended, heroSlots = [] },
     navCategories,
   ] = await Promise.all([
     getHomepageData(),
@@ -184,15 +200,37 @@ export default async function HomePage() {
 
             <AdPlaceholder label="Giữa các cụm nội dung (Google AdSense)" />
 
+            {/* ── SẢN PHẨM VIỆN HÀN LÂM ──────────────────────────── */}
+            <section className="space-y-4">
+              <SectionHeading title="Sản phẩm Viện Hàn Lâm KH&CN Việt Nam" />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+                {VIEN_HAN_LAM_PRODUCTS.map((product) => (
+                  <a
+                    key={product.src}
+                    href="http://zalo.me/1461723500320922510?src=qr&f=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                  >
+                    <div className="relative aspect-square w-full">
+                      <Image
+                        src={product.src}
+                        alt={product.alt}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 260px"
+                      />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+
+            <AdPlaceholder label="Sau sản phẩm Viện Hàn Lâm (Google AdSense)" />
+
             {/* Engagement Sections */}
             <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
               <RecommendedForYou posts={recommended} />
-            </Suspense>
-            
-            <AdPlaceholder label="Giữa đề xuất và video (Google AdSense)" />
-            
-            <Suspense fallback={<div className="h-80 animate-pulse rounded-lg bg-zinc-100" />}>
-              <VideoMostWatched posts={mostWatched} />
             </Suspense>
 
             <section className="space-y-6 pt-6 border-t border-zinc-200">
@@ -234,6 +272,8 @@ export default async function HomePage() {
       <SiteMainContainer as="div" className="pb-8">
         <AdPlaceholder label="Bottom page ad (Google AdSense)" />
       </SiteMainContainer>
+
+      <ZaloChatButton />
     </div>
   )
 }
