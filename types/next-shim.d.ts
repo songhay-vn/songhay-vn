@@ -65,7 +65,8 @@ declare module "next/navigation" {
 
 declare module "next/cache" {
   export const revalidatePath: (path: string) => void
-  export const revalidateTag: (tag: string) => void
+  export const revalidateTag: (tag: string, type?: "max") => void
+  export const updateTag: (tag: string) => void
   export const cacheTag: (...tags: string[]) => void
   export const cacheLife: (profile: string | {
     stale?: number

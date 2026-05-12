@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { revalidatePath, revalidateTag } from "next/cache"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
@@ -280,7 +279,15 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
     // Heavy revalidation (ISR writes) only if the post IS or IS BECOMING public
     if (isPublished || currentPost.isPublished) {
-      await revalidatePost(updatedPost.slug, updatedPost.category?.slug)
+      const isVisibilityChange = isPublished !== currentPost.isPublished || currentPost.editorialStatus !== editorialStatus || isDraft !== currentPost.isDraft;
+      const isTrendingChange = currentPost.isTrending !== undefined ? currentPost.isTrending !== updatedPost.isTrending : false
+      
+      await revalidatePost(updatedPost.slug, updatedPost.category?.slug, {
+        isVisibilityChange: isVisibilityChange,
+        isTrendingChange: isTrendingChange,
+        isFeaturedChange: updatedPost.isFeatured !== currentPost.isFeatured,
+        isVideoChange: updatedPost.videoEmbedUrl !== currentPost.videoEmbedUrl,
+      })
     } else {
       // Internal update for non-public post: just refresh tags
       revalidatePostTagsOnly(updatedPost.slug, updatedPost.category?.slug)

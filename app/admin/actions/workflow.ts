@@ -1,7 +1,5 @@
 "use server"
 
-// @ts-ignore
-import { revalidatePath, revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 
 import { requireCmsUser } from "@/lib/auth"

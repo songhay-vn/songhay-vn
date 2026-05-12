@@ -132,39 +132,63 @@ export async function logPostHistory({
   })
 }
 
-import { revalidateTag, revalidatePath } from "next/cache"
+import { revalidateTag } from "next/cache"
 
 /**
- * Full revalidation: use when a post's PUBLIC visibility changes
+ * Full cache tag invalidation: use when a post's PUBLIC visibility changes
  * (published, unpublished, trashed from published, restored to published).
- * revalidatePath triggers an ISR page write — use sparingly.
+ *
+ * Uses tag-only invalidation — NO revalidatePath / ISR page writes.
+ * With cacheLife("weeks"), the next visitor after a revalidateTag call
+ * automatically gets freshly fetched data without triggering an ISR write.
  */
-export async function revalidatePost(slug?: string, categorySlug?: string) {
+export async function revalidatePost(
+  slug?: string,
+  categorySlug?: string,
+  options?: {
+    isVisibilityChange?: boolean
+    isTrendingChange?: boolean
+    isFeaturedChange?: boolean
+    isVideoChange?: boolean
+  }
+) {
   if (slug) {
     revalidateTag(`post:${slug}`)
     revalidateTag("post-detail")
   }
+
   if (categorySlug) {
     revalidateTag(`category:${categorySlug}`)
-    revalidateTag("category-posts")
-    revalidatePath(`/${categorySlug}`)
-    if (slug) revalidatePath(`/${categorySlug}/${slug}`)
+    if (!options || options.isVisibilityChange) {
+      revalidateTag("category-posts")
+    }
   }
-  revalidateTag("homepage")
-  revalidateTag("categories")
-  revalidateTag("latest-by-category")
-  revalidateTag("trending-posts")
-  revalidateTag("search-results")
-  revalidateTag("recommended-posts")
-  revalidateTag("most-watched-videos")
-  revalidateTag("related-posts")
-  revalidatePath("/")
+
+  if (!options || options.isVisibilityChange || options.isFeaturedChange || options.isTrendingChange) {
+    revalidateTag("homepage")
+  }
+
+  if (!options || options.isVisibilityChange) {
+    revalidateTag("latest-by-category")
+    revalidateTag("search-results")
+    revalidateTag("categories")
+    revalidateTag("related-posts")
+    revalidateTag("recommended-posts")
+  }
+
+  if (!options || options.isTrendingChange || options.isVisibilityChange) {
+    revalidateTag("trending-posts")
+  }
+
+  if (!options || options.isVideoChange || options.isVisibilityChange) {
+    revalidateTag("most-watched-videos")
+  }
 }
 
 /**
- * Tag-only revalidation: use for internal workflow transitions on NON-PUBLIC posts
+ * Tag-only invalidation: use for internal workflow transitions on NON-PUBLIC posts
  * (DRAFT → PENDING_REVIEW → PENDING_PUBLISH → REJECTED, etc.).
- * Only invalidates the Next.js Data Cache tags — NO ISR page writes.
+ * Only invalidates the Next.js Data Cache — zero ISR page writes.
  */
 export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
   if (slug) {
@@ -177,5 +201,4 @@ export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
   }
   revalidateTag("categories")
   revalidateTag("latest-by-category")
-  // Do NOT revalidatePath here — no ISR write needed for non-public posts
 }

@@ -1,7 +1,6 @@
 "use server"
 
-// @ts-ignore
-import { revalidatePath, revalidateTag } from "next/cache"
+import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 
 import { requireAdminUser, requireCmsUser } from "@/lib/auth"
@@ -36,10 +35,7 @@ export async function createCategory(formData: FormData) {
     create: { name, slug, description, sortOrder: nextSortOrder, parentId },
   })
 
-  revalidatePath("/")
-  revalidatePath("/admin")
-  // @ts-ignore
-  revalidateTag("categories", "max")
+  revalidateTag("categories")
   clearDataCache()
   redirect("/admin?tab=categories&toast=category_created")
 }
@@ -79,12 +75,7 @@ export async function updateCategory(formData: FormData) {
     data: { name, description, slug, parentId },
   })
 
-  revalidatePath("/")
-  revalidatePath("/admin")
-  revalidatePath(`/${existingCategory.slug}`)
-  revalidatePath(`/${slug}`)
-  // @ts-ignore
-  revalidateTag("categories", "max")
+  revalidateTag("categories")
   clearDataCache()
   redirect("/admin?tab=categories&toast=category_updated")
 }
@@ -130,12 +121,7 @@ export async function reorderCategory(formData: FormData) {
     )
   )
 
-  revalidatePath("/")
-  revalidatePath("/admin")
-  revalidatePath(`/${currentItem.slug}`)
-  revalidatePath(`/${targetItem.slug}`)
-  // @ts-ignore
-  revalidateTag("categories", "max")
+  revalidateTag("categories")
   clearDataCache()
   redirect(`/admin?tab=categories&toast=category_reordered&moved=${currentItem.id}&direction=${direction}`)
 }
@@ -184,16 +170,12 @@ export async function deleteCategory(formData: FormData) {
       prisma.category.delete({ where: { id: categoryId } }),
     ])
 
-    revalidatePath(`/${targetCategory.slug}`)
+    revalidateTag("category-posts")
   } else {
     await prisma.category.delete({ where: { id: categoryId } })
   }
 
-  revalidatePath("/")
-  revalidatePath("/admin")
-  revalidatePath(`/${category.slug}`)
-  // @ts-ignore
-  revalidateTag("categories", "max")
+  revalidateTag("categories")
   clearDataCache()
   return { toast: "category_deleted" }
 }

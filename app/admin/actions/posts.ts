@@ -267,6 +267,9 @@ export async function updatePostFlags(formData: FormData) {
       title: true,
       excerpt: true,
       content: true,
+      isPublished: true,
+      isFeatured: true,
+      isTrending: true,
     },
   })
 
@@ -300,7 +303,11 @@ export async function updatePostFlags(formData: FormData) {
     actionType: "UPDATED",
   })
 
-  await revalidatePost(updatedPost.slug, updatedPost.category?.slug)
+  await revalidatePost(updatedPost.slug, updatedPost.category?.slug, {
+    isVisibilityChange: existingPost.isPublished !== updatedPost.isPublished,
+    isTrendingChange: existingPost.isTrending !== updatedPost.isTrending,
+    isFeaturedChange: existingPost.isFeatured !== updatedPost.isFeatured,
+  })
   clearDataCache()
 }
 
