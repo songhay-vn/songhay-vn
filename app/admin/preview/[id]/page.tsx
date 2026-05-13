@@ -98,9 +98,7 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
       trendingPosts={trendingPosts}
       relatedPosts={relatedPosts}
       recommendedPosts={recommendedPosts}
-      mostWatchedVideos={mostWatchedVideos}
       dateValue={post.updatedAt}
-      showAds
       showSocialShare={false}
       commentFormMode="preview"
       topBanner={

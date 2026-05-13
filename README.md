@@ -31,7 +31,6 @@ app/
 	sitemap.ts                        # sitemap.xml
 components/
 	news/
-		ad-placeholder.tsx
 		bmi-widget.tsx
 		comment-form.tsx
 		most-read.tsx

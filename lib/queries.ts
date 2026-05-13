@@ -426,7 +426,10 @@ export async function getLatestByCategory(perCategory = 4, categoriesLimit = 6) 
     topCategories.map(async (cat) => {
       const posts = await prisma.post.findMany({
         where: {
-          categoryId: cat.id,
+          OR: [
+            { categoryId: cat.id },
+            { category: { parentId: cat.id } }
+          ],
           isPublished: true,
           isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
         },

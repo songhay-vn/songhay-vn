@@ -1,17 +1,15 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { AdPlaceholder } from "@/components/news/ad-placeholder"
 import { PostCardList } from "@/components/news/post-card-list"
 import { SectionHeading } from "@/components/news/section-heading"
-import { SiteFooter } from "@/components/news/site-footer"
-import { SiteHeader } from "@/components/news/site-header"
-import { SiteMainContainer } from "@/components/news/site-main-container"
+import { SiteEngagement } from "@/components/news/site-engagement"
 import { JsonLd } from "@/components/seo/json-ld"
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd"
-import { getCategoryBySlug, getPostsByCategory, getAllCategorySlugs, getNavCategories } from "@/lib/queries"
+import { getCategoryBySlug, getPostsByCategory, getAllCategorySlugs, getNavCategories, getTrendingPosts } from "@/lib/queries"
 import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, toAbsoluteUrl } from "@/lib/seo"
-
+import { NewsLayout } from "@/components/news/news-layout"
 
 type CategoryPageProps = {
   params: Promise<{ category: string }>
@@ -62,10 +60,11 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category } = await params
-  const [foundCategory, posts, navCategories] = await Promise.all([
+  const [foundCategory, posts, navCategories, trendingPosts] = await Promise.all([
     getCategoryBySlug(category),
     getPostsByCategory(category),
     getNavCategories(),
+    getTrendingPosts(),
   ])
 
   if (!foundCategory) {
@@ -108,39 +107,26 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <>
       <JsonLd data={[breadcrumbJsonLd, collectionJsonLd]} />
-      <SiteHeader navCategories={navCategories} />
-      <SiteMainContainer className="flex flex-col gap-5 py-6 md:py-6">
-        <AdPlaceholder label="Top chuyên mục (Google AdSense)" />
+      <NewsLayout navCategories={navCategories} trendingPosts={trendingPosts}>
+        <section className="flex flex-col gap-4">
+          <SectionHeading title={currentCategory.name} />
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <section className="flex flex-col gap-4">
-            <SectionHeading title={currentCategory.name} />
+          {posts.length === 0 ? (
+            <p className="text-zinc-600">Chuyên mục này chưa có bài viết.</p>
+          ) : (
+            <PostCardList
+              posts={posts}
+            />
+          )}
 
-            {posts.length === 0 ? (
-              <p className="text-zinc-600">Chuyên mục này chưa có bài viết.</p>
-            ) : (
-              <PostCardList
-                posts={posts}
-                adEvery={6}
-                adLabel="Giữa danh sách chuyên mục (Google AdSense)"
-              />
-            )}
-
-            <AdPlaceholder label="Cuối danh sách chuyên mục (Google AdSense)" />
-          </section>
-
-          <aside className="flex flex-col gap-4">
-            <AdPlaceholder label="Sidebar chuyên mục trên (Google AdSense)" />
-            <AdPlaceholder label="Sidebar chuyên mục giữa (Google AdSense)" />
-            <AdPlaceholder label="Sidebar chuyên mục dưới (Google AdSense)" />
-          </aside>
-        </div>
-      </SiteMainContainer>
-
-
-      <SiteFooter navCategories={navCategories} />
-    </div>
+          <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
+            <SiteEngagement />
+          </Suspense>
+        </section>
+      </NewsLayout>
+    </>
   )
 }
+

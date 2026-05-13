@@ -3,13 +3,10 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import { AdPlaceholder } from "@/components/news/ad-placeholder"
 import { PostCard } from "@/components/news/post-card"
 import { SectionHeading } from "@/components/news/section-heading"
-import { SiteFooter } from "@/components/news/site-footer"
-import { SiteMainContainer } from "@/components/news/site-main-container"
-import { SiteHeader } from "@/components/news/site-header"
-import { getNavCategories, getPublishedSearchResults, type SearchResultItem } from "@/lib/queries"
+import { NewsLayout } from "@/components/news/news-layout"
+import { getNavCategories, getHomepageData, getPublishedSearchResults, type SearchResultItem } from "@/lib/queries"
 
 type SearchPageProps = {
   searchParams?: Promise<{
@@ -70,7 +67,7 @@ function SearchSkeleton() {
   return (
     <div className="min-h-screen bg-white">
       <div className="h-16 w-full animate-pulse bg-zinc-100" />
-      <SiteMainContainer className="flex flex-col gap-6 py-8">
+      <div className="flex flex-col gap-6 py-8 px-4 max-w-7xl mx-auto">
         <div className="h-32 w-full animate-pulse bg-zinc-100" />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
           <section className="flex flex-col gap-6">
@@ -87,7 +84,7 @@ function SearchSkeleton() {
             <div className="h-64 w-full animate-pulse bg-zinc-100" />
           </aside>
         </div>
-      </SiteMainContainer>
+      </div>
     </div>
   )
 }
@@ -98,7 +95,7 @@ async function SearchContent({ searchParams }: SearchPageProps) {
   const query = normalizeQuery(resolvedSearchParams?.q)
   const page = toPositiveInt(resolvedSearchParams?.page)
   
-  const [result, navCategories] = await Promise.all([
+  const [result, navCategories, { mostRead }] = await Promise.all([
     query
       ? getPublishedSearchResults(query, page, 12)
       : Promise.resolve({
@@ -110,95 +107,75 @@ async function SearchContent({ searchParams }: SearchPageProps) {
           totalPages: 0,
         }),
     getNavCategories(),
+    getHomepageData(),
   ])
 
   const hasPagination = query.length > 0 && result.totalPages > 1
 
   return (
-    <div className="min-h-screen bg-white">
-      <SiteHeader navCategories={navCategories} defaultSearchQuery={query} />
+    <NewsLayout navCategories={navCategories} trendingPosts={mostRead}>
+      <div className="space-y-6">
+        <SectionHeading title="Tìm kiếm" />
 
-      <SiteMainContainer className="flex flex-col gap-6 py-8">
-        <AdPlaceholder label="Top trang tìm kiếm (Google AdSense)" />
+        {query ? (
+          <p className="text-sm text-zinc-600">
+            {result.totalCount > 0
+              ? `Tìm thấy ${result.totalCount} kết quả cho từ khóa "${query}".`
+              : `Không tìm thấy bài viết nào cho từ khóa "${query}".`}
+          </p>
+        ) : (
+          <p className="text-sm text-zinc-600">Nhập từ khóa để tìm bài viết đã xuất bản.</p>
+        )}
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <section className="flex flex-col gap-6">
-            <SectionHeading title="Tìm kiếm" />
+        {result.items.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {result.items.map((post: SearchResultItem) => (
+              <PostCard
+                key={post.id}
+                href={`/${post.category.slug}/${post.slug}`}
+                title={post.title}
+                excerpt={post.excerpt}
+                imageUrl={post.thumbnailUrl}
+                date={post.publishedAt}
+                categoryName={post.category.name}
+              />
+            ))}
+          </div>
+        ) : null}
 
-            {query ? (
-              <p className="text-sm text-zinc-600">
-                {result.totalCount > 0
-                  ? `Tìm thấy ${result.totalCount} kết quả cho từ khóa "${query}".`
-                  : `Không tìm thấy bài viết nào cho từ khóa "${query}".`}
-              </p>
-            ) : (
-              <p className="text-sm text-zinc-600">Nhập từ khóa để tìm bài viết đã xuất bản.</p>
-            )}
+        {hasPagination ? (
+          <nav className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-4">
+            <div className="text-sm text-zinc-600">
+              Trang {result.page}/{result.totalPages}
+            </div>
 
-            {result.items.length > 0 ? (
-              <>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {result.items.map((post: SearchResultItem) => (
-                    <PostCard
-                      key={post.id}
-                      href={`/${post.category.slug}/${post.slug}`}
-                      title={post.title}
-                      excerpt={post.excerpt}
-                      imageUrl={post.thumbnailUrl}
-                      date={post.publishedAt}
-                      categoryName={post.category.name}
-                    />
-                  ))}
-                </div>
+            <div className="flex items-center gap-2">
+              {result.page > 1 ? (
+                <Link
+                  href={buildSearchHref(result.query, result.page - 1)}
+                  className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+                >
+                  Trước
+                </Link>
+              ) : (
+                <span className="rounded-md border border-zinc-100 px-3 py-1.5 text-sm text-zinc-400">Trước</span>
+              )}
 
-                <AdPlaceholder label="Giữa kết quả tìm kiếm (Google AdSense)" />
-              </>
-            ) : null}
-
-            {hasPagination ? (
-              <nav className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-4">
-                <div className="text-sm text-zinc-600">
-                  Trang {result.page}/{result.totalPages}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {result.page > 1 ? (
-                    <Link
-                      href={buildSearchHref(result.query, result.page - 1)}
-                      className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
-                    >
-                      Trước
-                    </Link>
-                  ) : (
-                    <span className="rounded-md border border-zinc-100 px-3 py-1.5 text-sm text-zinc-400">Trước</span>
-                  )}
-
-                  {result.page < result.totalPages ? (
-                    <Link
-                      href={buildSearchHref(result.query, result.page + 1)}
-                      className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
-                    >
-                      Sau
-                    </Link>
-                  ) : (
-                    <span className="rounded-md border border-zinc-100 px-3 py-1.5 text-sm text-zinc-400">Sau</span>
-                  )}
-                </div>
-              </nav>
-            ) : null}
-
-            <AdPlaceholder label="Cuối trang tìm kiếm (Google AdSense)" />
-          </section>
-
-          <aside className="flex flex-col gap-4">
-            <AdPlaceholder label="Sidebar tìm kiếm trên (Google AdSense)" />
-            <AdPlaceholder label="Sidebar tìm kiếm dưới (Google AdSense)" />
-          </aside>
-        </div>
-      </SiteMainContainer>
-
-      <SiteFooter navCategories={navCategories} />
-    </div>
+              {result.page < result.totalPages ? (
+                <Link
+                  href={buildSearchHref(result.query, result.page + 1)}
+                  className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+                >
+                  Sau
+                </Link>
+              ) : (
+                <span className="rounded-md border border-zinc-100 px-3 py-1.5 text-sm text-zinc-400">Sau</span>
+              )}
+            </div>
+          </nav>
+        ) : null}
+      </div>
+    </NewsLayout>
   )
 }
 

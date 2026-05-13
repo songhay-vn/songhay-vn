@@ -8,7 +8,6 @@ import {
   getPostByCategoryAndSlug,
   getRelatedPosts,
   getTrendingPosts,
-  getMostWatchedVideos,
   getRecommendedPosts,
   getLatestPostsForSsg,
   getNavCategories,
@@ -107,11 +106,10 @@ export default async function PostPage({ params }: PostPageProps) {
 
   const article = post!
 
-  const [relatedPosts, trendingPosts, mostWatchedVideos, recommendedPosts] =
+  const [relatedPosts, trendingPosts, recommendedPosts] =
     await Promise.all([
       getRelatedPosts(article.id, article.categoryId, 12),
       getTrendingPosts(),
-      getMostWatchedVideos(8),
       getRecommendedPosts(article.id, article.categoryId, 12),
     ])
 
@@ -168,11 +166,9 @@ export default async function PostPage({ params }: PostPageProps) {
       trendingPosts={trendingPosts}
       relatedPosts={relatedPosts}
       recommendedPosts={recommendedPosts}
-      mostWatchedVideos={mostWatchedVideos}
       dateValue={article.publishedAt}
       showViewTracker
       showSocialShare
-      showAds
       commentFormMode="live"
       metadataNodes={
         <>
