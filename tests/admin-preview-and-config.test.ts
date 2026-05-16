@@ -37,8 +37,7 @@ describe("admin preview route and config", () => {
 
     // Renders real site layout via shared shell
     expect(source).toContain("ArticlePageShell")
-    expect(shellSource).toContain("SiteHeader")
-    expect(shellSource).toContain("SiteFooter")
+    expect(shellSource).toContain("NewsLayout")
 
     // Shows a preview banner
     expect(source).toContain("Chế độ xem trước")

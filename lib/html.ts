@@ -4,8 +4,7 @@ export function normalizeArticleHtml(rawHtml: string) {
   return rawHtml
     .replace(/\r?\n|\r/g, " ")
     .replace(/\s+/g, " ")
-    .replace(new RegExp(`<(${blockTags})>([\\s]|&nbsp;)+`, "gi"), "<$1>")
-    .replace(new RegExp(`([\\s]|&nbsp;)+<\\/(${blockTags})>`, "gi"), "</$1>")
+    .replace(new RegExp(`>([\\s]+)<`, "gi"), "><") // Remove purely empty spaces between tags, but keep &nbsp;
     .replace(/<span([^>]*)style="([^"]*)"([^>]*)>([\s\S]*?)<\/span>/gi, (match, before, styleValue, after, content) => {
       const hasUnderline = /text-decoration\s*:\s*underline/i.test(styleValue)
       const hasStrikethrough = /text-decoration\s*:\s*line-through/i.test(styleValue)
@@ -81,7 +80,6 @@ export function normalizeArticleHtml(rawHtml: string) {
 
       return keptRules.length ? ` style="${keptRules.join(";")}"` : ""
     })
-    .replace(/<p>(?:\s|&nbsp;|<br\s*\/?\s*>)*<\/p>/gi, "")
     .trim()
 }
 

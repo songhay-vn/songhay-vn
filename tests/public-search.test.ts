@@ -33,7 +33,7 @@ describe("public search flow", () => {
   test("public query helper filters published non-draft posts with keyword matching", () => {
     const source = readWorkspaceFile("lib/queries.ts")
 
-    expect(source).toContain("export const searchPublishedPosts = cache")
+    expect(source).toContain("export async function searchPublishedPosts")
     expect(source).toContain(
       'content: { contains: normalizedQuery, mode: "insensitive" }'
     )

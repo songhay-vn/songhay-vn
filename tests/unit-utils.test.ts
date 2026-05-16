@@ -112,8 +112,8 @@ describe("Unit: Class Merge Utility (cn)", () => {
 })
 
 describe("Unit: HTML Normalization", () => {
-  test("removes empty paragraphs", () => {
-    expect(normalizeArticleHtml("<p></p><p>Text</p><p>&nbsp;</p>")).toBe("<p>Text</p>")
+  test("preserves empty paragraphs", () => {
+    expect(normalizeArticleHtml("<p></p><p>Text</p><p>&nbsp;</p>")).toBe("<p></p><p>Text</p><p>&nbsp;</p>")
   })
 
   test("converts span underlines/strikethroughs to semantic tags", () => {

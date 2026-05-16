@@ -20,7 +20,7 @@ describe("widgets API integration", () => {
 
     expect(source).toContain("const sections = await Promise.all")
     expect(source).toContain("orderBy: { publishedAt: \"desc\" }")
-    expect(source).toContain("items: sections.filter")
+    expect(source).toContain("return sections.filter")
   })
 
   test("latest-by-category endpoint validates query limits and only returns published posts", () => {

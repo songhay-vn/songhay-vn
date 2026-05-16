@@ -33,7 +33,7 @@ const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_NAME} | Kho tàng điều hay`,
+    default: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
     template: `%s | ${SITE_NAME}`,
   },
   description: defaultDescription,
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: `${SITE_NAME} | Kho tàng điều hay`,
+    title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
     description: defaultDescription,
     type: "website",
     url: siteUrl,
@@ -65,13 +65,13 @@ export const metadata: Metadata = {
         url: defaultOgImage,
         width: 1200,
         height: 630,
-        alt: `${SITE_NAME} - Kho tàng điều hay`,
+        alt: `${SITE_NAME} - Sống khỏe thuận tự nhiên`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | Kho tàng điều hay`,
+    title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
     description: defaultDescription,
     images: [defaultOgImage],
   },

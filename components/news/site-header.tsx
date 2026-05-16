@@ -21,14 +21,14 @@ export async function SiteHeader({ defaultSearchQuery, navCategories: propNavCat
             </span>
             <div>
               <p className="text-2xl font-bold uppercase leading-none tracking-tight text-white md:text-red-700 md:text-4xl">Sống Hay</p>
-              <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-white/90 md:text-zinc-900 md:text-base">Kho Tàng Điều Hay</p>
+              <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-white/90 md:text-zinc-900 md:text-base">Sống khỏe thuận tự nhiên</p>
             </div>
           </div>
         </Link>
 
-        <HeaderUserStatus 
-          navCategories={navCategories} 
-          defaultSearchQuery={defaultSearchQuery} 
+        <HeaderUserStatus
+          navCategories={navCategories}
+          defaultSearchQuery={defaultSearchQuery}
         />
       </div>
 

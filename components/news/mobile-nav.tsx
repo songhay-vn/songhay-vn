@@ -109,7 +109,7 @@ export function MobileNav({ navCategories, defaultSearchQuery }: MobileNavProps)
 
         <div className="mt-auto border-t border-zinc-100 bg-zinc-50 p-4">
           <p className="text-center text-xs text-zinc-500">
-            &copy; 2024 SongHay.vn. Kho tàng điều hay.
+            &copy; 2024 SongHay.vn. Sống khỏe thuận tự nhiên.
           </p>
         </div>
       </SheetContent>

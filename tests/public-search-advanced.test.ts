@@ -20,9 +20,9 @@ describe("public search advanced flow", () => {
     const source = readWorkspaceFile("lib/queries.ts")
 
     expect(source).toContain("content: { contains: normalizedQuery, mode: \"insensitive\" }")
-    expect(source).toContain("export const getPublishedSearchResults = cache")
+    expect(source).toContain("export async function getPublishedSearchResults")
     expect(source).toContain("totalCount = await prisma.post.count")
-    expect(source).toContain("export const searchPublishedPostSuggestions = cache")
+    expect(source).toContain("export async function searchPublishedPostSuggestions")
   })
 
   test("search form supports debounced suggestion fetch", () => {

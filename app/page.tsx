@@ -25,13 +25,13 @@ const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
 const homeDescription = "Tin tức và tiện ích mỗi ngày: sống khỏe, mẹo hay, đời sống, góc stress, tử vi, video."
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} | Kho tàng điều hay`,
+  title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
   description: homeDescription,
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: `${SITE_NAME} | Kho tàng điều hay`,
+    title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
     description: homeDescription,
     type: "website",
     url: canonicalUrl,
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | Kho tàng điều hay`,
+    title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
     description: homeDescription,
     images: [defaultOgImage],
   },
@@ -74,7 +74,7 @@ export default async function HomePage() {
     "@type": "WebPage",
     "@id": `${canonicalUrl}#webpage`,
     url: canonicalUrl,
-    name: `${SITE_NAME} | Kho tàng điều hay`,
+    name: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
     description: homeDescription,
     inLanguage: "vi-VN",
     isPartOf: {
@@ -89,13 +89,13 @@ export default async function HomePage() {
         navCategories={navCategories}
         trendingPosts={mostRead}
         mainBanner={
-          <Image 
-            src="/banner.png" 
-            alt="Banner" 
-            width={1100} 
-            height={200} 
+          <Image
+            src="/banner.png"
+            alt="Banner"
+            width={1100}
+            height={200}
             priority
-            className="h-auto w-full object-cover" 
+            className="h-auto w-full object-cover"
           />
         }
       >

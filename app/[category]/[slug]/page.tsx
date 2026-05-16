@@ -1,3 +1,4 @@
+import Image from "next/image"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -170,6 +171,16 @@ export default async function PostPage({ params }: PostPageProps) {
       showViewTracker
       showSocialShare
       commentFormMode="live"
+      mainBanner={
+        <Image
+          src="/banner.png"
+          alt="Banner"
+          width={1100}
+          height={200}
+          priority
+          className="h-auto w-full object-cover"
+        />
+      }
       metadataNodes={
         <>
           <JsonLd data={[articleJsonLd]} />

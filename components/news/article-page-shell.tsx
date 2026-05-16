@@ -58,6 +58,7 @@ type ArticlePageShellProps = {
   recommendedPosts: PostCardListItem[]
   dateValue: Date | string | null
   topBanner?: ReactNode
+  mainBanner?: ReactNode
   metadataNodes?: ReactNode
   showViewTracker?: boolean
   showSocialShare?: boolean
@@ -93,6 +94,7 @@ export function ArticlePageShell({
   recommendedPosts,
   dateValue,
   topBanner,
+  mainBanner,
   metadataNodes,
   showViewTracker = false,
   showSocialShare = true,
@@ -108,8 +110,9 @@ export function ArticlePageShell({
           {showViewTracker ? <ViewTracker postId={article.id} /> : null}
         </>
       }
+      mainBanner={mainBanner}
       className="bg-white"
-      containerClassName="py-8"
+      containerClassName="flex flex-col gap-6 py-8 md:py-10"
       gridClassName="grid gap-8 md:grid-cols-[1fr_320px]"
     >
       <div className="relative">
