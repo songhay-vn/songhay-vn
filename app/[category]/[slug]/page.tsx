@@ -80,7 +80,14 @@ export async function generateMetadata({
       description,
       type: "article",
       url: canonicalUrl,
-      images: [imageUrl],
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
       publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
       modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
       section: post.category.name,
