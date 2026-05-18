@@ -91,9 +91,10 @@ type AdminPageProps = {
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const searchParamsKey = JSON.stringify(resolvedSearchParams || {})
 
   return (
-    <Suspense fallback={<AdminLoading />}>
+    <Suspense key={searchParamsKey} fallback={<AdminLoading />}>
       <AdminPageContent searchParams={resolvedSearchParams} />
     </Suspense>
   )
