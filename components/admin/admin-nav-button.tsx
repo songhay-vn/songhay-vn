@@ -1,8 +1,8 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useTransition } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import {
   FileEdit,
   FileSearch,
@@ -12,6 +12,7 @@ import {
   KeyRound,
   LayoutDashboard,
   LibraryBig,
+  Loader2,
   MessageSquareMore,
   Newspaper,
   PenSquare,
@@ -57,6 +58,9 @@ type AdminNavButtonProps = {
 
 export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  
   const activeTab = searchParams.get("tab") || "overview"
   const activePostsStatus = searchParams.get("postsStatus")
   const TabIcon = navIcons[tab.iconName]
@@ -65,6 +69,18 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
     (typeof tab.activeWhen.postsStatus === "undefined" ||
       activePostsStatus === tab.activeWhen.postsStatus)
     : activeTab === tab.tabKey
+
+  const href = tab.href || `/admin?tab=${tab.tabKey}`
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Only intercept normal left clicks without modifier keys
+    if (e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+      e.preventDefault()
+      startTransition(() => {
+        router.push(href)
+      })
+    }
+  }
 
   return (
     <Tooltip>
@@ -78,14 +94,18 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
             }`}
         >
           <Link
-            href={tab.href || `/admin?tab=${tab.tabKey}`}
+            href={href}
+            onClick={handleClick}
             className="flex w-full items-center gap-2"
           >
             <span className="flex min-w-0 flex-1 items-center gap-2.5">
-              <TabIcon
-                className={`size-4 ${isActive ? "text-zinc-900" : "text-zinc-500"
-                  }`}
-              />
+              {isPending ? (
+                <Loader2 className={`size-4 animate-spin ${isActive ? "text-zinc-900" : "text-zinc-500"}`} />
+              ) : (
+                <TabIcon
+                  className={`size-4 ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
+                />
+              )}
               <span className="truncate">{tab.label}</span>
             </span>
             {typeof count === "number" ? (
@@ -96,7 +116,7 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
                     : "bg-zinc-100 text-zinc-600"
                   }`}
               >
-                {count.toLocaleString("vi-VN")}
+                {isPending ? "..." : count.toLocaleString("vi-VN")}
               </Badge>
             ) : null}
           </Link>
