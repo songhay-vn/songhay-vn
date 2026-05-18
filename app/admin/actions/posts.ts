@@ -73,7 +73,21 @@ export async function createPost(formData: FormData) {
     seoDescription: rawSeoDescription,
   })
 
-  const slug = await uniquePostSlug(title)
+  const previewPostId = String(formData.get("previewPostId") || "").trim() || null
+
+  const slug = previewPostId
+    ? await (async () => {
+        const existing = await prisma.post.findUnique({
+          where: { id: previewPostId },
+          select: { slug: true, authorId: true, isDraft: true },
+        })
+        // Only reuse if it's the author's own preview draft
+        if (existing?.isDraft && existing.authorId === currentUser.id) {
+          return existing.slug
+        }
+        return uniquePostSlug(title)
+      })()
+    : await uniquePostSlug(title)
   const thumbnailUrl =
     thumbnailUpload instanceof File && thumbnailUpload.size > 0
       ? await uploadThumbnail(thumbnailUpload)
@@ -89,35 +103,77 @@ export async function createPost(formData: FormData) {
   const { keywordIds, seoKeywordsText } =
     await resolveSeoKeywordSelectionForPreview(formData)
 
-  const post = await prisma.post.create({
-    data: {
-      title,
-      slug,
-      penName,
-      excerpt,
-      content,
-      categoryId,
-      authorId: currentUser.id,
-      seoTitle,
-      seoDescription,
-      seoKeywords: seoKeywordsText,
-      ogImage,
-      videoEmbedUrl,
-      isSensitive,
-      isFeatured,
-      isTrending,
-      isPublished,
-      isDraft,
-      editorialStatus,
-      scheduledPublishAt,
-      canonicalUrl,
-      approvedAt: isPublished ? new Date() : null,
-      approverId: isPublished ? currentUser.id : null,
-      publishedAt: isPublished ? new Date() : undefined,
-      thumbnailUrl,
-    },
-    include: { category: true }
-  })
+  const post = await (async () => {
+    // If a preview draft was created earlier, update it in place to avoid a new
+    // uniquePostSlug collision that would append a -2 suffix.
+    if (previewPostId) {
+      const existing = await prisma.post.findUnique({
+        where: { id: previewPostId },
+        select: { id: true, authorId: true, isDraft: true },
+      })
+      if (existing?.isDraft && existing.authorId === currentUser.id) {
+        return prisma.post.update({
+          where: { id: previewPostId },
+          data: {
+            title,
+            slug,
+            penName,
+            excerpt,
+            content,
+            categoryId,
+            seoTitle,
+            seoDescription,
+            seoKeywords: seoKeywordsText,
+            ogImage,
+            videoEmbedUrl,
+            isSensitive,
+            isFeatured,
+            isTrending,
+            isPublished,
+            isDraft,
+            editorialStatus,
+            scheduledPublishAt,
+            canonicalUrl,
+            approvedAt: isPublished ? new Date() : null,
+            approverId: isPublished ? currentUser.id : null,
+            publishedAt: isPublished ? new Date() : undefined,
+            thumbnailUrl,
+          },
+          include: { category: true },
+        })
+      }
+    }
+
+    return prisma.post.create({
+      data: {
+        title,
+        slug,
+        penName,
+        excerpt,
+        content,
+        categoryId,
+        authorId: currentUser.id,
+        seoTitle,
+        seoDescription,
+        seoKeywords: seoKeywordsText,
+        ogImage,
+        videoEmbedUrl,
+        isSensitive,
+        isFeatured,
+        isTrending,
+        isPublished,
+        isDraft,
+        editorialStatus,
+        scheduledPublishAt,
+        canonicalUrl,
+        approvedAt: isPublished ? new Date() : null,
+        approverId: isPublished ? currentUser.id : null,
+        publishedAt: isPublished ? new Date() : undefined,
+        thumbnailUrl,
+      },
+      include: { category: true }
+    })
+  })()
 
   await syncPostSeoKeywords(post.id, keywordIds)
 

@@ -1,6 +1,6 @@
 "use client"
 import dynamic from "next/dynamic"
-import { useRef, useState, useTransition } from "react"
+import { useRef, useState, useTransition, useCallback } from "react"
 import { Eye, Globe, Save, Send, SendToBack } from "lucide-react"
 
 const RichTextField = dynamic(
@@ -65,9 +65,10 @@ export function WriteTab({
   const [hasVideo, setHasVideo] = useState(false)
   const [isSensitive, setIsSensitive] = useState(false)
   const [isPreviewing, startPreviewTransition] = useTransition()
+  const [previewPostId, setPreviewPostId] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
 
-  function handlePreview() {
+  const handlePreview = useCallback(() => {
     if (!formRef.current) return
     if (!formRef.current.reportValidity()) return
 
@@ -75,10 +76,11 @@ export function WriteTab({
     startPreviewTransition(async () => {
       const result = await createPostForPreview(formData)
       if ("postId" in result) {
+        setPreviewPostId(result.postId)
         window.open(`/admin/preview/${result.postId}`, "_blank")
       }
     })
-  }
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -88,6 +90,9 @@ export function WriteTab({
         action={createPost}
         className="grid gap-6 lg:grid-cols-[3fr_2fr]"
       >
+        {previewPostId && (
+          <input type="hidden" name="previewPostId" value={previewPostId} />
+        )}
         <EditFormDirtyTracker />
 
         {/* Main 60% Column */}
