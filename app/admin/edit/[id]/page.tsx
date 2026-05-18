@@ -468,7 +468,6 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
                       name="scheduledPublishAt"
                       defaultValue={post.scheduledPublishAt ? new Date(post.scheduledPublishAt.getTime() - post.scheduledPublishAt.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
                     />
-                    <p className="text-xs text-muted-foreground">Nếu chọn ngày tương lai, bài viết sẽ ở trạng thái PENDING_PUBLISH cho đến thời điểm xuất bản.</p>
                   </div>
                 )}
               </div>

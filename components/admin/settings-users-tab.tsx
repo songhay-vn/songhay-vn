@@ -1,6 +1,5 @@
 import { Save, Trash2, UserPlus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Select } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
@@ -59,10 +58,11 @@ export function SettingsUsersTab({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="subordinateRole">Vai trò</Label>
-              <Select
+              <select
                 id="subordinateRole"
                 name="role"
                 defaultValue="CONTRIBUTOR"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="MANAGING_EDITOR">Thư ký biên tập</option>
                 <option value="TEAM_LEAD">Trưởng nhóm</option>
@@ -70,7 +70,7 @@ export function SettingsUsersTab({
                   Phóng viên/Biên dịch
                 </option>
                 <option value="CONTRIBUTOR">Cộng tác viên</option>
-              </Select>
+              </select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="subordinatePassword">Mật khẩu khởi tạo</Label>
@@ -172,17 +172,17 @@ export function SettingsUsersTab({
                             className="flex items-center gap-1.5"
                           >
                             <input type="hidden" name="userId" value={user.id} />
-                            <Select
+                            <select
                               name="newRole"
                               defaultValue={user.role}
-                              className="h-7 py-0 pr-6 pl-2 text-xs"
+                              className="flex h-7 rounded-md border border-input bg-background px-2 py-0 text-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {ALL_EDITABLE_ROLES.map((role) => (
                                 <option key={role} value={role}>
                                   {ROLE_LABELS_VI[role]}
                                 </option>
                               ))}
-                            </Select>
+                            </select>
                             <PendingSubmitButton
                               type="submit"
                               pendingText="..."
