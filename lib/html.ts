@@ -5,6 +5,7 @@ export function normalizeArticleHtml(rawHtml: string) {
     .replace(/\r?\n|\r/g, " ")
     .replace(/\s+/g, " ")
     .replace(new RegExp(`>([\\s]+)<`, "gi"), "><") // Remove purely empty spaces between tags, but keep &nbsp;
+    .replace(/<p[^>]*>(?:\s|&nbsp;|\u00A0|<br\s*\/?>)*<\/p>/gi, '<p class="empty-line"></p>') // Convert CKEditor's empty paragraphs to explicitly classed empty paragraphs
     .replace(/<span([^>]*)style="([^"]*)"([^>]*)>([\s\S]*?)<\/span>/gi, (match, before, styleValue, after, content) => {
       const hasUnderline = /text-decoration\s*:\s*underline/i.test(styleValue)
       const hasStrikethrough = /text-decoration\s*:\s*line-through/i.test(styleValue)
