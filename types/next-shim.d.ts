@@ -30,6 +30,7 @@ declare module "next/link" {
     prefetch?: boolean | null
     scroll?: boolean
     replace?: boolean
+    onClick?: import("react").MouseEventHandler<HTMLAnchorElement>
   }
 
   const Link: (props: LinkProps) => import("react").ReactElement
@@ -59,6 +60,7 @@ declare module "next/navigation" {
   export const usePathname: () => string
   export const useSearchParams: () => URLSearchParams
   export const useRouter: () => {
+    push: (href: string, options?: { scroll?: boolean }) => void
     replace: (href: string, options?: { scroll?: boolean }) => void
   }
 }
