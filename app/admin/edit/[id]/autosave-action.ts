@@ -17,9 +17,11 @@ export async function autosaveDraftAction(postId: string, data: { title: string;
       title: data.title || currentPost.title,
       excerpt: data.excerpt || currentPost.excerpt,
       content: data.content || currentPost.content,
-      editorialStatus: "DRAFT",
-      isDraft: true,
-      isPublished: false,
+      // Only set to DRAFT if it was a DRAFT, otherwise keep current status
+      // (Autosave should not unpublish a live article)
+      editorialStatus: currentPost.editorialStatus === "DRAFT" ? "DRAFT" : currentPost.editorialStatus,
+      isDraft: currentPost.editorialStatus === "DRAFT",
+      isPublished: currentPost.isPublished,
       lastEditorId: currentUser.id,
       updatedAt: new Date()
     }
