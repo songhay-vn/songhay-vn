@@ -187,4 +187,41 @@ describe("autosaveDraftAction", () => {
       content: "Original Content", // Kept original
     })
   })
+  test("preserves canonicalUrl and other non-autosaved fields without modifying them", async () => {
+    mockFindUnique.mockResolvedValueOnce({
+      id: "post-1",
+      title: "Old Title",
+      editorialStatus: "DRAFT",
+      isDraft: true,
+      isPublished: false,
+      canonicalUrl: "https://example.com/original-canonical",
+      seoTitle: "My SEO Title",
+      categoryId: "cat-1"
+    })
+    mockCanEditByStatus.mockReturnValueOnce(true)
+    mockUpdate.mockResolvedValueOnce({})
+
+    const result = await autosaveDraftAction("post-1", {
+      title: "New Title",
+      excerpt: "New Excerpt",
+      content: "New Content",
+    })
+
+    expect(result).toHaveProperty("success", true)
+    
+    const updateCall = mockUpdate.mock.calls[0][0]
+    // The payload sent to Prisma MUST NOT contain canonicalUrl, seoTitle, or categoryId
+    // Because Prisma only updates the fields explicitly provided in the data object.
+    // If they are missing from the data object, Prisma leaves them entirely untouched in the DB.
+    expect(updateCall.data).not.toHaveProperty("canonicalUrl")
+    expect(updateCall.data).not.toHaveProperty("seoTitle")
+    expect(updateCall.data).not.toHaveProperty("categoryId")
+    
+    // Ensure it did update the fields it's supposed to
+    expect(updateCall.data).toMatchObject({
+      title: "New Title",
+      excerpt: "New Excerpt",
+      content: "New Content"
+    })
+  })
 })
