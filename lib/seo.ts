@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://www.songhay.vn"
+const DEFAULT_SITE_URL = "https://songhay.vn"
 
 export const SITE_NAME = "Songhay.vn"
 export const DEFAULT_OG_IMAGE_PATH = "/og-image.png"

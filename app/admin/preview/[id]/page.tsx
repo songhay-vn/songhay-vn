@@ -11,7 +11,6 @@ import { requireCmsUser } from "@/lib/auth"
 import { canViewAllPosts } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import {
-  getMostWatchedVideos,
   getNavCategories,
   getRecommendedPosts,
   getTrendingPosts,
@@ -58,7 +57,7 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
     redirect("/admin?tab=trash")
   }
 
-  const [relatedPosts, trendingPosts, mostWatchedVideos, recommendedPosts, navCategories] = await Promise.all([
+  const [relatedPosts, trendingPosts, recommendedPosts, navCategories] = await Promise.all([
     prisma.post.findMany({
       where: {
         categoryId: post.categoryId,
@@ -79,7 +78,6 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
       },
     }),
     getTrendingPosts(),
-    getMostWatchedVideos(8),
     getRecommendedPosts(post.id, post.categoryId, 12),
     getNavCategories(),
   ])

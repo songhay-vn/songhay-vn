@@ -32,36 +32,45 @@ function createPublishedSearchWhere(normalizedQuery: string): Prisma.PostWhereIn
   }
 }
 
-export async function getHomepageData() {
+async function getMostReadPostsHome() {
   "use cache"
-  cacheTag("homepage")
-  cacheLife("weeks") // Use standard 'hours' profile or 3600s
+  cacheTag("homepage-most-read")
+  cacheLife("weeks")
+  return prisma.post.findMany({
+    where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }] },
+    include: {
+      category: true,
+      _count: { select: { comments: { where: { isApproved: true } } } },
+    },
+    orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
+    take: 5,
+  })
+}
 
-  const [mostRead, latest, recommended, mostWatched] = await Promise.all([
-    prisma.post.findMany({
-      where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }] },
-      include: {
-        category: true,
-        _count: { select: { comments: { where: { isApproved: true } } } },
-      },
-      orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
-      take: 5,
-    }),
-    prisma.post.findMany({
-      where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }] },
-      include: {
-        category: true,
-        _count: { select: { comments: { where: { isApproved: true } } } },
-      },
-      orderBy: { publishedAt: "desc" },
-      take: 30,
-    }),
+async function getLatestPostsHome() {
+  "use cache"
+  cacheTag("homepage-latest")
+  cacheLife("weeks")
+  return prisma.post.findMany({
+    where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }] },
+    include: {
+      category: true,
+      _count: { select: { comments: { where: { isApproved: true } } } },
+    },
+    orderBy: { publishedAt: "desc" },
+    take: 30,
+  })
+}
+
+export async function getHomepageData() {
+  const [mostRead, latest, recommended] = await Promise.all([
+    getMostReadPostsHome(),
+    getLatestPostsHome(),
     getRecommendedPosts(undefined, undefined, 12),
-    getMostWatchedVideos(8),
   ])
 
   const heroSlots = latest.slice(0, 7)
-  return { heroSlots, mostRead, latest, recommended, mostWatched }
+  return { heroSlots, mostRead, latest, recommended }
 }
 
 export async function getPostsByCategory(categorySlug: string) {
@@ -304,28 +313,6 @@ export async function getTrendingPosts() {
   })
 }
 
-export async function getMostWatchedVideos(limit = 4) {
-  "use cache"
-  cacheTag("most-watched-videos")
-  cacheLife("weeks")
-
-  return prisma.post.findMany({
-    where: {
-      isPublished: true,
-      isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
-      videoEmbedUrl: { not: null },
-    },
-    include: {
-      category: true,
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
-    },
-    orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
-    take: limit,
-  })
-}
-
 export async function getRecommendedPosts(
   postId?: string,
   categoryId?: string,
@@ -422,31 +409,50 @@ export async function getLatestByCategory(perCategory = 4, categoriesLimit = 6) 
     take: categoriesLimit,
   })
 
-  const categoriesWithPosts = await Promise.all(
-    topCategories.map(async (cat) => {
-      const posts = await prisma.post.findMany({
-        where: {
-          OR: [
-            { categoryId: cat.id },
-            { category: { parentId: cat.id } }
-          ],
-          isPublished: true,
-          isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
-        },
-        include: {
-          category: true,
-          _count: {
-            select: { comments: { where: { isApproved: true } } },
-          },
-        },
-        orderBy: { publishedAt: "desc" },
-        take: perCategory,
-      })
-      return { ...cat, posts }
-    })
-  )
+  const categoryIds = topCategories.map((c) => c.id)
 
-  return categoriesWithPosts.filter((cat) => cat.posts.length > 0)
+  // Single query instead of N concurrent queries — avoids connection pool exhaustion
+  const allPosts = await prisma.post.findMany({
+    where: {
+      isPublished: true,
+      isDeleted: false,
+      AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+      category: {
+        OR: [
+          { id: { in: categoryIds } },
+          { parentId: { in: categoryIds } },
+        ],
+      },
+    },
+    include: {
+      category: true,
+      _count: {
+        select: { comments: { where: { isApproved: true } } },
+      },
+    },
+    orderBy: { publishedAt: "desc" },
+    // Fetch 5× the needed amount to ensure all categories get enough posts even
+    // if recent posts cluster in one category (e.g. a burst of song-khoe articles)
+    take: perCategory * categoriesLimit * 5,
+  })
+
+  // Group posts by their root category (parent or self) and limit per group
+  const grouped = new Map<string, typeof allPosts>()
+  for (const cat of topCategories) {
+    grouped.set(cat.id, [])
+  }
+
+  for (const post of allPosts) {
+    const rootId = post.category.parentId ?? post.category.id
+    const bucket = grouped.get(rootId)
+    if (bucket && bucket.length < perCategory) {
+      bucket.push(post)
+    }
+  }
+
+  return topCategories
+    .map((cat) => ({ ...cat, posts: grouped.get(cat.id) ?? [] }))
+    .filter((cat) => cat.posts.length > 0)
 }
 
 // --- Build-time helpers (no cache needed — run at build in generateStaticParams) ---

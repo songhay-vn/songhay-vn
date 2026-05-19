@@ -11,6 +11,9 @@ const nextConfig = {
       // Media uploads are handled by a Server Action in /admin, so raise the default 1MB limit.
       bodySizeLimit: "250mb",
     },
+    // Limit parallel static-generation workers to prevent DB connection pool exhaustion.
+    // Without this, Next.js spawns 15 workers × N concurrent queries, saturating serverless DB limits.
+    staticGenerationMaxConcurrency: 4,
   },
   turbopack: {
     root: __dirname,
