@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 import { getSiteUrl } from "@/lib/seo"
 
+
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl()
 
@@ -19,6 +20,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "facebookexternalhit",
         allow: "/",
       },
+      {
+        userAgent: "FaceBot",
+        allow: "/",
+      }
     ],
     host: siteUrl,
     sitemap: `${siteUrl}/sitemap.xml`,

@@ -239,6 +239,7 @@ export async function createPostForPreview(
   const isSensitive = formData.get("isSensitive") === "on"
   const thumbnailUpload = formData.get("thumbnailUpload")
   const thumbnailUrlInput = String(formData.get("thumbnailUrl") || "").trim()
+  const previewPostId = String(formData.get("previewPostId") || "").trim() || null
 
   if (!title || !penName) {
     return { error: "missing_fields" }
@@ -252,7 +253,6 @@ export async function createPostForPreview(
     seoDescription: rawSeoDescription,
   })
 
-  const slug = await uniquePostSlug(title)
   const thumbnailUrl =
     thumbnailUpload instanceof File && thumbnailUpload.size > 0
       ? await uploadThumbnail(thumbnailUpload)
@@ -261,34 +261,67 @@ export async function createPostForPreview(
   const { keywordIds, seoKeywordsText } =
     await resolveSeoKeywordSelection(formData)
 
-  const post = await prisma.post.create({
-    data: {
-      title,
-      slug,
-      penName,
-      excerpt,
-      content,
-      categoryId,
-      authorId: currentUser.id,
-      seoTitle,
-      seoDescription,
-      seoKeywords: seoKeywordsText,
-      ogImage: thumbnailUrl,
-      videoEmbedUrl,
-      isSensitive,
-      isPublished: false,
-      isDraft: true,
-      editorialStatus: "DRAFT",
-      thumbnailUrl,
-    },
-  })
+  let post
+
+  if (previewPostId) {
+    const existing = await prisma.post.findUnique({
+      where: { id: previewPostId },
+      select: { id: true, authorId: true, isDraft: true },
+    })
+    
+    if (existing?.isDraft && existing.authorId === currentUser.id) {
+      post = await prisma.post.update({
+        where: { id: previewPostId },
+        data: {
+          title,
+          penName,
+          excerpt,
+          content,
+          categoryId,
+          seoTitle,
+          seoDescription,
+          seoKeywords: seoKeywordsText,
+          ogImage: thumbnailUrl,
+          videoEmbedUrl,
+          isSensitive,
+          thumbnailUrl,
+        },
+      })
+    }
+  }
+
+  if (!post) {
+    const slug = await uniquePostSlug(title)
+    
+    post = await prisma.post.create({
+      data: {
+        title,
+        slug,
+        penName,
+        excerpt,
+        content,
+        categoryId,
+        authorId: currentUser.id,
+        seoTitle,
+        seoDescription,
+        seoKeywords: seoKeywordsText,
+        ogImage: thumbnailUrl,
+        videoEmbedUrl,
+        isSensitive,
+        isPublished: false,
+        isDraft: true,
+        editorialStatus: "DRAFT",
+        thumbnailUrl,
+      },
+    })
+  }
 
   await syncPostSeoKeywords(post.id, keywordIds)
 
   await logPostHistory({
     postId: post.id,
     actorId: currentUser.id,
-    actionType: "CREATED",
+    actionType: previewPostId && post ? "UPDATED" : "CREATED",
     toStatus: post.editorialStatus,
     snapshotTitle: post.title,
     snapshotExcerpt: post.excerpt,
