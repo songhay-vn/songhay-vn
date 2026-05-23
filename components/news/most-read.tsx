@@ -36,7 +36,6 @@ export function MostRead({ posts }: MostReadProps) {
               >
                 {post.title}
               </Link>
-              <p className="text-xs text-black">{post.views.toLocaleString("vi-VN")} lượt xem</p>
             </div>
           </li>
         ))}
