@@ -28,7 +28,7 @@ export function rateLimit(ip: string, config: RateLimitConfig): {
   const now = Date.now();
   const windowStart = now - config.windowMs;
 
-  let state = cache.get(ip) || { timestamps: [] };
+  const state = cache.get(ip) || { timestamps: [] };
 
   // Filter out timestamps outside the current window
   state.timestamps = state.timestamps.filter((timestamp) => timestamp > windowStart);
