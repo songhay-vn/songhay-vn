@@ -9,20 +9,31 @@ function readWorkspaceFile(relativePath: string) {
 describe("Source Verification: Type Centralization", () => {
   test("lib/queries.ts uses centralized types", () => {
     const source = readWorkspaceFile("lib/queries.ts")
-    expect(source).toContain('import type { PostListItem, PostFull, PostWithCategoryAndComments } from "@/types/post"')
-    expect(source).toContain('import type { SearchResultItem } from "@/types/search"')
-    expect(source).toContain('import type { CategoryWithChildren } from "@/types/category"')
-    expect(source).toContain("export type { PostListItem, PostFull, SearchResultItem, CategoryWithChildren, PostWithCategoryAndComments }")
+    expect(source).toContain('from "@/types/post"')
+    expect(source).toContain("PostListItem")
+    expect(source).toContain("PostFull")
+    expect(source).toContain("PostWithCategoryAndComments")
+    expect(source).toContain(
+      'import type { SearchResultItem } from "@/types/search"'
+    )
+    expect(source).toContain(
+      'import type { CategoryWithChildren } from "@/types/category"'
+    )
+    expect(source).toContain("export type")
   })
 
   test("lib/session.ts uses centralized auth types", () => {
     const source = readWorkspaceFile("lib/session.ts")
-    expect(source).toContain('import type { SessionPayload } from "@/types/auth"')
+    expect(source).toContain(
+      'import type { SessionPayload } from "@/types/auth"'
+    )
   })
 
   test("lib/bmi.ts uses centralized health types", () => {
     const source = readWorkspaceFile("lib/bmi.ts")
-    expect(source).toContain('import type { BmiGender, BmiResult } from "@/types/health"')
+    expect(source).toContain(
+      'import type { BmiGender, BmiResult } from "@/types/health"'
+    )
     expect(source).toContain("export type { BmiGender, BmiResult }")
   })
 
@@ -51,11 +62,51 @@ describe("Source Verification: Date Fixes", () => {
 describe("Source Verification: Admin Actions revalidation", () => {
   test("posts actions call revalidateTag", () => {
     const source = readWorkspaceFile("app/admin/actions/posts.ts")
-    expect(source).toContain('revalidatePost')
+    expect(source).toContain("revalidatePost")
   })
 
   test("workflow actions call revalidateTag", () => {
     const source = readWorkspaceFile("app/admin/actions/workflow.ts")
-    expect(source).toContain('revalidatePost')
+    expect(source).toContain("revalidatePost")
+  })
+})
+
+describe("Source Verification: Shared public bottom sections", () => {
+  test("NewsLayout owns the shared category article bottom section", () => {
+    const source = readWorkspaceFile("components/news/news-layout.tsx")
+
+    expect(source).toContain(
+      'import { CategoryArticleSections } from "./category-article-sections"'
+    )
+    expect(source).toContain("showBottomCategorySections")
+    expect(source).toContain("<CategoryArticleSections />")
+  })
+
+  test("category article bottom section fetches enough posts to reveal four more", () => {
+    const source = readWorkspaceFile(
+      "components/news/category-article-sections.tsx"
+    )
+    const buttonSource = readWorkspaceFile(
+      "components/news/expandable-category-article-section.tsx"
+    )
+
+    expect(source).toContain("perCategory = 4")
+    expect(source).toContain("revealCount = 4")
+    expect(source).toContain("const previewLimit = perCategory + revealCount")
+    expect(source).toContain("categoriesLimit = 50")
+    expect(source).toContain("getLatestByCategory(")
+    expect(source).toContain("previewLimit,")
+    expect(source).toContain("categoriesLimit")
+    expect(source).toContain("canRevealMore")
+    expect(source).toContain("<ExpandableCategoryArticleSection")
+    expect(buttonSource).toContain("router.push(`/${categorySlug}`)")
+    expect(buttonSource).toContain("setExpanded(true)")
+  })
+
+  test("SiteEngagement no longer owns category article sections", () => {
+    const source = readWorkspaceFile("components/news/site-engagement.tsx")
+
+    expect(source).not.toContain("getLatestByCategory")
+    expect(source).not.toContain("latestByCategory")
   })
 })

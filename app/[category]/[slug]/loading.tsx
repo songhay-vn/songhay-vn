@@ -2,10 +2,11 @@ import { NewsLayout } from "@/components/news/news-layout"
 
 export default function PostLoading() {
   return (
-    <NewsLayout 
+    <NewsLayout
       className="bg-white"
       containerClassName="py-8"
       gridClassName="grid gap-8 md:grid-cols-[1fr_320px]"
+      showBottomCategorySections={false}
     >
       <article className="space-y-6">
         <div className="space-y-3">
@@ -24,4 +25,3 @@ export default function PostLoading() {
     </NewsLayout>
   )
 }
-

@@ -6,8 +6,13 @@ import { PostCardList } from "@/components/news/post-card-list"
 import { SectionHeading } from "@/components/news/section-heading"
 import { SiteEngagement } from "@/components/news/site-engagement"
 import { JsonLd } from "@/components/seo/json-ld"
-import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd"
-import { getCategoryBySlug, getPostsByCategory, getAllCategorySlugs, getNavCategories, getTrendingPosts } from "@/lib/queries"
+import {
+  getCategoryBySlug,
+  getPostsByCategory,
+  getAllCategorySlugs,
+  getNavCategories,
+  getTrendingPosts,
+} from "@/lib/queries"
 import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, toAbsoluteUrl } from "@/lib/seo"
 import { NewsLayout } from "@/components/news/news-layout"
 
@@ -22,7 +27,9 @@ export async function generateStaticParams() {
   }))
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
   const { category } = await params
   const foundCategory = await getCategoryBySlug(category)
   const siteUrl = getSiteUrl()
@@ -32,7 +39,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   const title = `${foundCategory.name} | Songhay.vn`
-  const description = foundCategory.description || `Khám phá bài viết mới nhất thuộc chuyên mục ${foundCategory.name}.`
+  const description =
+    foundCategory.description ||
+    `Khám phá bài viết mới nhất thuộc chuyên mục ${foundCategory.name}.`
   const canonicalPath = `/${foundCategory.slug}`
   const canonicalUrl = `${siteUrl}${canonicalPath}`
 
@@ -60,12 +69,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category } = await params
-  const [foundCategory, posts, navCategories, trendingPosts] = await Promise.all([
-    getCategoryBySlug(category),
-    getPostsByCategory(category),
-    getNavCategories(),
-    getTrendingPosts(),
-  ])
+  const [foundCategory, posts, navCategories, trendingPosts] =
+    await Promise.all([
+      getCategoryBySlug(category),
+      getPostsByCategory(category),
+      getNavCategories(),
+      getTrendingPosts(),
+    ])
 
   if (!foundCategory) {
     notFound()
@@ -98,7 +108,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: currentCategory.name,
-    description: currentCategory.description || `Chuyen muc ${currentCategory.name} cua Songhay.vn`,
+    description:
+      currentCategory.description ||
+      `Chuyen muc ${currentCategory.name} cua Songhay.vn`,
     url: categoryUrl,
     inLanguage: "vi-VN",
     isPartOf: {
@@ -116,12 +128,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {posts.length === 0 ? (
             <p className="text-zinc-600">Chuyên mục này chưa có bài viết.</p>
           ) : (
-            <PostCardList
-              posts={posts}
-            />
+            <PostCardList posts={posts} />
           )}
 
-          <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
+          <Suspense
+            fallback={
+              <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
+            }
+          >
             <SiteEngagement />
           </Suspense>
         </section>
@@ -129,4 +143,3 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     </>
   )
 }
-

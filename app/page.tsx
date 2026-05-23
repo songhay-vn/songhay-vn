@@ -1,28 +1,30 @@
 import { Suspense } from "react"
-import dynamic from "next/dynamic"
-import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
 
 import { DontMissWidget } from "@/components/news/dont-miss-widget"
 import { PostCard } from "@/components/news/post-card"
-import { PostCardList } from "@/components/news/post-card-list"
 import { SectionHeading } from "@/components/news/section-heading"
 import { SiteEngagement } from "@/components/news/site-engagement"
 import { JsonLd } from "@/components/seo/json-ld"
-import { getHomepageData, getNavCategories, type PostListItem, type CategoryWithChildren } from "@/lib/queries"
-import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, SITE_NAME, toAbsoluteUrl } from "@/lib/seo"
+import {
+  getHomepageData,
+  getNavCategories,
+  type PostListItem,
+} from "@/lib/queries"
+import {
+  DEFAULT_OG_IMAGE_PATH,
+  getSiteUrl,
+  SITE_NAME,
+  toAbsoluteUrl,
+} from "@/lib/seo"
 import { NewsLayout } from "@/components/news/news-layout"
-
-const RecommendedForYou = dynamic(
-  () => import("@/components/news/recommended-for-you").then((mod) => mod.RecommendedForYou),
-  { loading: () => <div className="h-60 animate-pulse rounded-lg bg-zinc-100" /> }
-)
 
 const siteUrl = getSiteUrl()
 const canonicalUrl = siteUrl
 const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
-const homeDescription = "Tin tức và tiện ích mỗi ngày: sống khỏe, mẹo hay, đời sống, góc stress, tử vi, video."
+const homeDescription =
+  "Tin tức và tiện ích mỗi ngày: sống khỏe, mẹo hay, đời sống, góc stress, tử vi, video."
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,
@@ -46,28 +48,10 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [
-    { latest, mostRead, recommended, heroSlots = [] },
-    navCategories,
-  ] = await Promise.all([
+  const [{ mostRead, heroSlots = [] }, navCategories] = await Promise.all([
     getHomepageData(),
     getNavCategories(),
   ])
-
-  const groupedByCategory = latest.reduce<Record<string, PostListItem[]>>((acc: Record<string, PostListItem[]>, post: PostListItem) => {
-    const key = post.category.slug
-    if (!acc[key]) {
-      acc[key] = []
-    }
-    acc[key].push(post)
-    return acc
-  }, {})
-
-  const categoryBlocks = navCategories.filter((category: CategoryWithChildren) =>
-    ["song-khoe", "meo-hay", "doi-song", "goc-stress", "tu-vi", "video"].includes(category.slug)
-  )
-    .map((category: CategoryWithChildren) => groupedByCategory[category.slug])
-    .filter((items: PostListItem[] | undefined): items is PostListItem[] => Boolean(items && items.length > 0))
 
   const homepageJsonLd = {
     "@context": "https://schema.org",
@@ -164,7 +148,11 @@ export default async function HomePage() {
           <DontMissWidget />
         </section>
 
-        <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
+        <Suspense
+          fallback={
+            <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
+          }
+        >
           <SiteEngagement />
         </Suspense>
       </NewsLayout>

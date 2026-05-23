@@ -4,11 +4,21 @@ import type { Prisma } from "@prisma/client"
 import { NAV_CATEGORIES } from "./categories"
 import { prisma } from "@/lib/prisma"
 
-import type { PostListItem, PostFull, PostWithCategoryAndComments } from "@/types/post"
+import type {
+  PostListItem,
+  PostFull,
+  PostWithCategoryAndComments,
+} from "@/types/post"
 import type { SearchResultItem } from "@/types/search"
 import type { CategoryWithChildren } from "@/types/category"
 
-export type { PostListItem, PostFull, SearchResultItem, CategoryWithChildren, PostWithCategoryAndComments }
+export type {
+  PostListItem,
+  PostFull,
+  SearchResultItem,
+  CategoryWithChildren,
+  PostWithCategoryAndComments,
+}
 
 const SEARCH_PAGE_SIZE_DEFAULT = 12
 const SEARCH_PAGE_SIZE_MAX = 24
@@ -18,16 +28,28 @@ function normalizeSearchQuery(query: string) {
   return query.trim().replace(/\s+/g, " ")
 }
 
-function createPublishedSearchWhere(normalizedQuery: string): Prisma.PostWhereInput {
+function createPublishedSearchWhere(
+  normalizedQuery: string
+): Prisma.PostWhereInput {
   return {
     isPublished: true,
-    isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+    isDeleted: false,
+    AND: [
+      {
+        OR: [
+          { scheduledPublishAt: null },
+          { scheduledPublishAt: { lte: new Date() } },
+        ],
+      },
+    ],
     isDraft: false,
     OR: [
       { title: { contains: normalizedQuery, mode: "insensitive" } },
       { excerpt: { contains: normalizedQuery, mode: "insensitive" } },
       { content: { contains: normalizedQuery, mode: "insensitive" } },
-      { category: { name: { contains: normalizedQuery, mode: "insensitive" } } },
+      {
+        category: { name: { contains: normalizedQuery, mode: "insensitive" } },
+      },
     ],
   }
 }
@@ -37,7 +59,18 @@ async function getMostReadPostsHome() {
   cacheTag("homepage-most-read")
   cacheLife("weeks")
   return prisma.post.findMany({
-    where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }] },
+    where: {
+      isPublished: true,
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
+    },
     include: {
       category: true,
       _count: { select: { comments: { where: { isApproved: true } } } },
@@ -52,7 +85,18 @@ async function getLatestPostsHome() {
   cacheTag("homepage-latest")
   cacheLife("weeks")
   return prisma.post.findMany({
-    where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }] },
+    where: {
+      isPublished: true,
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
+    },
     include: {
       category: true,
       _count: { select: { comments: { where: { isApproved: true } } } },
@@ -63,14 +107,13 @@ async function getLatestPostsHome() {
 }
 
 export async function getHomepageData() {
-  const [mostRead, latest, recommended] = await Promise.all([
+  const [mostRead, latest] = await Promise.all([
     getMostReadPostsHome(),
     getLatestPostsHome(),
-    getRecommendedPosts(undefined, undefined, 12),
   ])
 
   const heroSlots = latest.slice(0, 7)
-  return { heroSlots, mostRead, latest, recommended }
+  return { heroSlots, mostRead, latest }
 }
 
 export async function getPostsByCategory(categorySlug: string) {
@@ -81,7 +124,15 @@ export async function getPostsByCategory(categorySlug: string) {
   return prisma.post.findMany({
     where: {
       isPublished: true,
-      isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
       OR: [
         { category: { slug: categorySlug } },
         { category: { parent: { slug: categorySlug } } },
@@ -111,12 +162,24 @@ export async function searchPublishedPosts(query: string, limit = 24) {
   return prisma.post.findMany({
     where: {
       isPublished: true,
-      isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
       isDraft: false,
       OR: [
         { title: { contains: normalizedQuery, mode: "insensitive" } },
         { excerpt: { contains: normalizedQuery, mode: "insensitive" } },
-        { category: { name: { contains: normalizedQuery, mode: "insensitive" } } },
+        {
+          category: {
+            name: { contains: normalizedQuery, mode: "insensitive" },
+          },
+        },
       ],
     },
     select: {
@@ -245,7 +308,10 @@ export async function getCategoryBySlug(categorySlug: string) {
   })
 }
 
-export async function getPostByCategoryAndSlug(categorySlug: string, slug: string) {
+export async function getPostByCategoryAndSlug(
+  categorySlug: string,
+  slug: string
+) {
   "use cache"
   cacheTag("post-detail", `post:${slug}`)
   cacheLife("weeks")
@@ -254,7 +320,15 @@ export async function getPostByCategoryAndSlug(categorySlug: string, slug: strin
     where: {
       slug,
       isPublished: true,
-      isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
       category: { slug: categorySlug },
     },
     include: {
@@ -268,29 +342,6 @@ export async function getPostByCategoryAndSlug(categorySlug: string, slug: strin
   })
 }
 
-export async function getRelatedPosts(postId: string, categoryId: string, limit = 8) {
-  "use cache"
-  cacheTag("related-posts", `category:${categoryId}`)
-  cacheLife("weeks")
-
-  return prisma.post.findMany({
-    where: {
-      categoryId,
-      id: { not: postId },
-      isPublished: true,
-      isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
-    },
-    include: {
-      category: true,
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
-    },
-    orderBy: { publishedAt: "desc" },
-    take: limit,
-  })
-}
-
 export async function getTrendingPosts() {
   "use cache"
   cacheTag("trending-posts")
@@ -299,7 +350,15 @@ export async function getTrendingPosts() {
   return prisma.post.findMany({
     where: {
       isPublished: true,
-      isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
       OR: [{ isTrending: true }, { views: { gt: 100 } }],
     },
     include: {
@@ -308,7 +367,11 @@ export async function getTrendingPosts() {
         select: { comments: { where: { isApproved: true } } },
       },
     },
-    orderBy: [{ isTrending: "desc" }, { views: "desc" }, { publishedAt: "desc" }],
+    orderBy: [
+      { isTrending: "desc" },
+      { views: "desc" },
+      { publishedAt: "desc" },
+    ],
     take: 12,
   })
 }
@@ -324,14 +387,25 @@ export async function getRecommendedPosts(
 
   const where: Prisma.PostWhereInput = {
     isPublished: true,
-    isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+    isDeleted: false,
+    AND: [
+      {
+        OR: [
+          { scheduledPublishAt: null },
+          { scheduledPublishAt: { lte: new Date() } },
+        ],
+      },
+    ],
   }
 
   if (postId) {
     where.id = { not: postId }
   }
 
-  const orConditions: Prisma.PostWhereInput[] = [{ isFeatured: true }, { isTrending: true }]
+  const orConditions: Prisma.PostWhereInput[] = [
+    { isFeatured: true },
+    { isTrending: true },
+  ]
   if (categoryId) {
     orConditions.push({ categoryId })
   }
@@ -345,7 +419,11 @@ export async function getRecommendedPosts(
         select: { comments: { where: { isApproved: true } } },
       },
     },
-    orderBy: [{ isFeatured: "desc" }, { isTrending: "desc" }, { publishedAt: "desc" }],
+    orderBy: [
+      { isFeatured: "desc" },
+      { isTrending: "desc" },
+      { publishedAt: "desc" },
+    ],
     take: limit,
   })
 }
@@ -382,7 +460,10 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
       children: allCats.filter((c) => c.parentId === root.id),
     }))
   } catch (error) {
-    console.error("Failed to fetch nav categories from DB, falling back to static:", error)
+    console.error(
+      "Failed to fetch nav categories from DB, falling back to static:",
+      error
+    )
     return NAV_CATEGORIES.map((cat, idx) => ({
       id: `static-${idx}`,
       name: cat.name,
@@ -398,7 +479,10 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
   }
 }
 
-export async function getLatestByCategory(perCategory = 4, categoriesLimit = 6) {
+export async function getLatestByCategory(
+  perCategory = 4,
+  categoriesLimit = 6
+) {
   "use cache"
   cacheTag("latest-by-category")
   cacheLife("weeks")
@@ -416,12 +500,17 @@ export async function getLatestByCategory(perCategory = 4, categoriesLimit = 6) 
     where: {
       isPublished: true,
       isDeleted: false,
-      AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }],
+      isDraft: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
       category: {
-        OR: [
-          { id: { in: categoryIds } },
-          { parentId: { in: categoryIds } },
-        ],
+        OR: [{ id: { in: categoryIds } }, { parentId: { in: categoryIds } }],
       },
     },
     include: {
@@ -459,7 +548,19 @@ export async function getLatestByCategory(perCategory = 4, categoriesLimit = 6) 
 
 export async function getLatestPostsForSsg(limit = 50) {
   return prisma.post.findMany({
-    where: { isPublished: true, isDeleted: false, AND: [{ OR: [{ scheduledPublishAt: null }, { scheduledPublishAt: { lte: new Date() } }] }], isDraft: false },
+    where: {
+      isPublished: true,
+      isDeleted: false,
+      AND: [
+        {
+          OR: [
+            { scheduledPublishAt: null },
+            { scheduledPublishAt: { lte: new Date() } },
+          ],
+        },
+      ],
+      isDraft: false,
+    },
     select: { slug: true, category: { select: { slug: true } } },
     orderBy: { publishedAt: "desc" },
     take: limit,

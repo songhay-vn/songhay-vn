@@ -10,12 +10,7 @@ import {
 import { requireCmsUser } from "@/lib/auth"
 import { canViewAllPosts } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
-import {
-  getNavCategories,
-  getRecommendedPosts,
-  getTrendingPosts,
-} from "@/lib/queries"
-
+import { getNavCategories, getTrendingPosts } from "@/lib/queries"
 
 export const metadata: Metadata = {
   title: "Xem trước bài viết",
@@ -57,28 +52,8 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
     redirect("/admin?tab=trash")
   }
 
-  const [relatedPosts, trendingPosts, recommendedPosts, navCategories] = await Promise.all([
-    prisma.post.findMany({
-      where: {
-        categoryId: post.categoryId,
-        id: { not: post.id },
-        isDeleted: false,
-        isPublished: true,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 4,
-      select: {
-        id: true,
-        title: true,
-        excerpt: true,
-        slug: true,
-        thumbnailUrl: true,
-        publishedAt: true,
-        category: { select: { slug: true } },
-      },
-    }),
+  const [trendingPosts, navCategories] = await Promise.all([
     getTrendingPosts(),
-    getRecommendedPosts(post.id, post.categoryId, 12),
     getNavCategories(),
   ])
 
@@ -94,15 +69,13 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
       articleHtml={articleHtml}
       fullUrl={fullUrl}
       trendingPosts={trendingPosts}
-      relatedPosts={relatedPosts}
-      recommendedPosts={recommendedPosts}
       dateValue={post.updatedAt}
       showSocialShare={false}
       commentFormMode="preview"
       topBanner={
         <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className="rounded bg-amber-400 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-900">
+            <span className="rounded bg-amber-400 px-2 py-0.5 text-xs font-bold tracking-wide text-amber-900 uppercase">
               Chế độ xem trước
             </span>
             <span className="text-amber-800">

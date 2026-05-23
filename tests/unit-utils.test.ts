@@ -4,7 +4,10 @@ import { slugify } from "../lib/slug"
 import { hashPassword, verifyPassword } from "../lib/password"
 import { cn } from "../lib/utils"
 import { normalizeArticleHtml } from "../lib/html"
-import { buildPaginationItems, sortCategoriesByTree } from "../app/admin/data-helpers"
+import {
+  buildPaginationItems,
+  sortCategoriesByTree,
+} from "../app/admin/data-helpers"
 
 describe("Unit: BMI Calculation", () => {
   test("calculates BMI correctly for male", () => {
@@ -89,7 +92,7 @@ describe("Unit: Password Utilities", () => {
   test("hashes and verifies password correctly", () => {
     const password = "my-secret-password"
     const hash = hashPassword(password)
-    
+
     expect(hash).toContain(":")
     expect(verifyPassword(password, hash)).toBe(true)
     expect(verifyPassword("wrong-password", hash)).toBe(false)
@@ -107,29 +110,45 @@ describe("Unit: Class Merge Utility (cn)", () => {
     expect(cn("px-2", "py-2")).toBe("px-2 py-2")
     expect(cn("px-2 py-2", "p-4")).toBe("p-4") // py-2 and px-2 are overridden by p-4 by tailwind-merge
     expect(cn("text-red-500", "text-blue-500")).toBe("text-blue-500")
-    expect(cn("bg-red-500", { "bg-blue-500": true, "text-white": false })).toBe("bg-blue-500")
+    expect(cn("bg-red-500", { "bg-blue-500": true, "text-white": false })).toBe(
+      "bg-blue-500"
+    )
   })
 })
 
 describe("Unit: HTML Normalization", () => {
-  test("preserves empty paragraphs", () => {
-    expect(normalizeArticleHtml("<p></p><p>Text</p><p>&nbsp;</p>")).toBe("<p></p><p>Text</p><p>&nbsp;</p>")
+  test("marks empty paragraphs for article spacing", () => {
+    expect(normalizeArticleHtml("<p></p><p>Text</p><p>&nbsp;</p>")).toBe(
+      '<p class="empty-line"></p><p>Text</p><p class="empty-line"></p>'
+    )
   })
 
   test("converts span underlines/strikethroughs to semantic tags", () => {
-    expect(normalizeArticleHtml('<span style="text-decoration: underline">Underline</span>')).toBe("<u>Underline</u>")
-    expect(normalizeArticleHtml('<span style="text-decoration: line-through">Strike</span>')).toBe("<s>Strike</s>")
+    expect(
+      normalizeArticleHtml(
+        '<span style="text-decoration: underline">Underline</span>'
+      )
+    ).toBe("<u>Underline</u>")
+    expect(
+      normalizeArticleHtml(
+        '<span style="text-decoration: line-through">Strike</span>'
+      )
+    ).toBe("<s>Strike</s>")
   })
 
   test("filters allowed styles and removes others", () => {
-    const input = '<p style="text-align: center; color: red; margin-top: 20px; font-size: 16px">Styled Text</p>'
+    const input =
+      '<p style="text-align: center; color: red; margin-top: 20px; font-size: 16px">Styled Text</p>'
     const output = normalizeArticleHtml(input)
-    expect(output).toContain('style="text-align:center;color:red;font-size:16px"')
+    expect(output).toContain(
+      'style="text-align:center;color:red;font-size:16px"'
+    )
     expect(output).not.toContain("margin-top")
   })
 
   test("supports float and layout styles", () => {
-    const input = '<div style="float: left; width: 100px; height: 50% !important; max-width: 500px">Box</div>'
+    const input =
+      '<div style="float: left; width: 100px; height: 50% !important; max-width: 500px">Box</div>'
     const output = normalizeArticleHtml(input)
     expect(output).toContain("float:left")
     expect(output).toContain("width:100px")
@@ -138,7 +157,8 @@ describe("Unit: HTML Normalization", () => {
   })
 
   test("supports font-family and background colors", () => {
-    const input = '<span style="font-family: Arial, sans-serif; background-color: #fff; color: rgb(0,0,0)">Text</span>'
+    const input =
+      '<span style="font-family: Arial, sans-serif; background-color: #fff; color: rgb(0,0,0)">Text</span>'
     const output = normalizeArticleHtml(input)
     expect(output).toContain("font-family:arial, sans-serif")
     expect(output).toContain("background-color:#fff")
@@ -146,10 +166,12 @@ describe("Unit: HTML Normalization", () => {
   })
 
   test("preserves images and videos/iframes unaffected", () => {
-    const img = '<figure><img src="test.jpg" alt="test" /><figcaption>Test</figcaption></figure>'
-    const video = '<div class="video-wrap"><video controls src="test.mp4"></video></div>'
+    const img =
+      '<figure><img src="test.jpg" alt="test" /><figcaption>Test</figcaption></figure>'
+    const video =
+      '<div class="video-wrap"><video controls src="test.mp4"></video></div>'
     const iframe = '<iframe src="https://youtube.com/embed/123"></iframe>'
-    
+
     expect(normalizeArticleHtml(img)).toBe(img)
     expect(normalizeArticleHtml(video)).toBe(video)
     expect(normalizeArticleHtml(iframe)).toBe(iframe)
@@ -165,7 +187,15 @@ describe("Unit: Admin Data Helpers", () => {
     expect(buildPaginationItems(1, 10)).toEqual([1, 2, "ellipsis", 10])
 
     // Many pages, in middle -> [1, "ellipsis", 4, 5, 6, "ellipsis", 10]
-    expect(buildPaginationItems(5, 10)).toEqual([1, "ellipsis", 4, 5, 6, "ellipsis", 10])
+    expect(buildPaginationItems(5, 10)).toEqual([
+      1,
+      "ellipsis",
+      4,
+      5,
+      6,
+      "ellipsis",
+      10,
+    ])
 
     // Many pages, at end -> [1, "ellipsis", 9, 10]
     expect(buildPaginationItems(10, 10)).toEqual([1, "ellipsis", 9, 10])
@@ -179,6 +209,6 @@ describe("Unit: Admin Data Helpers", () => {
       { id: "3", name: "Child 2", parentId: "1" },
     ]
     const sorted = sortCategoriesByTree(cats)
-    expect(sorted.map(c => c.id)).toEqual(["1", "2", "3", "4"])
+    expect(sorted.map((c) => c.id)).toEqual(["1", "2", "3", "4"])
   })
 })

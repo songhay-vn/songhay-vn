@@ -25,6 +25,7 @@ describe("admin unpublished preview access", () => {
     expect(source).toContain("post.authorId !== currentUser.id")
     expect(source).toContain("post_action_forbidden")
     expect(source).toContain("post.isDeleted")
-    expect(source).toContain("isPublished: true")
+    expect(source).not.toContain("relatedPosts")
+    expect(source).not.toContain("recommendedPosts")
   })
 })

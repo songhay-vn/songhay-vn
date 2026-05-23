@@ -88,7 +88,9 @@ describe("schema default field awareness", () => {
   test("schema defaults editorialStatus to DRAFT", () => {
     const schema = readWorkspaceFile("prisma/schema.prisma")
 
-    expect(schema).toMatch(/editorialStatus\s+EditorialStatus\s+@default\(DRAFT\)/)
+    expect(schema).toMatch(
+      /editorialStatus\s+EditorialStatus\s+@default\(DRAFT\)/
+    )
     // The EditorialStatus enum includes PENDING_REVIEW
     expect(schema).toContain("PENDING_REVIEW")
     expect(schema).toContain("PENDING_PUBLISH")
@@ -106,11 +108,9 @@ describe("schema default field awareness", () => {
 
   test("public-facing API routes also filter isDraft: false to prevent draft leaks", () => {
     const mostRead = readWorkspaceFile("app/api/posts/most-read/route.ts")
-    const latestByCat = readWorkspaceFile(
-      "app/api/posts/latest-by-category/route.ts"
-    )
+    const latestByCatQueries = readWorkspaceFile("lib/queries.ts")
 
     expect(mostRead).toContain("isDraft: false")
-    expect(latestByCat).toContain("isDraft: false")
+    expect(latestByCatQueries).toContain("isDraft: false")
   })
 })

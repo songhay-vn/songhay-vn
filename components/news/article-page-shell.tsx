@@ -1,5 +1,4 @@
 import { Suspense, type ReactNode } from "react"
-import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -8,7 +7,6 @@ import { SocialShare } from "@/components/news/social-share"
 import { ViewTracker } from "@/components/news/view-tracker"
 import { SiteEngagement } from "@/components/news/site-engagement"
 import { NewsLayout } from "@/components/news/news-layout"
-import type { PostListItem as PostCardListItem } from "@/components/news/post-card-list"
 import type { CategoryWithChildren } from "@/lib/queries"
 
 type ArticleListItem = {
@@ -54,8 +52,6 @@ type ArticlePageShellProps = {
   articleHtml: string
   fullUrl: string
   trendingPosts: TrendingListItem[]
-  relatedPosts: ArticleListItem[]
-  recommendedPosts: PostCardListItem[]
   dateValue: Date | string | null
   topBanner?: ReactNode
   mainBanner?: ReactNode
@@ -90,8 +86,6 @@ export function ArticlePageShell({
   articleHtml,
   fullUrl,
   trendingPosts,
-  relatedPosts,
-  recommendedPosts,
   dateValue,
   topBanner,
   mainBanner,
@@ -117,7 +111,7 @@ export function ArticlePageShell({
     >
       <div className="relative">
         {showSocialShare ? (
-          <div className="absolute -left-20 top-0 hidden h-full lg:block">
+          <div className="absolute top-0 -left-20 hidden h-full lg:block">
             <SocialShare
               title={article.title}
               url={fullUrl}
@@ -138,7 +132,7 @@ export function ArticlePageShell({
             <h1 className="text-4xl leading-tight font-black text-zinc-900">
               {article.title}
             </h1>
-            <p className="text-xl font-bold leading-relaxed text-zinc-950">
+            <p className="text-xl leading-relaxed font-bold text-zinc-950">
               {article.excerpt.trim()}
             </p>
             <p className="text-sm text-black">
@@ -185,9 +179,7 @@ export function ArticlePageShell({
           <section className="space-y-3 border border-zinc-200 bg-zinc-50 p-4">
             <h2 className="text-xl font-bold">Bình luận gần đây</h2>
             {article.comments.length === 0 ? (
-              <p className="text-sm text-black">
-                Chưa có bình luận hiển thị.
-              </p>
+              <p className="text-sm text-black">Chưa có bình luận hiển thị.</p>
             ) : (
               article.comments.map((comment) => (
                 <div
@@ -203,7 +195,11 @@ export function ArticlePageShell({
 
           {renderCommentForm(commentFormMode, article.id)}
 
-          <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
+          <Suspense
+            fallback={
+              <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
+            }
+          >
             <SiteEngagement />
           </Suspense>
         </article>
@@ -211,4 +207,3 @@ export function ArticlePageShell({
     </NewsLayout>
   )
 }
-

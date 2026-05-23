@@ -7,9 +7,7 @@ import { JsonLd } from "@/components/seo/json-ld"
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd"
 import {
   getPostByCategoryAndSlug,
-  getRelatedPosts,
   getTrendingPosts,
-  getRecommendedPosts,
   getLatestPostsForSsg,
   getNavCategories,
 } from "@/lib/queries"
@@ -88,8 +86,12 @@ export async function generateMetadata({
           alt: title,
         },
       ],
-      publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
-      modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+      publishedTime: post.publishedAt
+        ? new Date(post.publishedAt).toISOString()
+        : undefined,
+      modifiedTime: post.updatedAt
+        ? new Date(post.updatedAt).toISOString()
+        : undefined,
       section: post.category.name,
     },
     twitter: {
@@ -113,13 +115,7 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   const article = post!
-
-  const [relatedPosts, trendingPosts, recommendedPosts] =
-    await Promise.all([
-      getRelatedPosts(article.id, article.categoryId, 12),
-      getTrendingPosts(),
-      getRecommendedPosts(article.id, article.categoryId, 12),
-    ])
+  const trendingPosts = await getTrendingPosts()
 
   const siteUrl = getSiteUrl()
   const fullUrl = `${siteUrl}/${article.category.slug}/${article.slug}`
@@ -136,8 +132,12 @@ export default async function PostPage({ params }: PostPageProps) {
     "@id": `${fullUrl}#article`,
     headline: article.title,
     description: article.excerpt,
-    datePublished: article.publishedAt ? new Date(article.publishedAt).toISOString() : null,
-    dateModified: article.updatedAt ? new Date(article.updatedAt).toISOString() : null,
+    datePublished: article.publishedAt
+      ? new Date(article.publishedAt).toISOString()
+      : null,
+    dateModified: article.updatedAt
+      ? new Date(article.updatedAt).toISOString()
+      : null,
     inLanguage: "vi-VN",
     articleSection: article.category.name,
     mainEntityOfPage: {
@@ -172,8 +172,6 @@ export default async function PostPage({ params }: PostPageProps) {
       articleHtml={articleHtml}
       fullUrl={fullUrl}
       trendingPosts={trendingPosts}
-      relatedPosts={relatedPosts}
-      recommendedPosts={recommendedPosts}
       dateValue={article.publishedAt}
       showViewTracker
       showSocialShare

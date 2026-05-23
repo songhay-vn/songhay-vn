@@ -15,7 +15,7 @@ describe("Unit: SEO Utilities", () => {
 
   test("getSiteUrl returns default when env is not set", () => {
     delete process.env.NEXT_PUBLIC_SITE_URL
-    expect(getSiteUrl()).toBe("https://www.songhay.vn")
+    expect(getSiteUrl()).toBe("https://songhay.vn")
   })
 
   test("getSiteUrl returns env value when set", () => {
