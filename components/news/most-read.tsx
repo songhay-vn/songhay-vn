@@ -32,7 +32,7 @@ export function MostRead({ posts }: MostReadProps) {
             <div className="flex-1 space-y-1">
               <Link
                 href={`/${post.categorySlug}/${post.slug}`}
-                className="line-clamp-2 text-sm font-bold leading-snug text-zinc-800 transition hover:text-rose-600"
+                className="line-clamp-3 text-sm font-bold leading-snug text-zinc-800 transition hover:text-rose-600"
               >
                 {post.title}
               </Link>
