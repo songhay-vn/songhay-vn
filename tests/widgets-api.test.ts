@@ -41,8 +41,9 @@ describe("widgets API integration", () => {
     expect(source).toContain("Math.min(")
     expect(source).toContain("toPositiveInt")
     const queriesSource = readWorkspaceFile("lib/queries.ts")
-    expect(queriesSource).toContain("isPublished: true")
-    expect(queriesSource).toContain("isDeleted: false")
+    const utilsSource = readWorkspaceFile("lib/query-utils.ts")
+    expect(utilsSource).toContain("isPublished: true")
+    expect(utilsSource).toContain("isDeleted: false")
     expect(queriesSource).toContain("isDraft: false")
   })
 

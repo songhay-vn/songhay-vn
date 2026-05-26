@@ -70,17 +70,17 @@ import "ckeditor5/ckeditor5-editor.css"
 const cleanHtmlContent = (htmlData: string) => {
   const parser = new DOMParser()
   const doc = parser.parseFromString(htmlData, "text/html")
-  
+
   const allowedAttributes = ["src", "alt", "title", "colspan", "rowspan", "target", "href", "style", "class"]
   const elements = Array.from(doc.body.querySelectorAll("*"))
-  
+
   elements.forEach(el => {
     // Remove unwanted/garbage tags entirely
     if (["META", "LINK", "SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "BUTTON", "INPUT", "FORM", "SELECT", "TEXTAREA", "NAV", "HEADER", "FOOTER", "ASIDE"].includes(el.tagName)) {
       el.remove()
       return
     }
-    
+
     // Remove all attributes except allowed ones
     const attrs = Array.from(el.attributes)
     attrs.forEach(attr => {
@@ -141,9 +141,9 @@ class PastePlainTextPlugin extends Plugin {
             const cleanHtml = cleanHtmlContent(htmlData)
             const viewFragment = editor.data.processor.toView(cleanHtml)
             const modelFragment = editor.data.toModel(viewFragment)
-            
+
             editor.model.change((writer) => {
-               editor.model.insertContent(modelFragment)
+              editor.model.insertContent(modelFragment)
             })
             return
           }
@@ -151,21 +151,21 @@ class PastePlainTextPlugin extends Plugin {
           const text = textData || await navigator.clipboard.readText()
           if (text) {
             const escapeHtml = (unsafe: string) => {
-                return unsafe
-                     .replace(/&/g, "&amp;")
-                     .replace(/</g, "&lt;")
-                     .replace(/>/g, "&gt;")
-                     .replace(/"/g, "&quot;")
-                     .replace(/'/g, "&#039;");
+              return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
             }
-            
+
             const paragraphsHTML = text
               .split('\n')
               .map(line => line.trim())
               .filter(line => line.length > 0)
               .map(line => `<p>${escapeHtml(line)}</p>`)
               .join('')
-              
+
             const viewFragment = editor.data.processor.toView(paragraphsHTML || escapeHtml(text))
             const modelFragment = editor.data.toModel(viewFragment)
             editor.model.change((writer) => {

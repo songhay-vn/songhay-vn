@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client"
 
 import { NAV_CATEGORIES } from "./categories"
 import { prisma } from "@/lib/prisma"
+import { publishedPostWhere, selectApprovedCommentsCount } from "./query-utils"
 
 import type {
   PostListItem,
@@ -32,16 +33,7 @@ function createPublishedSearchWhere(
   normalizedQuery: string
 ): Prisma.PostWhereInput {
   return {
-    isPublished: true,
-    isDeleted: false,
-    AND: [
-      {
-        OR: [
-          { scheduledPublishAt: null },
-          { scheduledPublishAt: { lte: new Date() } },
-        ],
-      },
-    ],
+    ...publishedPostWhere(),
     isDraft: false,
     OR: [
       { title: { contains: normalizedQuery, mode: "insensitive" } },
@@ -59,21 +51,10 @@ async function getMostReadPostsHome() {
   cacheTag("homepage-most-read")
   cacheLife("weeks")
   return prisma.post.findMany({
-    where: {
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
-    },
+    where: publishedPostWhere(),
     include: {
       category: true,
-      _count: { select: { comments: { where: { isApproved: true } } } },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
     take: 5,
@@ -85,21 +66,10 @@ async function getLatestPostsHome() {
   cacheTag("homepage-latest")
   cacheLife("weeks")
   return prisma.post.findMany({
-    where: {
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
-    },
+    where: publishedPostWhere(),
     include: {
       category: true,
-      _count: { select: { comments: { where: { isApproved: true } } } },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: { publishedAt: "desc" },
     take: 30,
@@ -123,16 +93,7 @@ export async function getPostsByCategory(categorySlug: string) {
 
   return prisma.post.findMany({
     where: {
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
+      ...publishedPostWhere(),
       OR: [
         { category: { slug: categorySlug } },
         { category: { parent: { slug: categorySlug } } },
@@ -140,9 +101,7 @@ export async function getPostsByCategory(categorySlug: string) {
     },
     include: {
       category: true,
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: { publishedAt: "desc" },
     take: 20,
@@ -161,16 +120,7 @@ export async function searchPublishedPosts(query: string, limit = 24) {
 
   return prisma.post.findMany({
     where: {
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
+      ...publishedPostWhere(),
       isDraft: false,
       OR: [
         { title: { contains: normalizedQuery, mode: "insensitive" } },
@@ -192,9 +142,7 @@ export async function searchPublishedPosts(query: string, limit = 24) {
       category: {
         select: { name: true, slug: true },
       },
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: { publishedAt: "desc" },
     take: safeLimit,
@@ -254,9 +202,7 @@ export async function getPublishedSearchResults(
       category: {
         select: { name: true, slug: true },
       },
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: { publishedAt: "desc" },
     skip: (currentPage - 1) * safePageSize,
@@ -318,17 +264,8 @@ export async function getPostByCategoryAndSlug(
 
   return prisma.post.findFirst({
     where: {
+      ...publishedPostWhere(),
       slug,
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
       category: { slug: categorySlug },
     },
     include: {
@@ -349,23 +286,12 @@ export async function getTrendingPosts() {
 
   return prisma.post.findMany({
     where: {
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
+      ...publishedPostWhere(),
       OR: [{ isTrending: true }, { views: { gt: 100 } }],
     },
     include: {
       category: true,
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: [
       { isTrending: "desc" },
@@ -385,18 +311,7 @@ export async function getRecommendedPosts(
   cacheTag("recommended-posts")
   cacheLife("weeks")
 
-  const where: Prisma.PostWhereInput = {
-    isPublished: true,
-    isDeleted: false,
-    AND: [
-      {
-        OR: [
-          { scheduledPublishAt: null },
-          { scheduledPublishAt: { lte: new Date() } },
-        ],
-      },
-    ],
-  }
+  const where: Prisma.PostWhereInput = publishedPostWhere()
 
   if (postId) {
     where.id = { not: postId }
@@ -415,9 +330,7 @@ export async function getRecommendedPosts(
     where,
     include: {
       category: true,
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: [
       { isFeatured: "desc" },
@@ -498,26 +411,15 @@ export async function getLatestByCategory(
   // Single query instead of N concurrent queries — avoids connection pool exhaustion
   const allPosts = await prisma.post.findMany({
     where: {
-      isPublished: true,
-      isDeleted: false,
+      ...publishedPostWhere(),
       isDraft: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
       category: {
         OR: [{ id: { in: categoryIds } }, { parentId: { in: categoryIds } }],
       },
     },
     include: {
       category: true,
-      _count: {
-        select: { comments: { where: { isApproved: true } } },
-      },
+      _count: selectApprovedCommentsCount,
     },
     orderBy: { publishedAt: "desc" },
     // Fetch 5× the needed amount to ensure all categories get enough posts even
@@ -549,16 +451,7 @@ export async function getLatestByCategory(
 export async function getLatestPostsForSsg(limit = 50) {
   return prisma.post.findMany({
     where: {
-      isPublished: true,
-      isDeleted: false,
-      AND: [
-        {
-          OR: [
-            { scheduledPublishAt: null },
-            { scheduledPublishAt: { lte: new Date() } },
-          ],
-        },
-      ],
+      ...publishedPostWhere(),
       isDraft: false,
     },
     select: { slug: true, category: { select: { slug: true } } },

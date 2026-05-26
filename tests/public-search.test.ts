@@ -37,8 +37,9 @@ describe("public search flow", () => {
     expect(source).toContain(
       'content: { contains: normalizedQuery, mode: "insensitive" }'
     )
-    expect(source).toContain("isPublished: true")
-    expect(source).toContain("isDeleted: false")
+    const utilsSource = readWorkspaceFile("lib/query-utils.ts")
+    expect(utilsSource).toContain("isPublished: true")
+    expect(utilsSource).toContain("isDeleted: false")
     expect(source).toContain("isDraft: false")
     expect(source).toContain(
       'title: { contains: normalizedQuery, mode: "insensitive" }'
