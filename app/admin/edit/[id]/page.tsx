@@ -35,11 +35,14 @@ import {
 import { normalizeKeyword, splitLegacySeoKeywords } from "@/lib/seo-keywords"
 import {
   getPlainTextFromHtml,
+  logPostHistory,
   resolveEditorialFromSubmitAction,
-  sortCategoriesByTree,
+  revalidatePost,
+  revalidatePostTagsOnly,
   uniquePostSlug,
-} from "@/app/admin/edit/[id]/helpers"
-import { logPostHistory, revalidatePost, revalidatePostTagsOnly } from "@/app/admin/actions-helpers"
+} from "@/app/admin/actions-helpers"
+import { sortCategoriesByTree } from "@/app/admin/data-helpers"
+
 
 
 export const metadata: Metadata = {

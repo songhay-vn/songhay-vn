@@ -69,34 +69,36 @@ export function getPlainTextFromHtml(value: string) {
     .trim()
 }
 
-export async function uniqueCategorySlug(baseName: string, currentId?: string) {
-  const base = slugify(baseName)
+export async function uniqueSlug(baseInput: string, checkIsTaken: (slug: string) => Promise<boolean>) {
+  const base = slugify(baseInput)
   let candidate = base
   let index = 1
 
-  while (true) {
-    const found = await prisma.category.findUnique({ where: { slug: candidate }, select: { id: true } })
-    if (!found || found.id === currentId) {
-      return candidate
-    }
-    candidate = `${base}-${index}`
+  while (await checkIsTaken(candidate)) {
     index += 1
+    candidate = `${base}-${index}`
   }
+  return candidate
 }
 
-export async function uniquePostSlug(baseTitle: string) {
-  const base = slugify(baseTitle)
-  let candidate = base
-  let index = 1
+export async function uniqueCategorySlug(baseName: string, currentId?: string) {
+  return uniqueSlug(baseName, async (candidate) => {
+    const found = await prisma.category.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    })
+    return !!found && found.id !== currentId
+  })
+}
 
-  while (true) {
-    const found = await prisma.post.findUnique({ where: { slug: candidate }, select: { id: true } })
-    if (!found) {
-      return candidate
-    }
-    index += 1
-    candidate = `${base}-${index}`
-  }
+export async function uniquePostSlug(baseTitle: string, currentId?: string) {
+  return uniqueSlug(baseTitle, async (candidate) => {
+    const found = await prisma.post.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    })
+    return !!found && found.id !== currentId
+  })
 }
 
 export async function logPostHistory({
