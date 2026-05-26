@@ -25,6 +25,7 @@ export async function getAdminPageData({
   postsFilters,
   personalArchiveFilters,
   trashFilters,
+  historyPage,
   currentUser,
 }: GetAdminPageDataInput) {
   const {
@@ -84,7 +85,12 @@ export async function getAdminPageData({
     seoKeywords: [],
   }
   let usersData: Awaited<ReturnType<typeof getUsersData>> = []
-  let historyLogs: Awaited<ReturnType<typeof getHistoryData>> = []
+  let historyLogs: Awaited<ReturnType<typeof getHistoryData>> = {
+    rows: [],
+    totalCount: 0,
+    totalPages: 1,
+    currentPage: 1,
+  }
   let permissionsMatrix: Awaited<ReturnType<typeof getRolePermissionsData>> = []
 
   // Selectively fire only required loaders for the active tab
@@ -106,7 +112,7 @@ export async function getAdminPageData({
       personalPostsData = await getPersonalPostsData(activeTab, personalArchiveFilters, currentUser)
       break
     case "history":
-      historyLogs = await getHistoryData(activeTab)
+      historyLogs = await getHistoryData(activeTab, historyPage)
       break
     case "categories":
       categoriesForManage = await getCategoriesForManage(activeTab)
@@ -136,6 +142,7 @@ export async function getAdminPageData({
   }
 
   const postsPaginationItems = buildPaginationItems(postsData.currentPage, postsData.totalPages)
+  const historyPaginationItems = buildPaginationItems(historyLogs.currentPage, historyLogs.totalPages)
 
   return {
     postCount,
@@ -164,6 +171,7 @@ export async function getAdminPageData({
     moderationSettings,
     usersData,
     historyLogs,
+    historyPaginationItems,
     permissionsMatrix,
   }
 }

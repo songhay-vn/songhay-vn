@@ -61,5 +61,6 @@ export type GetAdminPageDataInput = {
   postsFilters: PostsFilters
   personalArchiveFilters: PersonalArchiveFilters
   trashFilters: TrashFilters
+  historyPage: number
   currentUser: AdminCurrentUser
 }

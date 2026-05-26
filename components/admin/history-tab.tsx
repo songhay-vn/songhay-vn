@@ -17,6 +17,7 @@ import { vi } from "date-fns/locale"
 import { Eye, RotateCcw } from "lucide-react"
 
 import { restorePostVersion } from "@/app/admin/actions/posts"
+import { AdminPagination } from "./admin-pagination"
 
 type HistoryLog = {
   id: string
@@ -33,7 +34,7 @@ type HistoryLog = {
     title: string
     slug: string
     category: { slug: string }
-  }
+  } | null
   actor: {
     id: string
     name: string
@@ -42,12 +43,20 @@ type HistoryLog = {
 }
 
 type HistoryTabProps = {
-  historyLogs: Array<HistoryLog>
+  historyData: {
+    rows: Array<HistoryLog>
+    totalCount: number
+    totalPages: number
+    currentPage: number
+  }
+  paginationItems: Array<number | "ellipsis">
 }
 
-export function HistoryTab({ historyLogs }: HistoryTabProps) {
+export function HistoryTab({ historyData, paginationItems }: HistoryTabProps) {
   const [selectedLog, setSelectedLog] = useState<HistoryLog | null>(null)
   const [isRestoring, setIsRestoring] = useState(false)
+
+  const historyLogs = historyData.rows
 
   if (historyLogs.length === 0) {
     return (
@@ -110,7 +119,7 @@ export function HistoryTab({ historyLogs }: HistoryTabProps) {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Lịch sử tác động</h2>
           <p className="text-sm text-muted-foreground">
-            Lưu vết 100 hành động biên tập gần nhất trên toàn hệ thống.
+            Lưu vết tất cả hành động biên tập trên toàn hệ thống.
           </p>
         </div>
       </div>
@@ -184,6 +193,15 @@ export function HistoryTab({ historyLogs }: HistoryTabProps) {
           </TableBody>
         </Table>
       </div>
+
+      <AdminPagination
+        currentPage={historyData.currentPage}
+        totalPages={historyData.totalPages}
+        totalCount={historyData.totalCount}
+        paginationItems={paginationItems}
+        buildPageHref={(page) => `/admin?tab=history&historyPage=${page}`}
+        unitLabel="hành động"
+      />
 
       <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">

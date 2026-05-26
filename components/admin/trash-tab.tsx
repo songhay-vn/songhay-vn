@@ -1,23 +1,17 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import Image from "next/image"
-import { CalendarDays, ChevronLeft, ChevronRight, RotateCcw, Search, Trash2, UserRound, X } from "lucide-react"
+import { CalendarDays, RotateCcw, Search, Trash2, UserRound, X } from "lucide-react"
 
 import { ConfirmActionForm } from "@/components/admin/confirm-action-form"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import { showToastByKey } from "@/components/admin/action-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-} from "@/components/ui/pagination"
 import { Select } from "@/components/ui/select"
+import { useAdminFilterForm } from "@/hooks/use-admin-filter-form"
+import { AdminPagination } from "./admin-pagination"
 
 type TrashedPost = {
   id: string
@@ -66,16 +60,18 @@ export function TrashTab({
   deletePostPermanently,
 }: TrashTabProps) {
   const router = useRouter()
+  const { onSubmit } = useAdminFilterForm()
   const hasActiveFilters = Boolean(filters.query || (isAdmin && filters.authorId && filters.authorId !== "all") || filters.fromDate || filters.toDate)
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const params = new URLSearchParams()
-    formData.forEach((value, key) => {
-      if (typeof value === "string" && value) params.append(key, value)
-    })
-    router.replace(`/admin?${params.toString()}`, { scroll: false })
+  function buildPageHref(page: number) {
+    return (
+      `/admin?tab=trash` +
+      (filters.query ? `&trashQ=${encodeURIComponent(filters.query)}` : "") +
+      (isAdmin && filters.authorId && filters.authorId !== "all" ? `&trashAuthor=${encodeURIComponent(filters.authorId)}` : "") +
+      (filters.fromDate ? `&trashFrom=${encodeURIComponent(filters.fromDate)}` : "") +
+      (filters.toDate ? `&trashTo=${encodeURIComponent(filters.toDate)}` : "") +
+      `&trashPage=${page}`
+    )
   }
 
   return (
@@ -215,60 +211,13 @@ export function TrashTab({
         ))
       )}
 
-      {data.totalPages > 1 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-3">
-          <p className="text-xs text-zinc-500">
-            Trang {data.currentPage}/{data.totalPages} ·{" "}
-            {data.totalCount.toLocaleString("vi-VN")} bài
-          </p>
-
-          <div className="flex items-center gap-1">
-            {data.currentPage > 1 ? (
-              <Link href={`/admin?tab=trash${filters.query ? `&trashQ=${encodeURIComponent(filters.query)}` : ""}${isAdmin && filters.authorId && filters.authorId !== "all" ? `&trashAuthor=${encodeURIComponent(filters.authorId)}` : ""}${filters.fromDate ? `&trashFrom=${encodeURIComponent(filters.fromDate)}` : ""}${filters.toDate ? `&trashTo=${encodeURIComponent(filters.toDate)}` : ""}&trashPage=${data.currentPage - 1}`}>
-                <Button size="icon" variant="outline" className="size-7">
-                  <ChevronLeft className="size-3.5" />
-                </Button>
-              </Link>
-            ) : (
-              <Button size="icon" variant="outline" className="size-7" disabled>
-                <ChevronLeft className="size-3.5" />
-              </Button>
-            )}
-
-            <Pagination className="justify-start">
-              <PaginationContent className="gap-0.5">
-                {data.paginationItems.map((item, index) => (
-                  <PaginationItem key={`trash-page-${index}-${String(item)}`}>
-                    {item === "ellipsis" ? (
-                      <PaginationEllipsis />
-                    ) : (
-                      <PaginationLink
-                        href={`/admin?tab=trash${filters.query ? `&trashQ=${encodeURIComponent(filters.query)}` : ""}${isAdmin && filters.authorId && filters.authorId !== "all" ? `&trashAuthor=${encodeURIComponent(filters.authorId)}` : ""}${filters.fromDate ? `&trashFrom=${encodeURIComponent(filters.fromDate)}` : ""}${filters.toDate ? `&trashTo=${encodeURIComponent(filters.toDate)}` : ""}&trashPage=${item}`}
-                        isActive={item === data.currentPage}
-                        className="size-7 text-xs"
-                      >
-                        {item}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
-                ))}
-              </PaginationContent>
-            </Pagination>
-
-            {data.currentPage < data.totalPages ? (
-              <Link href={`/admin?tab=trash${filters.query ? `&trashQ=${encodeURIComponent(filters.query)}` : ""}${isAdmin && filters.authorId && filters.authorId !== "all" ? `&trashAuthor=${encodeURIComponent(filters.authorId)}` : ""}${filters.fromDate ? `&trashFrom=${encodeURIComponent(filters.fromDate)}` : ""}${filters.toDate ? `&trashTo=${encodeURIComponent(filters.toDate)}` : ""}&trashPage=${data.currentPage + 1}`}>
-                <Button size="icon" variant="outline" className="size-7">
-                  <ChevronRight className="size-3.5" />
-                </Button>
-              </Link>
-            ) : (
-              <Button size="icon" variant="outline" className="size-7" disabled>
-                <ChevronRight className="size-3.5" />
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
+      <AdminPagination
+        currentPage={data.currentPage}
+        totalPages={data.totalPages}
+        totalCount={data.totalCount}
+        paginationItems={data.paginationItems}
+        buildPageHref={buildPageHref}
+      />
     </div>
   )
 }

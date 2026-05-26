@@ -117,6 +117,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     postsFilters,
     personalArchiveFilters,
     trashFilters,
+    historyPage,
   } = parseAdminSearchParams(searchParams)
 
   const activeTab: AdminTab = visibleTabs.some(
@@ -143,6 +144,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     moderationSettings,
     usersData,
     historyLogs,
+    historyPaginationItems,
     permissionsMatrix,
   } = await getAdminPageData({
     activeTab,
@@ -150,6 +152,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     postsFilters,
     personalArchiveFilters,
     trashFilters,
+    historyPage,
     currentUser: {
       id: currentUser.id,
       role: currentUser.role,
@@ -263,7 +266,10 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
         />
       ) : null}
       {activeTab === "history" ? (
-        <HistoryTab historyLogs={historyLogs} />
+        <HistoryTab
+          historyData={historyLogs}
+          paginationItems={historyPaginationItems}
+        />
       ) : null}
       {activeTab === "comments" ? (
         <CommentsTab

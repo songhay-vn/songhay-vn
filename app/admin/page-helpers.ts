@@ -223,6 +223,7 @@ type RawSearchParams = {
   trashFrom?: string
   trashTo?: string
   trashPage?: string
+  historyPage?: string
 }
 
 export function getVisibleTabs({
@@ -307,6 +308,9 @@ export function parseAdminSearchParams(resolvedSearchParams?: RawSearchParams) {
   const rawTrashPage = Number.parseInt(resolvedSearchParams?.trashPage || "1", 10)
   const requestedTrashPage = Number.isFinite(rawTrashPage) && rawTrashPage > 0 ? rawTrashPage : 1
 
+  const rawHistoryPage = Number.parseInt(resolvedSearchParams?.historyPage || "1", 10)
+  const requestedHistoryPage = Number.isFinite(rawHistoryPage) && rawHistoryPage > 0 ? rawHistoryPage : 1
+
   return {
     tabFromQuery,
     overviewRange,
@@ -336,5 +340,6 @@ export function parseAdminSearchParams(resolvedSearchParams?: RawSearchParams) {
       toDate: trashTo,
       requestedPage: requestedTrashPage,
     } as const,
+    historyPage: requestedHistoryPage,
   }
 }
