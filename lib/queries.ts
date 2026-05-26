@@ -341,6 +341,21 @@ export async function getRecommendedPosts(
   })
 }
 
+function buildStaticNavFallback(): CategoryWithChildren[] {
+  return NAV_CATEGORIES.map((cat, idx) => ({
+    id: `static-${idx}`,
+    name: cat.name,
+    slug: cat.slug,
+    parentId: null,
+    children: (cat.children || []).map((child, cIdx) => ({
+      id: `static-${idx}-${cIdx}`,
+      name: child.name,
+      slug: child.slug,
+      parentId: `static-${idx}`,
+    })),
+  }))
+}
+
 export async function getNavCategories(): Promise<CategoryWithChildren[]> {
   "use cache"
   cacheTag("categories")
@@ -353,18 +368,7 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
     })
 
     if (allCats.length === 0) {
-      return NAV_CATEGORIES.map((cat, idx) => ({
-        id: `static-${idx}`,
-        name: cat.name,
-        slug: cat.slug,
-        parentId: null,
-        children: (cat.children || []).map((child, cIdx) => ({
-          id: `static-${idx}-${cIdx}`,
-          name: child.name,
-          slug: child.slug,
-          parentId: `static-${idx}`,
-        })),
-      }))
+      return buildStaticNavFallback()
     }
 
     const roots = allCats.filter((c) => !c.parentId)
@@ -377,18 +381,7 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
       "Failed to fetch nav categories from DB, falling back to static:",
       error
     )
-    return NAV_CATEGORIES.map((cat, idx) => ({
-      id: `static-${idx}`,
-      name: cat.name,
-      slug: cat.slug,
-      parentId: null,
-      children: (cat.children || []).map((child, cIdx) => ({
-        id: `static-${idx}-${cIdx}`,
-        name: child.name,
-        slug: child.slug,
-        parentId: `static-${idx}`,
-      })),
-    }))
+    return buildStaticNavFallback()
   }
 }
 
