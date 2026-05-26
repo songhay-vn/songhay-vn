@@ -27,9 +27,7 @@ describe("admin posts layout", () => {
 
     expect(source).toContain("width={84}")
     expect(source).toContain("height={60}")
-    expect(source).toContain(
-      'className="mt-0.5 h-[60px] w-[84px] shrink-0 rounded-md border border-zinc-200 object-cover"'
-    )
+    expect(source).toContain("<PostThumbnail")
   })
 
   test("admin content tabs keep key management surfaces cardless", () => {

@@ -1,11 +1,11 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import { CalendarDays, RotateCcw, Search, Trash2, UserRound, X } from "lucide-react"
 
 import { ConfirmActionForm } from "@/components/admin/confirm-action-form"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
+import { PostThumbnail } from "@/components/admin/post-thumbnail"
 import { showToastByKey } from "@/components/admin/action-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -145,19 +145,12 @@ export function TrashTab({
           <div key={post.id} className="rounded-lg border p-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                {post.thumbnailUrl ? (
-                  <Image
-                    src={post.thumbnailUrl}
-                    alt={post.title}
-                    width={80}
-                    height={56}
-                    className="h-14 w-20 border object-cover"
-                  />
-                ) : (
-                  <div className="flex h-14 w-20 items-center justify-center border bg-muted text-[11px] text-muted-foreground">
-                    No img
-                  </div>
-                )}
+                <PostThumbnail
+                  src={post.thumbnailUrl}
+                  alt={post.title}
+                  width={80}
+                  height={56}
+                />
                 <div>
                   <p className="font-semibold">{post.title}</p>
                   <p className="text-xs text-muted-foreground">

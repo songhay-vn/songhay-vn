@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 
+import { useAdminFilterForm } from "@/hooks/use-admin-filter-form"
 import type { PostsData, PostsFilters } from "./types"
 
 type PostsFilterBarProps = {
@@ -23,20 +24,7 @@ export function PostsFilterBar({
   hasActiveFilters,
 }: PostsFilterBarProps) {
   const router = useRouter()
-
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const params = new URLSearchParams()
-
-    formData.forEach((value, key) => {
-      if (typeof value === "string" && value) {
-        params.append(key, value)
-      }
-    })
-
-    router.replace(`/admin?${params.toString()}`, { scroll: false })
-  }
+  const { onSubmit } = useAdminFilterForm()
 
   return (
     <form
