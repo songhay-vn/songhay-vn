@@ -15,9 +15,7 @@ describe("admin posts layout", () => {
     expect(source).toContain(
       "<PostsTable posts={postsData.posts} {...permissions} {...actions} />"
     )
-    expect(source).toContain(
-      'className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-3"'
-    )
+    expect(source).toContain("<AdminPagination")
     expect(source).not.toContain('from "@/components/ui/card"')
     expect(source).not.toContain("<Card")
   })

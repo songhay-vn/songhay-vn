@@ -101,18 +101,12 @@ describe("role-action button visibility coverage", () => {
   test("admin page wires all new post workflow actions", () => {
     const source = readWorkspaceFile("app/admin/page.tsx")
 
-    expect(source).toContain(
-      "submitPostToPendingReview={submitPostToPendingReview}"
-    )
-    expect(source).toContain(
-      "promotePostToPendingPublish={promotePostToPendingPublish}"
-    )
-    expect(source).toContain("returnPostToDraft={returnPostToDraft}")
-    expect(source).toContain(
-      "returnPostToPendingReview={returnPostToPendingReview}"
-    )
-    expect(source).toContain(
-      "returnPostToPendingPublish={returnPostToPendingPublish}"
-    )
+    expect(source).toContain("const postActions: PostActions = {")
+    expect(source).toContain("submitPostToPendingReview,")
+    expect(source).toContain("promotePostToPendingPublish,")
+    expect(source).toContain("returnPostToDraft,")
+    expect(source).toContain("returnPostToPendingReview,")
+    expect(source).toContain("returnPostToPendingPublish,")
+    expect(source).toContain("{...postActions}")
   })
 })

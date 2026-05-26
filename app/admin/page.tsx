@@ -39,6 +39,7 @@ import { MediaLibraryTab } from "@/components/admin/media-library-tab"
 import { OverviewTab } from "@/components/admin/overview-tab"
 import { PersonalArchiveTab } from "@/components/admin/personal-archive-tab"
 import { PostsTab } from "@/components/admin/posts-tab"
+import type { PostActions, PostPermissions } from "@/components/admin/posts-tab/types"
 import { SettingsModerationTab } from "@/components/admin/settings-moderation-tab"
 import { SettingsPasswordTab } from "@/components/admin/settings-password-tab"
 import { SettingsPermissionsTab } from "@/components/admin/settings-permissions-tab"
@@ -194,6 +195,31 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     },
   ]
 
+  const postPermissions: PostPermissions = {
+    isAdmin: canSeeAllPosts,
+    canDeletePost: can(currentUser.role, "delete-post"),
+    currentUserId: currentUser.id,
+    canSubmitPendingReview: can(currentUser.role, "submit-pending-review"),
+    canSubmitPendingPublish: canSubmitPendingPublish(currentUser.role),
+    canReviewPending: canApprovePendingReview(currentUser.role),
+    canPublishNow: canPublishNow(currentUser.role),
+    canEditDraft: canEditByStatus(currentUser.role, "DRAFT"),
+    canEditPendingReview: canEditByStatus(currentUser.role, "PENDING_REVIEW"),
+    canEditPendingPublish: canEditByStatus(currentUser.role, "PENDING_PUBLISH"),
+    canEditPublished: canEditByStatus(currentUser.role, "PUBLISHED"),
+  }
+
+  const postActions: PostActions = {
+    movePostToTrash,
+    submitPostToPendingReview,
+    promotePostToPendingPublish,
+    approvePendingPost,
+    rejectPendingPost,
+    returnPostToDraft,
+    returnPostToPendingReview,
+    returnPostToPendingPublish,
+  }
+
   return (
     <>
       {activeTab === "overview" ? (
@@ -231,38 +257,10 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
       ) : null}
       {activeTab === "personal-archive" ? (
         <PersonalArchiveTab
-          isAdmin={canSeeAllPosts}
-          canDeletePost={can(currentUser.role, "delete-post")}
-          currentUserId={currentUser.id}
-          canSubmitPendingReview={can(
-            currentUser.role,
-            "submit-pending-review"
-          )}
-          canSubmitPendingPublish={canSubmitPendingPublish(
-            currentUser.role
-          )}
-          canReviewPending={canApprovePendingReview(currentUser.role)}
-          canPublishNow={canPublishNow(currentUser.role)}
-          canEditDraft={canEditByStatus(currentUser.role, "DRAFT")}
-          canEditPendingReview={canEditByStatus(
-            currentUser.role,
-            "PENDING_REVIEW"
-          )}
-          canEditPendingPublish={canEditByStatus(
-            currentUser.role,
-            "PENDING_PUBLISH"
-          )}
-          canEditPublished={canEditByStatus(currentUser.role, "PUBLISHED")}
+          {...postPermissions}
+          {...postActions}
           data={personalPostsData}
           filters={personalArchiveFilters}
-          movePostToTrash={movePostToTrash}
-          submitPostToPendingReview={submitPostToPendingReview}
-          promotePostToPendingPublish={promotePostToPendingPublish}
-          approvePendingPost={approvePendingPost}
-          rejectPendingPost={rejectPendingPost}
-          returnPostToDraft={returnPostToDraft}
-          returnPostToPendingReview={returnPostToPendingReview}
-          returnPostToPendingPublish={returnPostToPendingPublish}
         />
       ) : null}
       {activeTab === "history" ? (
@@ -289,39 +287,11 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
       ) : null}
       {activeTab === "posts" ? (
         <PostsTab
-          isAdmin={canSeeAllPosts}
-          canDeletePost={can(currentUser.role, "delete-post")}
-          currentUserId={currentUser.id}
-          canSubmitPendingReview={can(
-            currentUser.role,
-            "submit-pending-review"
-          )}
-          canSubmitPendingPublish={canSubmitPendingPublish(
-            currentUser.role
-          )}
-          canReviewPending={canApprovePendingReview(currentUser.role)}
-          canPublishNow={canPublishNow(currentUser.role)}
-          canEditDraft={canEditByStatus(currentUser.role, "DRAFT")}
-          canEditPendingReview={canEditByStatus(
-            currentUser.role,
-            "PENDING_REVIEW"
-          )}
-          canEditPendingPublish={canEditByStatus(
-            currentUser.role,
-            "PENDING_PUBLISH"
-          )}
-          canEditPublished={canEditByStatus(currentUser.role, "PUBLISHED")}
+          {...postPermissions}
+          {...postActions}
           postsData={postsData}
           filters={postsFilters}
           postsPaginationItems={postsPaginationItems}
-          movePostToTrash={movePostToTrash}
-          submitPostToPendingReview={submitPostToPendingReview}
-          promotePostToPendingPublish={promotePostToPendingPublish}
-          approvePendingPost={approvePendingPost}
-          rejectPendingPost={rejectPendingPost}
-          returnPostToDraft={returnPostToDraft}
-          returnPostToPendingReview={returnPostToPendingReview}
-          returnPostToPendingPublish={returnPostToPendingPublish}
         />
       ) : null}
       {activeTab === "trash" ? (
