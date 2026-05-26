@@ -4,7 +4,9 @@ export function normalizeArticleHtml(rawHtml: string) {
   return rawHtml
     .replace(/\r?\n|\r/g, " ")
     .replace(/\s+/g, " ")
-    .replace(new RegExp(`>([\\s]+)<`, "gi"), "><") // Remove purely empty spaces between tags, but keep &nbsp;
+    // We only remove spacing between a block tag and another tag to avoid breaking inline formatting (like links next to strong text).
+    .replace(new RegExp(`(</?(?:${blockTags})\\b[^>]*>)\\s+(?=<)`, "gi"), "$1")
+    .replace(new RegExp(`>\\s+(</?(?:${blockTags})\\b[^>]*>)`, "gi"), ">$1")
     .replace(/<p[^>]*>(?:\s|&nbsp;|\u00A0|<br\s*\/?>)*<\/p>/gi, '<p class="empty-line"></p>') // Convert CKEditor's empty paragraphs to explicitly classed empty paragraphs
     .replace(/<span([^>]*)style="([^"]*)"([^>]*)>([\s\S]*?)<\/span>/gi, (match, before, styleValue, after, content) => {
       const hasUnderline = /text-decoration\s*:\s*underline/i.test(styleValue)

@@ -71,21 +71,12 @@ const cleanHtmlContent = (htmlData: string) => {
   const parser = new DOMParser()
   const doc = parser.parseFromString(htmlData, "text/html")
   
-  const allowedAttributes = ["src", "alt", "title", "colspan", "rowspan", "target"]
+  const allowedAttributes = ["src", "alt", "title", "colspan", "rowspan", "target", "href", "style", "class"]
   const elements = Array.from(doc.body.querySelectorAll("*"))
   
   elements.forEach(el => {
     // Remove unwanted/garbage tags entirely
     if (["META", "LINK", "SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "BUTTON", "INPUT", "FORM", "SELECT", "TEXTAREA", "NAV", "HEADER", "FOOTER", "ASIDE"].includes(el.tagName)) {
-      el.remove()
-      return
-    }
-
-    // Unwrap anchor tags to remove the link but keep the inner text/elements
-    if (el.tagName === "A") {
-      while (el.firstChild) {
-        el.parentNode?.insertBefore(el.firstChild, el)
-      }
       el.remove()
       return
     }
