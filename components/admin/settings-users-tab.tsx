@@ -17,6 +17,9 @@ const ROLE_BADGE_COLORS: Record<UserRole, string> = {
   CONTRIBUTOR: "bg-amber-100 text-amber-700 border-amber-200",
 }
 
+const SELECT_CLASS_NAME =
+  "flex rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+
 type SettingsUsersTabProps = {
   users: UserRow[]
   currentUserId: string
@@ -62,7 +65,7 @@ export function SettingsUsersTab({
                 id="subordinateRole"
                 name="role"
                 defaultValue="CONTRIBUTOR"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className={`${SELECT_CLASS_NAME} h-10 w-full px-3 py-2 text-sm`}
               >
                 <option value="MANAGING_EDITOR">Thư ký biên tập</option>
                 <option value="TEAM_LEAD">Trưởng nhóm</option>
@@ -175,7 +178,7 @@ export function SettingsUsersTab({
                             <select
                               name="newRole"
                               defaultValue={user.role}
-                              className="flex h-7 rounded-md border border-input bg-background px-2 py-0 text-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                              className={`${SELECT_CLASS_NAME} h-7 px-2 py-0 text-xs`}
                             >
                               {ALL_EDITABLE_ROLES.map((role) => (
                                 <option key={role} value={role}>
