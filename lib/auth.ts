@@ -55,45 +55,32 @@ export async function getCurrentUser() {
   return user
 }
 
-export async function requireAdminUser() {
+async function requireUser(check?: (role: UserRole) => boolean) {
   const user = await getCurrentUser()
 
   if (!user) {
     redirect("/login?admin=1")
   }
 
-  const hasElevatedAccess =
-    canDeleteAnyMedia(user.role) || canCreateSubordinateAccount(user.role)
-
-  if (!hasElevatedAccess) {
+  if (check && !check(user.role)) {
     redirect("/")
   }
 
   return user
+}
+
+export async function requireAdminUser() {
+  return requireUser(
+    (role) => canDeleteAnyMedia(role) || canCreateSubordinateAccount(role)
+  )
 }
 
 export async function requireEditorInChiefUser() {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/login?admin=1")
-  }
-
-  if (!canCreateSubordinateAccount(user.role)) {
-    redirect("/")
-  }
-
-  return user
+  return requireUser((role) => canCreateSubordinateAccount(role))
 }
 
 export async function requireCmsUser() {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/login?admin=1")
-  }
-
-  return user
+  return requireUser()
 }
 
 export const authCookieName = SESSION_COOKIE_NAME

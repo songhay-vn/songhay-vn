@@ -70,7 +70,8 @@ describe("auth guard source checks", () => {
     const source = readWorkspaceFile("lib/auth.ts")
 
     expect(source).toContain("export async function requireAdminUser")
-    expect(source).toContain("const hasElevatedAccess")
+    expect(source).toContain("requireUser")
+    expect(source).toContain("canDeleteAnyMedia(role) || canCreateSubordinateAccount(role)")
     expect(source).toContain('redirect("/")')
   })
 
