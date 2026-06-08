@@ -50,25 +50,6 @@ export function normalizeArticleHtml(rawHtml: string) {
           keptRules.push(`float:${value}`)
         }
 
-        if (property === "color" && /^#[0-9a-f]{3,8}$|^rgb\([\d\s,.%]+\)$|^rgba\([\d\s,.%]+\)$|^[a-z-]+$/i.test(value)) {
-          keptRules.push(`color:${value}`)
-        }
-
-        if (
-          property === "background-color" &&
-          /^#[0-9a-f]{3,8}$|^rgb\([\d\s,.%]+\)$|^rgba\([\d\s,.%]+\)$|^[a-z-]+$/i.test(value)
-        ) {
-          keptRules.push(`background-color:${value}`)
-        }
-
-        if (property === "font-size" && /^(\d+(\.\d+)?(px|em|rem|%)|small|medium|large|x-large|xx-large)$/i.test(value)) {
-          keptRules.push(`font-size:${value}`)
-        }
-
-        if (property === "font-family" && /^[a-z0-9\s\-,'\"]+$/i.test(value)) {
-          keptRules.push(`font-family:${value}`)
-        }
-
         if (property === "text-decoration" && /^(underline|line-through|none)$/i.test(value)) {
           keptRules.push(`text-decoration:${value}`)
         }

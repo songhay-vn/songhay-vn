@@ -140,9 +140,9 @@ describe("Unit: HTML Normalization", () => {
     const input =
       '<p style="text-align: center; color: red; margin-top: 20px; font-size: 16px">Styled Text</p>'
     const output = normalizeArticleHtml(input)
-    expect(output).toContain(
-      'style="text-align:center;color:red;font-size:16px"'
-    )
+    expect(output).toContain('style="text-align:center"')
+    expect(output).not.toContain("color")
+    expect(output).not.toContain("font-size")
     expect(output).not.toContain("margin-top")
   })
 
@@ -156,13 +156,15 @@ describe("Unit: HTML Normalization", () => {
     expect(output).toContain("max-width:500px")
   })
 
-  test("supports font-family and background colors", () => {
+  test("strips copied source presentation styles", () => {
     const input =
-      '<span style="font-family: Arial, sans-serif; background-color: #fff; color: rgb(0,0,0)">Text</span>'
+      '<p style="font-family: Arial, sans-serif; background-color: #fff; background: yellow; color: rgb(0,0,0); font-size: 16px; text-align: center">Text</p>'
     const output = normalizeArticleHtml(input)
-    expect(output).toContain("font-family:arial, sans-serif")
-    expect(output).toContain("background-color:#fff")
-    expect(output).toContain("color:rgb(0,0,0)")
+    expect(output).toBe('<p style="text-align:center">Text</p>')
+    expect(output).not.toContain("font-family")
+    expect(output).not.toContain("background")
+    expect(output).not.toContain("color")
+    expect(output).not.toContain("font-size")
   })
 
   test("preserves images and videos/iframes unaffected", () => {
