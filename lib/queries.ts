@@ -119,19 +119,7 @@ export async function searchPublishedPosts(query: string, limit = 24) {
   if (!normalizedQuery) return []
 
   return prisma.post.findMany({
-    where: {
-      ...publishedPostWhere(),
-      isDraft: false,
-      OR: [
-        { title: { contains: normalizedQuery, mode: "insensitive" } },
-        { excerpt: { contains: normalizedQuery, mode: "insensitive" } },
-        {
-          category: {
-            name: { contains: normalizedQuery, mode: "insensitive" },
-          },
-        },
-      ],
-    },
+    where: createPublishedSearchWhere(normalizedQuery),
     select: {
       id: true,
       title: true,

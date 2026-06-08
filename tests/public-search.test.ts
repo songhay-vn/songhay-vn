@@ -35,6 +35,9 @@ describe("public search flow", () => {
 
     expect(source).toContain("export async function searchPublishedPosts")
     expect(source).toContain(
+      "where: createPublishedSearchWhere(normalizedQuery)"
+    )
+    expect(source).toContain(
       'content: { contains: normalizedQuery, mode: "insensitive" }'
     )
     const utilsSource = readWorkspaceFile("lib/query-utils.ts")
