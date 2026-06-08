@@ -12,7 +12,7 @@ import {
 import { NewsLayout } from "@/components/news/news-layout"
 
 export default async function NotFound() {
-  const [{ latest }, navCategories] = await Promise.all([
+  const [{ latestRest }, navCategories] = await Promise.all([
     getHomepageData(),
     getNavCategories(),
   ])
@@ -67,7 +67,7 @@ export default async function NotFound() {
       <div className="mb-8 border-t border-zinc-200 pt-16">
         <SectionHeading title="Bài viết mới nhất bạn có thể quan tâm" />
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {latest.slice(0, 4).map((post: PostListItem) => (
+          {latestRest.slice(0, 4).map((post: PostListItem) => (
             <PostCard
               key={post.id}
               href={`/${post.category.slug}/${post.slug}`}

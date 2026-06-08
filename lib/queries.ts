@@ -83,7 +83,8 @@ export async function getHomepageData() {
   ])
 
   const heroSlots = latest.slice(0, 7)
-  return { heroSlots, mostRead, latest }
+  const latestRest = latest.slice(7)
+  return { heroSlots, latestRest, mostRead }
 }
 
 export async function getPostsByCategory(categorySlug: string) {

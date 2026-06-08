@@ -6,7 +6,7 @@ import { PostCardList } from "./post-card-list"
 import { getRecommendedPosts, getHomepageData } from "@/lib/queries"
 
 export async function SiteEngagement() {
-  const [recommended, { latest }] = await Promise.all([
+  const [recommended, { latestRest }] = await Promise.all([
     getRecommendedPosts(undefined, undefined, 12),
     getHomepageData(),
   ])
@@ -15,7 +15,7 @@ export async function SiteEngagement() {
     <div className="mt-8 flex flex-col gap-8 border-t border-zinc-200 pt-8">
       <section className="space-y-4">
         <SectionHeading title="Tin mới nhất" />
-        <PostCardList posts={latest.slice(0, 10)} />
+        <PostCardList posts={latestRest.slice(0, 10)} />
       </section>
 
       <VienHanLamProducts />
