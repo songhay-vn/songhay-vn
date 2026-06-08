@@ -42,12 +42,17 @@ describe("seo governance and moderation", () => {
 })
 
 describe("ads and indexing", () => {
-  test("article and homepage render real Google Adsense slots", () => {
+  test("article rendering does not inject inline ad slots", () => {
     const articleSource = readWorkspaceFile("app/[category]/[slug]/page.tsx")
     const htmlHelperSource = readWorkspaceFile("lib/html.ts")
+    const cssSource = readWorkspaceFile("app/globals.css")
 
     expect(articleSource).toContain("ArticlePageShell")
-    expect(htmlHelperSource).toContain("adsbygoogle block w-full")
+    expect(articleSource).toContain("normalizeArticleHtml(article.content)")
+    expect(articleSource).not.toContain("injectInlineAdAfterSecondParagraph")
+    expect(htmlHelperSource).not.toContain("injectInlineAdAfterSecondParagraph")
+    expect(htmlHelperSource).not.toContain("ad-slot-wrapper")
+    expect(cssSource).not.toContain("ad-slot-wrapper")
   })
 
   test("disclaimer page is noindexed", () => {

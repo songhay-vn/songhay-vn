@@ -3,10 +3,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 import { ArticlePageShell } from "@/components/news/article-page-shell"
-import {
-  injectInlineAdAfterSecondParagraph,
-  normalizeArticleHtml,
-} from "@/lib/html"
+import { normalizeArticleHtml } from "@/lib/html"
 import { requireCmsUser } from "@/lib/auth"
 import { canViewAllPosts } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
@@ -57,9 +54,7 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
     getNavCategories(),
   ])
 
-  const articleHtml = injectInlineAdAfterSecondParagraph(
-    normalizeArticleHtml(post.content)
-  )
+  const articleHtml = normalizeArticleHtml(post.content)
   const fullUrl = `/${post.category.slug}/${post.slug}`
 
   return (

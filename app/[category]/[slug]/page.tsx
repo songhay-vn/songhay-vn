@@ -11,10 +11,7 @@ import {
   getLatestPostsForSsg,
   getNavCategories,
 } from "@/lib/queries"
-import {
-  injectInlineAdAfterSecondParagraph,
-  normalizeArticleHtml,
-} from "@/lib/html"
+import { normalizeArticleHtml } from "@/lib/html"
 import { buildAutoSeoDescription, buildAutoSeoTitle } from "@/lib/post-seo"
 import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, toAbsoluteUrl } from "@/lib/seo"
 
@@ -119,9 +116,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   const siteUrl = getSiteUrl()
   const fullUrl = `${siteUrl}/${article.category.slug}/${article.slug}`
-  const articleHtml = injectInlineAdAfterSecondParagraph(
-    normalizeArticleHtml(article.content)
-  )
+  const articleHtml = normalizeArticleHtml(article.content)
   const articleImage = toAbsoluteUrl(
     article.ogImage || article.thumbnailUrl || DEFAULT_OG_IMAGE_PATH
   )

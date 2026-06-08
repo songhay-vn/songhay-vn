@@ -152,7 +152,6 @@
     font-size: var(--ck-content-font-size);
     line-height: var(--ck-content-line-height);
     overflow-wrap: break-word;
-    word-wrap: break-word;
     word-break: break-word;
   }
 
@@ -161,7 +160,7 @@
   }
 
   .article-content.ck-content p,
-  .article-content.ck-content div:not(.ad-slot-wrapper):not(.video-wrap) {
+  .article-content.ck-content div:not(.video-wrap) {
     margin: 1rem 0 !important;
   }
 
@@ -169,7 +168,7 @@
   .article-content.ck-content p.empty-line,
   .article-content.ck-content p:empty,
   .article-content.ck-content p:has(br:only-child),
-  .article-content.ck-content div:not(.ad-slot-wrapper):not(.video-wrap):empty {
+  .article-content.ck-content div:not(.video-wrap):empty {
     margin: 0 !important;
     line-height: 0.1 !important;
     font-size: 0.1em !important;
@@ -177,7 +176,7 @@
 
   .article-content.ck-content p.empty-line::before,
   .article-content.ck-content p:empty::before,
-  .article-content.ck-content div:not(.ad-slot-wrapper):not(.video-wrap):empty::before {
+  .article-content.ck-content div:not(.video-wrap):empty::before {
     content: "\00a0";
   }
 
@@ -267,49 +266,5 @@
   .article-content.ck-content iframe {
     width: 100%;
     aspect-ratio: 16 / 9;
-  }
-
-  /* AdSense specific: collapse and hide blank spaces */
-  .ad-slot-wrapper {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border-top-width: 0 !important;
-    border-bottom-width: 0 !important;
-    min-height: 0 !important;
-    height: auto;
-  }
-
-  .ad-slot-wrapper:has(ins[data-ad-status="filled"]) {
-    margin-top: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
-  }
-
-  /* Handle specific utility classes when filled */
-  .ad-slot-wrapper.py-4:has(ins[data-ad-status="filled"]) {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-  }
-
-  .ad-slot-wrapper.py-6:has(ins[data-ad-status="filled"]) {
-    padding-top: 1.5rem !important;
-    padding-bottom: 1.5rem !important;
-  }
-
-  .ad-slot-wrapper.border-b:has(ins[data-ad-status="filled"]) {
-    border-bottom-width: 1px !important;
-  }
-
-  .ad-slot-wrapper.border-t:has(ins[data-ad-status="filled"]) {
-    border-top-width: 1px !important;
-  }
-
-  .ad-slot-wrapper:has(ins[data-ad-status="unfilled"]) {
-    display: none !important;
-  }
-
-  ins.adsbygoogle[data-ad-status="unfilled"] {
-    display: none !important;
   }
 }
