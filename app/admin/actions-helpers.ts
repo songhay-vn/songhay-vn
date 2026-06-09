@@ -1,10 +1,13 @@
+import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
+import { after } from "next/server"
 
 import { type EditorialStatus, type UserRole } from "@prisma/client"
 
 import { can, canPublishNow, canSubmitPendingPublish } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
+import { getSiteUrl } from "@/lib/seo"
 
 export function ensurePermission(condition: boolean, redirectTo: string) {
   if (!condition) {
@@ -134,7 +137,81 @@ export async function logPostHistory({
   })
 }
 
-import { revalidateTag } from "next/cache"
+const ROUTE_WARM_TIMEOUT_MS = 10_000
+
+type RevalidatePostOptions = {
+  isVisibilityChange?: boolean
+  isTrendingChange?: boolean
+  isFeaturedChange?: boolean
+  isVideoChange?: boolean
+  warmPublicRoutes?: boolean
+}
+
+async function warmRoute(pathname: string) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    ROUTE_WARM_TIMEOUT_MS
+  )
+
+  try {
+    const url = new URL(pathname, getSiteUrl())
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        "x-route-warm": "1",
+      },
+      signal: controller.signal,
+    })
+
+    if (!response.ok) {
+      console.warn(
+        `Route warm failed for ${url.pathname}: ${response.status} ${response.statusText}`
+      )
+    }
+  } catch (error) {
+    console.warn(
+      `Route warm failed for ${pathname}:`,
+      error instanceof Error ? error.message : error
+    )
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+function scheduleRouteWarm(paths: string[]) {
+  const uniquePaths = [...new Set(paths)]
+  if (uniquePaths.length === 0) return
+
+  const task = async () => {
+    await Promise.all(uniquePaths.map((path) => warmRoute(path)))
+  }
+
+  try {
+    after(task)
+  } catch {
+    void task()
+  }
+}
+
+function warmPublicPostRoutes({
+  slug,
+  categorySlug,
+  includeListingRoutes,
+}: {
+  slug?: string
+  categorySlug?: string
+  includeListingRoutes: boolean
+}) {
+  if (!slug || !categorySlug) return
+
+  const paths = [`/${categorySlug}/${slug}`]
+  if (includeListingRoutes) {
+    paths.push("/", `/${categorySlug}`)
+  }
+
+  scheduleRouteWarm(paths)
+}
 
 /**
  * Full cache tag invalidation: use when a post's PUBLIC visibility changes
@@ -147,12 +224,7 @@ import { revalidateTag } from "next/cache"
 export async function revalidatePost(
   slug?: string,
   categorySlug?: string,
-  options?: {
-    isVisibilityChange?: boolean
-    isTrendingChange?: boolean
-    isFeaturedChange?: boolean
-    isVideoChange?: boolean
-  }
+  options?: RevalidatePostOptions
 ) {
   if (slug) {
     revalidateTag(`post:${slug}`)
@@ -184,6 +256,17 @@ export async function revalidatePost(
 
   if (!options || options.isVideoChange || options.isVisibilityChange) {
     revalidateTag("most-watched-videos")
+  }
+
+  if (options?.warmPublicRoutes) {
+    warmPublicPostRoutes({
+      slug,
+      categorySlug,
+      includeListingRoutes:
+        !!options.isVisibilityChange ||
+        !!options.isFeaturedChange ||
+        !!options.isTrendingChange,
+    })
   }
 }
 

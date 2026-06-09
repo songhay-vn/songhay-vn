@@ -19,8 +19,10 @@ type PostPageProps = {
   params: Promise<{ category: string; slug: string }>
 }
 
+const ARTICLE_STATIC_PARAMS_LIMIT = 250
+
 export async function generateStaticParams() {
-  const latestPosts = await getLatestPostsForSsg(50)
+  const latestPosts = await getLatestPostsForSsg(ARTICLE_STATIC_PARAMS_LIMIT)
   return latestPosts.map((post) => ({
     category: post.category.slug,
     slug: post.slug,
@@ -102,9 +104,10 @@ export async function generateMetadata({
 
 export default async function PostPage({ params }: PostPageProps) {
   const { category, slug } = await params
-  const [post, navCategories] = await Promise.all([
+  const [post, navCategories, trendingPosts] = await Promise.all([
     getPostByCategoryAndSlug(category, slug),
     getNavCategories(),
+    getTrendingPosts(),
   ])
 
   if (!post) {
@@ -112,8 +115,6 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   const article = post!
-  const trendingPosts = await getTrendingPosts()
-
   const siteUrl = getSiteUrl()
   const fullUrl = `${siteUrl}/${article.category.slug}/${article.slug}`
   const articleHtml = normalizeArticleHtml(article.content)

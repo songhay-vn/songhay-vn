@@ -118,6 +118,7 @@ export default async function HomePage() {
                   commentCount={post._count.comments}
                   className="lg:flex-col"
                   variant="horizontal"
+                  prefetch={true}
                 />
               ))}
             </div>
@@ -138,6 +139,7 @@ export default async function HomePage() {
                 commentCount={post._count.comments}
                 className="lg:flex-col"
                 variant="horizontal"
+                prefetch={true}
               />
             ))}
           </div>

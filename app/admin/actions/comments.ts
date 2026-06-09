@@ -34,7 +34,9 @@ export async function moderateComment(formData: FormData) {
   }
 
   if (comment?.post) {
-    await revalidatePost(comment.post.slug, comment.post.category?.slug)
+    await revalidatePost(comment.post.slug, comment.post.category?.slug, {
+      isVisibilityChange: false,
+    })
   }
   
   revalidatePath("/admin")

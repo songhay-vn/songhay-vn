@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { clearDataCache } from "@/lib/data-cache"
 import { revalidatePost } from "@/app/admin/actions-helpers"
 
-export async function GET(
-  request: unknown,
-  context: { params: Promise<{}> }
-) {
+export async function GET(request: unknown) {
   await connection()
   const req = request as Request
   try {
@@ -57,7 +54,10 @@ export async function GET(
 
     // Revalidate paths for all published posts
     for (const post of postsToPublish) {
-      await revalidatePost(post.slug, post.category?.slug)
+      await revalidatePost(post.slug, post.category?.slug, {
+        isVisibilityChange: true,
+        warmPublicRoutes: true,
+      })
     }
     
     clearDataCache()

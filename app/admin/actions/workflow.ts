@@ -72,7 +72,10 @@ export async function approvePendingPost(formData: FormData) {
 
   // Only full ISR revalidation if post is being published now
   if (canPublishNow(currentUser.role)) {
-    await revalidatePost(existingPost.slug, existingPost.category?.slug)
+    await revalidatePost(existingPost.slug, existingPost.category?.slug, {
+      isVisibilityChange: true,
+      warmPublicRoutes: true,
+    })
   } else {
     // PENDING_PUBLISH: not yet public, just invalidate tags
     revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)

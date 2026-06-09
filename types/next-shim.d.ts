@@ -78,11 +78,15 @@ declare module "next/cache" {
 }
 
 declare module "next/server" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export type NextRequest = any
   export const NextResponse: {
     json: (body: unknown, init?: ResponseInit) => Response
   }
   export const connection: () => Promise<void>
+  export const after: <T>(
+    task: Promise<T> | (() => T | Promise<T>)
+  ) => void
 }
 
 declare module "next/headers" {

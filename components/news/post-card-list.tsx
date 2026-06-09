@@ -6,14 +6,15 @@ export type { PostListItem }
 
 type PostCardListProps = {
   posts: PostListItem[]
+  prefetchFirst?: number
 }
 
-export function PostCardList({ posts }: PostCardListProps) {
+export function PostCardList({ posts, prefetchFirst = 0 }: PostCardListProps) {
   if (posts.length === 0) return null
 
   return (
     <div className="flex flex-col border-t border-zinc-200">
-      {posts.map((post) => (
+      {posts.map((post, index) => (
         <div key={post.id} className="border-b border-zinc-200 py-6 last:border-b-0">
           <PostCard
             href={`/${post.category.slug}/${post.slug}`}
@@ -24,6 +25,7 @@ export function PostCardList({ posts }: PostCardListProps) {
             categoryName={post.category.name}
             variant="horizontal"
             commentCount={post._count.comments}
+            prefetch={index < prefetchFirst}
           />
         </div>
       ))}

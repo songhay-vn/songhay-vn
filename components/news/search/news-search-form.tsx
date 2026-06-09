@@ -128,14 +128,13 @@ export function NewsSearchForm({
   return (
     <div className={cn("relative w-full", className)}>
       <form action={action} method="GET" className="relative" onSubmit={handleSubmit}>
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
         <Input
           type="search"
           name={queryParam}
           value={value}
           autoFocus={autoFocus}
           placeholder={placeholder}
-          className={cn("h-10 pl-10 pr-11", inputClassName)}
+          className={cn("h-10 pl-3 pr-11", inputClassName)}
           onChange={(event) => setValue(event.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => {

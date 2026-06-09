@@ -129,7 +129,7 @@ async function SearchContent({ searchParams }: SearchPageProps) {
 
         {result.items.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {result.items.map((post: SearchResultItem) => (
+            {result.items.map((post: SearchResultItem, index) => (
               <PostCard
                 key={post.id}
                 href={`/${post.category.slug}/${post.slug}`}
@@ -138,6 +138,7 @@ async function SearchContent({ searchParams }: SearchPageProps) {
                 imageUrl={post.thumbnailUrl}
                 date={post.publishedAt}
                 categoryName={post.category.name}
+                prefetch={index < 6}
               />
             ))}
           </div>

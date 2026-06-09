@@ -290,6 +290,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         isTrendingChange: isTrendingChange,
         isFeaturedChange: updatedPost.isFeatured !== currentPost.isFeatured,
         isVideoChange: updatedPost.videoEmbedUrl !== currentPost.videoEmbedUrl,
+        warmPublicRoutes: isPublished,
       })
     } else {
       // Internal update for non-public post: just refresh tags

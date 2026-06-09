@@ -128,7 +128,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {posts.length === 0 ? (
             <p className="text-zinc-600">Chuyên mục này chưa có bài viết.</p>
           ) : (
-            <PostCardList posts={posts} />
+            <PostCardList posts={posts} prefetchFirst={8} />
           )}
 
           <Suspense

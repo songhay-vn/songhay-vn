@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { SearchIconPopup } from "./search-icon-popup"
 import { MobileNav } from "./mobile-nav"
 import { getNavCategories } from "@/lib/queries"
@@ -18,25 +18,46 @@ export function HeaderUserStatus({ navCategories, defaultSearchQuery }: HeaderUs
       </div>
       
       <SearchIconPopup defaultValue={defaultSearchQuery} />
-      <MobileNav navCategories={navCategories} defaultSearchQuery={defaultSearchQuery} />
+      <MobileNav navCategories={navCategories} />
     </div>
   )
 }
 
 function ClientDate() {
-  const [dateStr, setDateStr] = useState("")
+  const dateStr = useSyncExternalStore(
+    subscribeToDateSnapshot,
+    getClientDateSnapshot,
+    getServerDateSnapshot
+  )
 
-  useEffect(() => {
-    const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"]
-    const now = new Date()
-    const dayName = days[now.getDay()]
-    const day = now.getDate()
-    const month = now.getMonth() + 1
-    const year = now.getFullYear()
-    setDateStr(`${dayName}, ngày ${day} tháng ${month} năm ${year}`)
-  }, [])
-
-  if (!dateStr) return null // Avoid hydration mismatch
+  if (!dateStr) return null
 
   return dateStr
+}
+
+function subscribeToDateSnapshot() {
+  return () => {}
+}
+
+function getServerDateSnapshot() {
+  return ""
+}
+
+function getClientDateSnapshot() {
+  const days = [
+    "Chủ nhật",
+    "Thứ hai",
+    "Thứ ba",
+    "Thứ tư",
+    "Thứ năm",
+    "Thứ sáu",
+    "Thứ bảy",
+  ]
+  const now = new Date()
+  const dayName = days[now.getDay()]
+  const day = now.getDate()
+  const month = now.getMonth() + 1
+  const year = now.getFullYear()
+
+  return `${dayName}, ngày ${day} tháng ${month} năm ${year}`
 }

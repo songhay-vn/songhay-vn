@@ -189,7 +189,10 @@ export async function createPost(formData: FormData) {
 
   // Only do heavy revalidation (ISR writes) if the post is actually going public
   if (isPublished) {
-    await revalidatePost(post.slug, post.category?.slug)
+    await revalidatePost(post.slug, post.category?.slug, {
+      isVisibilityChange: true,
+      warmPublicRoutes: true,
+    })
   } else {
     // Just invalidate data cache tags for internal lists
     revalidatePostTagsOnly(post.slug, post.category?.slug)
@@ -396,6 +399,7 @@ export async function updatePostFlags(formData: FormData) {
     isVisibilityChange: existingPost.isPublished !== updatedPost.isPublished,
     isTrendingChange: existingPost.isTrending !== updatedPost.isTrending,
     isFeaturedChange: existingPost.isFeatured !== updatedPost.isFeatured,
+    warmPublicRoutes: updatedPost.isPublished,
   })
   clearDataCache()
 }
