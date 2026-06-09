@@ -121,6 +121,33 @@ export async function getPostsData(activeTab: AdminTab, postsFilters: PostsFilte
           slug: true,
         },
       },
+      searchConsoleStatuses: {
+        orderBy: { checkedAt: "desc" },
+        take: 1,
+        select: {
+          verdict: true,
+          coverageState: true,
+          robotsTxtState: true,
+          indexingState: true,
+          pageFetchState: true,
+          lastCrawlTime: true,
+          checkedAt: true,
+          lastError: true,
+        },
+      },
+      searchConsoleJobs: {
+        where: {
+          type: "URL_INSPECTION",
+          status: { in: ["PENDING", "RUNNING"] },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          status: true,
+          runAfter: true,
+          updatedAt: true,
+        },
+      },
     },
     orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
     skip: (currentPage - 1) * POSTS_PAGE_SIZE,

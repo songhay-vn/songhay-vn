@@ -13,6 +13,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { NewsSearchForm } from "./search"
 
 interface Category {
   id: string
@@ -54,6 +55,18 @@ export function MobileNav({ navCategories }: MobileNavProps) {
         </SheetHeader>
 
         <div className="flex flex-1 flex-col overflow-y-auto">
+          <div className="border-b border-zinc-100 p-4">
+            <NewsSearchForm
+              placeholder="Tìm bài viết..."
+              submitAriaLabel="Tìm bài viết"
+              enableSuggestions
+              suggestionsLimit={5}
+              inputClassName="border-zinc-300 bg-white focus-visible:border-red-500 focus-visible:ring-red-500/20"
+              buttonClassName="border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100"
+              onSubmit={() => setOpen(false)}
+              onNavigate={() => setOpen(false)}
+            />
+          </div>
           <nav className="flex flex-col p-2">
             {navCategories.map((item) => (
               <div key={item.slug} className="flex flex-col">

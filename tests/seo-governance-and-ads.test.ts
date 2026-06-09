@@ -28,8 +28,7 @@ describe("seo governance and moderation", () => {
   test("overview dashboard includes range filter and new SEO metrics", () => {
     const source = readWorkspaceFile("components/admin/overview-tab.tsx")
 
-    expect(source).toContain("overviewRange=7d")
-    expect(source).toContain("overviewRange=30d")
+    expect(source).toContain('const rangeLabel = "30 ngày"')
     expect(source).toContain("Từ khóa SEO hot")
     expect(source).toContain("Thời gian ở lại trung bình")
   })

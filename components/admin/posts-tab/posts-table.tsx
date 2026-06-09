@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 
 import { bulkTrashPosts, bulkUpdateStatus } from "@/app/admin/actions/posts"
 import { PostActionsCell } from "./post-actions-cell"
-import { STATUS_CONFIG, getTimelineLabel } from "./types"
+import { STATUS_CONFIG, getSearchConsoleIndexState, getTimelineLabel } from "./types"
 import type { PostActions, PostPermissions, PostRow } from "./types"
 
 type PostsTableProps = {
@@ -145,6 +145,7 @@ export function PostsTable({ posts, ...rest }: PostsTableProps) {
           <TableBody>
             {posts.map((post) => {
               const cfg = STATUS_CONFIG[post.editorialStatus]
+              const indexState = getSearchConsoleIndexState(post)
               return (
                 <TableRow
                   key={post.id}
@@ -217,6 +218,18 @@ export function PostsTable({ posts, ...rest }: PostsTableProps) {
                             className="h-4 border-rose-300 px-1 py-0 text-[10px] text-rose-600"
                           >
                             Xu hướng
+                          </Badge>
+                        )}
+                        {post.isPublished && (
+                          <Badge
+                            variant="outline"
+                            title={indexState.title}
+                            className={cn(
+                              "h-4 px-1 py-0 text-[10px]",
+                              indexState.className
+                            )}
+                          >
+                            {indexState.label}
                           </Badge>
                         )}
                       </div>

@@ -34,6 +34,18 @@ enum MediaAssetVisibility {
   SHARED
 }
 
+enum SearchConsoleJobType {
+  URL_INSPECTION
+  SITEMAP_SUBMIT
+}
+
+enum SearchConsoleJobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
 model RolePermission {
   id        String   @id @default(cuid())
   role      UserRole
@@ -77,46 +89,48 @@ model Category {
 }
 
 model Post {
-  id               String                @id @default(cuid())
-  title            String
-  slug             String                @unique
-  excerpt          String
-  content          String
-  penName          String?
-  thumbnailUrl     String?
-  videoEmbedUrl    String?
-  seoTitle         String?
-  seoDescription   String?
-  seoKeywords      String?
-  ogImage          String?
-  isSensitive      Boolean               @default(false)
-  isDraft          Boolean               @default(true)
-  isFeatured       Boolean               @default(false)
-  isTrending       Boolean               @default(false)
-  isPublished      Boolean               @default(false)
-  editorialStatus  EditorialStatus       @default(DRAFT)
-  isDeleted        Boolean               @default(false)
-  deletedAt        DateTime?
-  approvedAt       DateTime?
-  views            Int                   @default(0)
-  publishedAt      DateTime              @default(now())
-  scheduledPublishAt DateTime?
-  canonicalUrl     String?
-  createdAt        DateTime              @default(now())
-  updatedAt        DateTime              @updatedAt
-  categoryId       String
-  authorId         String?
-  approverId       String?
-  lastEditorId     String?
-  category         Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  author           User?                 @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  approver         User?                 @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
-  lastEditor       User?                 @relation("PostLastEditor", fields: [lastEditorId], references: [id], onDelete: SetNull)
-  comments         Comment[]
-  history          PostHistory[]
-  seoKeywordLinks  PostSeoKeyword[]
-  engagementEvents PostEngagementEvent[]
-  notifications    Notification[]
+  id                    String                   @id @default(cuid())
+  title                 String
+  slug                  String                   @unique
+  excerpt               String
+  content               String
+  penName               String?
+  thumbnailUrl          String?
+  videoEmbedUrl         String?
+  seoTitle              String?
+  seoDescription        String?
+  seoKeywords           String?
+  ogImage               String?
+  isSensitive           Boolean                  @default(false)
+  isDraft               Boolean                  @default(true)
+  isFeatured            Boolean                  @default(false)
+  isTrending            Boolean                  @default(false)
+  isPublished           Boolean                  @default(false)
+  editorialStatus       EditorialStatus          @default(DRAFT)
+  isDeleted             Boolean                  @default(false)
+  deletedAt             DateTime?
+  approvedAt            DateTime?
+  views                 Int                      @default(0)
+  publishedAt           DateTime                 @default(now())
+  scheduledPublishAt    DateTime?
+  canonicalUrl          String?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+  categoryId            String
+  authorId              String?
+  approverId            String?
+  lastEditorId          String?
+  category              Category                 @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  author                User?                    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  approver              User?                    @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
+  lastEditor            User?                    @relation("PostLastEditor", fields: [lastEditorId], references: [id], onDelete: SetNull)
+  comments              Comment[]
+  history               PostHistory[]
+  seoKeywordLinks       PostSeoKeyword[]
+  engagementEvents      PostEngagementEvent[]
+  notifications         Notification[]
+  searchConsoleStatuses SearchConsoleUrlStatus[]
+  searchConsoleJobs     SearchConsoleJob[]
 
   @@index([categoryId])
   @@index([authorId])
@@ -130,6 +144,57 @@ model Post {
   @@index([categoryId, isDeleted, isPublished, publishedAt(sort: Desc)])
   @@index([editorialStatus, isDeleted, publishedAt(sort: Desc)])
   @@index([authorId, editorialStatus])
+}
+
+model SearchConsoleUrlStatus {
+  id                   String    @id @default(cuid())
+  postId               String
+  url                  String
+  verdict              String?
+  coverageState        String?
+  robotsTxtState       String?
+  indexingState        String?
+  pageFetchState       String?
+  lastCrawlTime        DateTime?
+  googleCanonical      String?
+  userCanonical        String?
+  inspectionResultLink String?
+  richResultsVerdict   String?
+  rawResult            Json?
+  lastError            String?
+  checkedAt            DateTime  @default(now())
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, url])
+  @@index([postId])
+  @@index([verdict])
+  @@index([checkedAt])
+}
+
+model SearchConsoleJob {
+  id         String                 @id @default(cuid())
+  type       SearchConsoleJobType
+  status     SearchConsoleJobStatus @default(PENDING)
+  postId     String?
+  url        String
+  dedupeKey  String                 @unique
+  attempts   Int                    @default(0)
+  runAfter   DateTime               @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+  response   Json?
+  lastError  String?
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([status, runAfter])
+  @@index([type, createdAt])
+  @@index([postId])
 }
 
 model MediaAsset {

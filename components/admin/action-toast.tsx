@@ -125,6 +125,16 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
     description: "Dữ liệu thao tác không hợp lệ. Vui lòng thử lại.",
     type: "error",
   },
+  search_console_check_queued: {
+    title: "Đã xếp hàng kiểm tra index",
+    description: "CMS sẽ gọi URL Inspection API và cập nhật trạng thái trong bảng bài.",
+    type: "success",
+  },
+  search_console_check_unavailable: {
+    title: "Chưa thể kiểm tra index",
+    description: "Chỉ bài viết đã xuất bản công khai mới có thể kiểm tra trạng thái index.",
+    type: "error",
+  },
   comment_approved: {
     title: "Đã duyệt bình luận",
     description: "Bình luận đã được hiển thị công khai.",

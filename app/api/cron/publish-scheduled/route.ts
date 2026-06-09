@@ -2,6 +2,10 @@ import { NextResponse, connection } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { clearDataCache } from "@/lib/data-cache"
 import { revalidatePost } from "@/app/admin/actions-helpers"
+import {
+  enqueuePublishedPostSearchConsoleJobs,
+  scheduleSearchConsoleDrain,
+} from "@/lib/search-console-queue"
 
 export async function GET(request: unknown) {
   await connection()
@@ -58,7 +62,15 @@ export async function GET(request: unknown) {
         isVisibilityChange: true,
         warmPublicRoutes: true,
       })
+      if (post.category?.slug) {
+        await enqueuePublishedPostSearchConsoleJobs({
+          postId: post.id,
+          categorySlug: post.category.slug,
+          slug: post.slug,
+        })
+      }
     }
+    scheduleSearchConsoleDrain()
     
     clearDataCache()
 

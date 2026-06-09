@@ -1,7 +1,5 @@
 "use client"
 
-import { BookOpen } from "lucide-react"
-
 import { PostsFilterBar } from "./post-filter-bar"
 import { PostsTable } from "./posts-table"
 import { buildPostsQuery } from "./types"
@@ -43,6 +41,7 @@ export function PostsTab({
   returnPostToDraft,
   returnPostToPendingReview,
   returnPostToPendingPublish,
+  checkPostIndex,
 }: PostsTabProps) {
   const hasActiveFilters = Boolean(
     filters.query ||
@@ -75,6 +74,7 @@ export function PostsTab({
     returnPostToDraft,
     returnPostToPendingReview,
     returnPostToPendingPublish,
+    checkPostIndex,
   }
 
   return (

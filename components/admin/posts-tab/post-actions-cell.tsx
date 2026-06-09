@@ -8,6 +8,7 @@ import {
   Globe,
   Pencil,
   RotateCcw,
+  Search,
   Send,
   Trash2,
 } from "lucide-react"
@@ -44,6 +45,7 @@ export function PostActionsCell({
   returnPostToPendingReview,
   returnPostToPendingPublish,
   movePostToTrash,
+  checkPostIndex,
 }: PostActionsCellProps) {
   const editable = canEditPost(post, {
     canEditDraft,
@@ -250,6 +252,25 @@ export function PostActionsCell({
             Xem bài
           </Button>
         </a>
+      ) : null}
+
+      {post.isPublished ? (
+        <ConfirmActionForm
+          action={checkPostIndex}
+          fields={[{ name: "postId", value: post.id }]}
+          confirmMessage="Xếp bài này vào hàng đợi kiểm tra trạng thái index trên Google?"
+        >
+          <PendingSubmitButton
+            type="submit"
+            size="sm"
+            variant="outline"
+            className={btn}
+            pendingText="Đang xếp hàng..."
+          >
+            <Search className="mr-1.5 size-3" />
+            Check index
+          </PendingSubmitButton>
+        </ConfirmActionForm>
       ) : null}
 
       {/* ── Trash ── */}

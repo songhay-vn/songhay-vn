@@ -39,6 +39,11 @@ export async function getAdminPageData({
     publishedPostCount,
     rejectedPostCount,
     totalPostViews,
+    indexedPostCount,
+    notIndexedPostCount,
+    pendingInspectionCount,
+    failedInspectionCount,
+    todayInspectionUsage,
   } = await getAdminSnapshot()
 
   // Initialize all data with default "empty" values (matching loader short-circuits)
@@ -151,6 +156,11 @@ export async function getAdminPageData({
     publishedPostCount,
     rejectedPostCount,
     totalPostViews,
+    indexedPostCount,
+    notIndexedPostCount,
+    pendingInspectionCount,
+    failedInspectionCount,
+    todayInspectionUsage,
     categoriesForManage,
     categoriesForWrite,
     seoKeywordOptions,

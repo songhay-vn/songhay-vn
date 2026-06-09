@@ -3,6 +3,7 @@ import {
   addForbiddenKeyword,
   addSeoKeyword,
   approvePendingPost,
+  checkPostIndex,
   createSubordinateAccount,
   createCategory,
   createPost,
@@ -56,7 +57,15 @@ import {
   canSubmitPendingPublish,
   canViewAllPosts,
 } from "@/lib/permissions"
-import { Activity, FolderKanban, MessageSquareMore, Newspaper } from "lucide-react"
+import {
+  Activity,
+  AlertTriangle,
+  Clock,
+  FolderKanban,
+  MessageSquareMore,
+  Newspaper,
+  Search,
+} from "lucide-react"
 import AdminLoading from "./loading"
 
 
@@ -132,6 +141,11 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     categoryCount,
     pendingCommentCount,
     totalPostViews,
+    indexedPostCount,
+    notIndexedPostCount,
+    pendingInspectionCount,
+    failedInspectionCount,
+    todayInspectionUsage,
     categoriesForManage,
     categoriesForWrite,
     seoKeywordOptions,
@@ -159,6 +173,11 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
       role: currentUser.role,
     },
   })
+
+  const inspectionSoftLimit = Number.parseInt(
+    process.env.GSC_DAILY_INSPECTION_SOFT_LIMIT || "1800",
+    10
+  )
 
   const overviewStats = [
     {
@@ -193,6 +212,46 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
       icon: Activity,
       tone: "text-emerald-600",
     },
+    {
+      key: "gsc-indexed",
+      label: "Google indexed",
+      value: indexedPostCount,
+      note: "Bài published có URL Inspection PASS",
+      icon: Search,
+      tone: "text-emerald-600",
+    },
+    {
+      key: "gsc-not-indexed",
+      label: "Chưa indexed",
+      value: notIndexedPostCount,
+      note: "Bài published bị FAIL hoặc Excluded",
+      icon: Search,
+      tone: "text-zinc-700",
+    },
+    {
+      key: "gsc-pending",
+      label: "Chờ GSC",
+      value: pendingInspectionCount,
+      note: "Job inspection đang chờ hoặc đang chạy",
+      icon: Clock,
+      tone: "text-sky-600",
+    },
+    {
+      key: "gsc-failed",
+      label: "Lỗi GSC",
+      value: failedInspectionCount,
+      note: "Job inspection đã thất bại",
+      icon: AlertTriangle,
+      tone: failedInspectionCount > 0 ? "text-rose-600" : "text-zinc-700",
+    },
+    {
+      key: "gsc-usage",
+      label: "Inspect hôm nay",
+      value: todayInspectionUsage,
+      note: "Lượt URL Inspection đã gọi hôm nay",
+      icon: Activity,
+      tone: todayInspectionUsage >= inspectionSoftLimit ? "text-amber-600" : "text-sky-600",
+    },
   ]
 
   const postPermissions: PostPermissions = {
@@ -218,6 +277,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     returnPostToDraft,
     returnPostToPendingReview,
     returnPostToPendingPublish,
+    checkPostIndex,
   }
 
   return (

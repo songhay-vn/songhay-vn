@@ -31,8 +31,9 @@ describe("editorial workflow", () => {
     const source = readWorkspaceFile("app/admin/actions/workflow.ts")
 
     expect(source).toContain("export async function approvePendingPost")
+    expect(source).toContain("const shouldPublishNow = canPublishNow(currentUser.role)")
     expect(source).toContain(
-      'editorialStatus: canPublishNow(currentUser.role) ? "PUBLISHED" : "PENDING_PUBLISH"'
+      'editorialStatus: shouldPublishNow ? "PUBLISHED" : "PENDING_PUBLISH"'
     )
     expect(source).toContain("approverId: currentUser.id")
     expect(source).toContain("approvedAt: new Date()")

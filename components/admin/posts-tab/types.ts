@@ -1,5 +1,22 @@
 import type { EditorialStatus } from "@prisma/client"
 
+type SearchConsoleUrlStatusRow = {
+  verdict: string | null
+  coverageState: string | null
+  robotsTxtState: string | null
+  indexingState: string | null
+  pageFetchState: string | null
+  lastCrawlTime: Date | null
+  checkedAt: Date
+  lastError: string | null
+}
+
+type SearchConsoleJobRow = {
+  status: "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED"
+  runAfter: Date
+  updatedAt: Date
+}
+
 export type PostRow = {
   id: string
   title: string
@@ -25,6 +42,8 @@ export type PostRow = {
   approver: { id: string; name: string; email: string } | null
   lastEditor: { id: string; name: string; email: string } | null
   category: { name: string; slug: string }
+  searchConsoleStatuses?: SearchConsoleUrlStatusRow[]
+  searchConsoleJobs?: SearchConsoleJobRow[]
 }
 
 export type PostsFilters = {
@@ -57,6 +76,7 @@ export type PostActions = {
   returnPostToDraft: (formData: FormData) => Promise<{ toast: string } | void | undefined>
   returnPostToPendingReview: (formData: FormData) => Promise<{ toast: string } | void | undefined>
   returnPostToPendingPublish: (formData: FormData) => Promise<{ toast: string } | void | undefined>
+  checkPostIndex: (formData: FormData) => Promise<{ toast: string } | void | undefined>
 }
 
 export type PostPermissions = {
@@ -151,4 +171,66 @@ export function getTimelineLabel(post: PostRow) {
     return `Duyệt ${new Date(post.approvedAt).toLocaleDateString("vi-VN")}`
   }
   return `Sửa ${new Date(post.updatedAt).toLocaleDateString("vi-VN")}`
+}
+
+export function getSearchConsoleIndexState(post: PostRow) {
+  const pendingJob = post.searchConsoleJobs?.[0]
+  if (pendingJob) {
+    return {
+      key: "pending",
+      label: pendingJob.status === "RUNNING" ? "Đang check index" : "Chờ check index",
+      className: "border-sky-200 bg-sky-50 text-sky-700",
+      title: `Cập nhật ${new Date(pendingJob.updatedAt).toLocaleString("vi-VN")}`,
+    }
+  }
+
+  const status = post.searchConsoleStatuses?.[0]
+  if (!status) {
+    return {
+      key: "unchecked",
+      label: "Chưa check index",
+      className: "border-zinc-200 bg-zinc-50 text-zinc-600",
+      title: "Chưa có dữ liệu URL Inspection",
+    }
+  }
+
+  const checkedLabel = `Check ${new Date(status.checkedAt).toLocaleString("vi-VN")}`
+  if (status.lastError) {
+    return {
+      key: "error",
+      label: "Lỗi GSC",
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+      title: status.lastError,
+    }
+  }
+
+  if (
+    status.robotsTxtState === "DISALLOWED" ||
+    status.indexingState === "BLOCKED_BY_META_TAG" ||
+    status.indexingState === "BLOCKED_BY_HTTP_HEADER" ||
+    status.pageFetchState === "BLOCKED_ROBOTS_TXT"
+  ) {
+    return {
+      key: "blocked",
+      label: "Bị chặn index",
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+      title: `${checkedLabel} · ${status.coverageState || "Blocked"}`,
+    }
+  }
+
+  if (status.verdict === "PASS") {
+    return {
+      key: "indexed",
+      label: "Indexed",
+      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      title: `${checkedLabel} · ${status.coverageState || "Valid"}`,
+    }
+  }
+
+  return {
+    key: "not-indexed",
+    label: "Chưa indexed",
+    className: "border-zinc-300 bg-white text-zinc-700",
+    title: `${checkedLabel} · ${status.coverageState || status.verdict || "Unknown"}`,
+  }
 }

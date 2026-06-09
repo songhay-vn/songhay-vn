@@ -7,6 +7,73 @@ import type { AdminTab } from "@/app/admin/data-types"
 
 const ADMIN_CACHE_TTL_SECONDS = 20
 
+async function getSearchConsoleSnapshotMetrics() {
+  try {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const [
+      indexedPostCount,
+      notIndexedPostCount,
+      pendingInspectionCount,
+      failedInspectionCount,
+      todayInspectionUsageAggregate,
+    ] = await Promise.all([
+      prisma.searchConsoleUrlStatus.count({
+        where: {
+          verdict: "PASS",
+          post: { isPublished: true, isDeleted: false },
+        },
+      }),
+      prisma.searchConsoleUrlStatus.count({
+        where: {
+          verdict: { in: ["FAIL", "NEUTRAL"] },
+          post: { isPublished: true, isDeleted: false },
+        },
+      }),
+      prisma.searchConsoleJob.count({
+        where: {
+          type: "URL_INSPECTION",
+          status: { in: ["PENDING", "RUNNING"] },
+        },
+      }),
+      prisma.searchConsoleJob.count({
+        where: {
+          type: "URL_INSPECTION",
+          status: "FAILED",
+        },
+      }),
+      prisma.searchConsoleJob.aggregate({
+        where: {
+          type: "URL_INSPECTION",
+          startedAt: { gte: today },
+        },
+        _sum: { attempts: true },
+      }),
+    ])
+
+    return {
+      indexedPostCount,
+      notIndexedPostCount,
+      pendingInspectionCount,
+      failedInspectionCount,
+      todayInspectionUsage: todayInspectionUsageAggregate._sum.attempts || 0,
+    }
+  } catch (error) {
+    if (isPrismaSchemaMismatchError(error)) {
+      return {
+        indexedPostCount: 0,
+        notIndexedPostCount: 0,
+        pendingInspectionCount: 0,
+        failedInspectionCount: 0,
+        todayInspectionUsage: 0,
+      }
+    }
+
+    throw error
+  }
+}
+
 export async function getAdminSnapshot() {
   return memoizeWithTtl("admin:snapshot", ADMIN_CACHE_TTL_SECONDS, async () => {
     const pendingCommentCountPromise = prisma.comment
@@ -19,7 +86,7 @@ export async function getAdminSnapshot() {
         throw error
       })
 
-    const [postCount, categoryCount, pendingCommentCount, trashedPostCount, draftPostCount, pendingReviewPostCount, pendingPublishPostCount, publishedPostCount, rejectedPostCount, postViewAggregate] = await Promise.all([
+    const [postCount, categoryCount, pendingCommentCount, trashedPostCount, draftPostCount, pendingReviewPostCount, pendingPublishPostCount, publishedPostCount, rejectedPostCount, postViewAggregate, searchConsoleMetrics] = await Promise.all([
       prisma.post.count({ where: { isDeleted: false } }),
       prisma.category.count(),
       pendingCommentCountPromise,
@@ -33,6 +100,7 @@ export async function getAdminSnapshot() {
         where: { isDeleted: false },
         _sum: { views: true },
       }),
+      getSearchConsoleSnapshotMetrics(),
     ])
 
     return {
@@ -46,6 +114,7 @@ export async function getAdminSnapshot() {
       publishedPostCount,
       rejectedPostCount,
       totalPostViews: postViewAggregate._sum.views || 0,
+      ...searchConsoleMetrics,
     }
   })
 }

@@ -9,9 +9,16 @@ import {
   can,
   canPublishNow,
   canTrashOrDeletePost,
+  canViewAllPosts,
 } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { resolvePostSeoInput } from "@/lib/post-seo"
+import {
+  buildPublicPostUrl,
+  enqueuePublishedPostInspection,
+  enqueuePublishedPostSearchConsoleJobs,
+  scheduleSearchConsoleDrain,
+} from "@/lib/search-console-queue"
 import {
   resolveSeoKeywordSelection,
   resolveSeoKeywordSelectionForPreview,
@@ -193,6 +200,14 @@ export async function createPost(formData: FormData) {
       isVisibilityChange: true,
       warmPublicRoutes: true,
     })
+    if (post.category?.slug) {
+      await enqueuePublishedPostSearchConsoleJobs({
+        postId: post.id,
+        categorySlug: post.category.slug,
+        slug: post.slug,
+      })
+      scheduleSearchConsoleDrain()
+    }
   } else {
     // Just invalidate data cache tags for internal lists
     revalidatePostTagsOnly(post.slug, post.category?.slug)
@@ -401,6 +416,14 @@ export async function updatePostFlags(formData: FormData) {
     isFeaturedChange: existingPost.isFeatured !== updatedPost.isFeatured,
     warmPublicRoutes: updatedPost.isPublished,
   })
+  if (!existingPost.isPublished && updatedPost.isPublished && updatedPost.category?.slug) {
+    await enqueuePublishedPostSearchConsoleJobs({
+      postId,
+      categorySlug: updatedPost.category.slug,
+      slug: updatedPost.slug,
+    })
+    scheduleSearchConsoleDrain()
+  }
   clearDataCache()
 }
 
@@ -552,7 +575,7 @@ export async function bulkUpdateStatus(formData: FormData) {
 
   const posts = await prisma.post.findMany({
     where: { id: { in: postIds } },
-    select: { slug: true, category: { select: { slug: true } } },
+    select: { id: true, isPublished: true, slug: true, category: { select: { slug: true } } },
   })
 
   await prisma.post.updateMany({
@@ -562,12 +585,22 @@ export async function bulkUpdateStatus(formData: FormData) {
 
   for (const post of posts) {
     await revalidatePost(post.slug, post.category?.slug)
+    if (status === "PUBLISHED" && !post.isPublished && post.category?.slug) {
+      await enqueuePublishedPostSearchConsoleJobs({
+        postId: post.id,
+        categorySlug: post.category.slug,
+        slug: post.slug,
+      })
+    }
+  }
+  if (status === "PUBLISHED") {
+    scheduleSearchConsoleDrain()
   }
   clearDataCache()
 }
 
 export async function bulkTrashPosts(formData: FormData) {
-  const currentUser = await requireCmsUser()
+  await requireCmsUser()
   const postIdsRaw = String(formData.get("postIds") || "")
   const postIds = postIdsRaw.split(",").filter(Boolean)
 
@@ -640,4 +673,45 @@ export async function restorePostVersion(formData: FormData) {
   clearDataCache()
 
   redirect("/admin?tab=history&toast=post_restored")
+}
+
+export async function checkPostIndex(formData: FormData) {
+  const currentUser = await requireCmsUser()
+  const postId = String(formData.get("postId") || "")
+  if (!postId) {
+    return { toast: "post_action_failed" }
+  }
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      authorId: true,
+      isPublished: true,
+      isDeleted: true,
+      slug: true,
+      category: { select: { slug: true } },
+    },
+  })
+
+  if (!post || post.isDeleted) {
+    return { toast: "post_not_found" }
+  }
+
+  if (!canViewAllPosts(currentUser.role) && post.authorId !== currentUser.id) {
+    return { toast: "post_action_forbidden" }
+  }
+
+  if (!post.isPublished || !post.category?.slug) {
+    return { toast: "search_console_check_unavailable" }
+  }
+
+  await enqueuePublishedPostInspection(
+    post.id,
+    buildPublicPostUrl({ categorySlug: post.category.slug, slug: post.slug }),
+    { force: true }
+  )
+  scheduleSearchConsoleDrain()
+
+  return { toast: "search_console_check_queued" }
 }

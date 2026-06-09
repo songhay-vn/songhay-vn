@@ -1,7 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
-
 import { requireCmsUser } from "@/lib/auth"
 import { clearDataCache } from "@/lib/data-cache"
 import {
@@ -13,7 +11,10 @@ import {
 } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import {
-  ensurePermission,
+  enqueuePublishedPostSearchConsoleJobs,
+  scheduleSearchConsoleDrain,
+} from "@/lib/search-console-queue"
+import {
   logPostHistory,
   revalidatePost,
   revalidatePostTagsOnly,
@@ -24,6 +25,7 @@ export async function approvePendingPost(formData: FormData) {
   if (!canApprovePendingReview(currentUser.role)) {
     return { toast: "post_action_forbidden" }
   }
+  const shouldPublishNow = canPublishNow(currentUser.role)
 
   const postId = String(formData.get("postId") || "")
   if (!postId) {
@@ -40,12 +42,12 @@ export async function approvePendingPost(formData: FormData) {
   const updatedPost = await prisma.post.update({
     where: { id: postId },
     data: {
-      editorialStatus: canPublishNow(currentUser.role) ? "PUBLISHED" : "PENDING_PUBLISH",
-      isPublished: canPublishNow(currentUser.role),
+      editorialStatus: shouldPublishNow ? "PUBLISHED" : "PENDING_PUBLISH",
+      isPublished: shouldPublishNow,
       isDraft: false,
       approverId: currentUser.id,
       approvedAt: new Date(),
-      publishedAt: canPublishNow(currentUser.role) ? new Date() : undefined,
+      publishedAt: shouldPublishNow ? new Date() : undefined,
     },
   })
 
@@ -62,7 +64,7 @@ export async function approvePendingPost(formData: FormData) {
       data: {
         userId: existingPost.authorId,
         type: "POST_APPROVED",
-        message: canPublishNow(currentUser.role)
+        message: shouldPublishNow
           ? `Bài viết "${existingPost.title}" của bạn đã được duyệt và xuất bản.`
           : `Bài viết "${existingPost.title}" của bạn đã được duyệt và đang chờ xuất bản.`,
         postId,
@@ -71,11 +73,19 @@ export async function approvePendingPost(formData: FormData) {
   }
 
   // Only full ISR revalidation if post is being published now
-  if (canPublishNow(currentUser.role)) {
+  if (shouldPublishNow) {
     await revalidatePost(existingPost.slug, existingPost.category?.slug, {
       isVisibilityChange: true,
       warmPublicRoutes: true,
     })
+    if (existingPost.category?.slug) {
+      await enqueuePublishedPostSearchConsoleJobs({
+        postId,
+        categorySlug: existingPost.category.slug,
+        slug: existingPost.slug,
+      })
+      scheduleSearchConsoleDrain()
+    }
   } else {
     // PENDING_PUBLISH: not yet public, just invalidate tags
     revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
@@ -83,7 +93,7 @@ export async function approvePendingPost(formData: FormData) {
   clearDataCache()
 
   return {
-    toast: canPublishNow(currentUser.role) ? "post_approved" : "post_submitted_publish"
+    toast: shouldPublishNow ? "post_approved" : "post_submitted_publish"
   }
 }
 

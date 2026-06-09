@@ -147,7 +147,10 @@ describe("server-side ownership enforcement in actions", () => {
 
     expect(source).toMatch(/approvePendingPost[\s\S]*?isDraft: false/)
     expect(source).toMatch(
-      /approvePendingPost[\s\S]*?editorialStatus: canPublishNow\(currentUser\.role\) \? "PUBLISHED" : "PENDING_PUBLISH"/
+      /approvePendingPost[\s\S]*?const shouldPublishNow = canPublishNow\(currentUser\.role\)/
+    )
+    expect(source).toMatch(
+      /approvePendingPost[\s\S]*?editorialStatus: shouldPublishNow \? "PUBLISHED" : "PENDING_PUBLISH"/
     )
   })
 
