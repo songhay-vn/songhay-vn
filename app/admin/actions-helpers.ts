@@ -245,16 +245,15 @@ export async function revalidatePost(
   if (!options || options.isVisibilityChange) {
     revalidateTag("latest-by-category")
     revalidateTag("search-results")
-    revalidateTag("categories")
     revalidateTag("related-posts")
     revalidateTag("recommended-posts")
   }
 
-  if (!options || options.isTrendingChange || options.isVisibilityChange) {
+  if (options?.isTrendingChange || options?.isVisibilityChange) {
     revalidateTag("trending-posts")
   }
 
-  if (!options || options.isVideoChange || options.isVisibilityChange) {
+  if (options?.isVideoChange || options?.isVisibilityChange) {
     revalidateTag("most-watched-videos")
   }
 
@@ -276,14 +275,15 @@ export async function revalidatePost(
  * Only invalidates the Next.js Data Cache — zero ISR page writes.
  */
 export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
+  // Minimal invalidation for NON-PUBLIC workflow transitions.
+  // Do NOT invalidate "categories", "category-posts", or "latest-by-category" here
+  // — those are public-facing caches (e.g. getNavCategories renders on every page)
+  // and draft/pending posts never appear in them.
   if (slug) {
     revalidateTag(`post:${slug}`)
     revalidateTag("post-detail")
   }
   if (categorySlug) {
     revalidateTag(`category:${categorySlug}`)
-    revalidateTag("category-posts")
   }
-  revalidateTag("categories")
-  revalidateTag("latest-by-category")
 }

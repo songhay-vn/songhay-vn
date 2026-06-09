@@ -44,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       category: { select: { slug: true } },
     },
     orderBy: { publishedAt: "desc" },
+    take: 10000,
   })
 
   const sitemapData: MetadataRoute.Sitemap = []

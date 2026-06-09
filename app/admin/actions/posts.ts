@@ -478,7 +478,7 @@ export async function movePostToTrash(formData: FormData) {
   // moveToTrash: post becomes non-public — do full revalidate only if it was published
   // We always do full revalidate here since we don't have isPublished in select above;
   // this is safe, just slightly more expensive. To optimize further, add isPublished to select.
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  await revalidatePost(existingPost.slug, existingPost.category?.slug, { isVisibilityChange: true })
   clearDataCache()
   return { toast: "post_moved_trash" }
 }
@@ -559,7 +559,7 @@ export async function deletePostPermanently(formData: FormData) {
 
   await prisma.post.delete({ where: { id: postId } })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  await revalidatePost(existingPost.slug, existingPost.category?.slug, { isVisibilityChange: true })
   clearDataCache()
   return { toast: "post_deleted_permanently" }
 }
@@ -584,7 +584,7 @@ export async function bulkUpdateStatus(formData: FormData) {
   })
 
   for (const post of posts) {
-    await revalidatePost(post.slug, post.category?.slug)
+    await revalidatePost(post.slug, post.category?.slug, { isVisibilityChange: true })
     if (status === "PUBLISHED" && !post.isPublished && post.category?.slug) {
       await enqueuePublishedPostSearchConsoleJobs({
         postId: post.id,
@@ -619,7 +619,7 @@ export async function bulkTrashPosts(formData: FormData) {
 
   for (const post of posts) {
     // Trashed posts become non-public — full revalidate to update homepage/category
-    await revalidatePost(post.slug, post.category?.slug)
+    await revalidatePost(post.slug, post.category?.slug, { isVisibilityChange: true })
   }
   clearDataCache()
 }
@@ -669,7 +669,9 @@ export async function restorePostVersion(formData: FormData) {
     snapshotContent: historyLog.snapshotContent,
   })
 
-  await revalidatePost(existingPost.slug, existingPost.category?.slug)
+  await revalidatePost(existingPost.slug, existingPost.category?.slug, {
+    isVisibilityChange: existingPost.isPublished,
+  })
   clearDataCache()
 
   redirect("/admin?tab=history&toast=post_restored")

@@ -291,8 +291,7 @@ export async function getTrendingPosts() {
   })
 }
 
-export async function getRecommendedPosts(
-  postId?: string,
+async function getRecommendedPostsCached(
   categoryId?: string,
   limit = 4
 ) {
@@ -301,10 +300,6 @@ export async function getRecommendedPosts(
   cacheLife("weeks")
 
   const where: Prisma.PostWhereInput = publishedPostWhere()
-
-  if (postId) {
-    where.id = { not: postId }
-  }
 
   const orConditions: Prisma.PostWhereInput[] = [
     { isFeatured: true },
@@ -326,8 +321,18 @@ export async function getRecommendedPosts(
       { isTrending: "desc" },
       { publishedAt: "desc" },
     ],
-    take: limit,
+    take: limit + 1,
   })
+}
+
+export async function getRecommendedPosts(
+  postId?: string,
+  categoryId?: string,
+  limit = 4
+) {
+  const posts = await getRecommendedPostsCached(categoryId, limit)
+  const filtered = postId ? posts.filter((post) => post.id !== postId) : posts
+  return filtered.slice(0, limit)
 }
 
 function buildStaticNavFallback(): CategoryWithChildren[] {

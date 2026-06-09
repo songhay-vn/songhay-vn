@@ -13,7 +13,7 @@ function toPositiveInt(value: string | null, fallback: number) {
 async function getMostReadData(limit: number, categorySlug: string) {
   "use cache"
   cacheTag("homepage", "trending-posts")
-  cacheLife({ revalidate: 300 })
+  cacheLife("hours")
 
   return prisma.post.findMany({
     where: {

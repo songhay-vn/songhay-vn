@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
+import { memoizeWithTtl } from "@/lib/data-cache"
 import { containsForbiddenKeyword } from "@/lib/moderation"
 import { prisma } from "@/lib/prisma"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
@@ -33,17 +34,19 @@ export async function POST(request: NextRequest) {
   }
 
   const authorName = parsed.data.authorName?.trim() || "Bạn đọc"
-  const forbiddenKeywords = await prisma.forbiddenKeyword
-    .findMany({
+  const forbiddenKeywords = await memoizeWithTtl(
+    "forbidden-keywords",
+    300,
+    () => prisma.forbiddenKeyword.findMany({
       select: { normalizedTerm: true },
     })
-    .catch((error) => {
-      if (isPrismaSchemaMismatchError(error)) {
-        return []
-      }
+  ).catch((error) => {
+    if (isPrismaSchemaMismatchError(error)) {
+      return []
+    }
 
-      throw error
-    })
+    throw error
+  })
   const hasForbiddenKeyword = containsForbiddenKeyword(
     parsed.data.content,
     forbiddenKeywords.map((item) => item.normalizedTerm)
