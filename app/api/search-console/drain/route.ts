@@ -1,8 +1,8 @@
-import { NextResponse, connection } from "next/server"
+import { NextRequest, NextResponse, connection } from "next/server"
 
 import { drainSearchConsoleJobs } from "@/lib/search-console-queue"
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   await connection()
 
   const secret = process.env.SEARCH_CONSOLE_CRON_SECRET
