@@ -57,7 +57,7 @@ export type UserRow = {
 
 export type GetAdminPageDataInput = {
   activeTab: AdminTab
-  overviewRange: "7d" | "30d"
+  overviewRange: "30d"
   postsFilters: PostsFilters
   personalArchiveFilters: PersonalArchiveFilters
   trashFilters: TrashFilters

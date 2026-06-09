@@ -149,7 +149,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     permissionsMatrix,
   } = await getAdminPageData({
     activeTab,
-    overviewRange: overviewRange === "30d" ? "30d" : "7d",
+    overviewRange,
     postsFilters,
     personalArchiveFilters,
     trashFilters,

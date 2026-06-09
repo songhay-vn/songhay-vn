@@ -23,7 +23,7 @@ type OverviewAnalytics = {
   todayComments: number
   todayApprovedComments: number
   todayTopPosts: Array<{ id: string; title: string; slug: string; views: number; category: { slug: string } }>
-  range: "7d" | "30d"
+  range: "30d"
   hotSeoKeywords: Array<{ id: string; keyword: string; postCount: number; totalViews: number; score: number }>
   avgDwellSecondsPerPost: number
   dwellTopPosts: Array<{
@@ -42,7 +42,7 @@ type OverviewTabProps = {
 }
 
 export function OverviewTab({ overviewStats, overviewAnalytics }: OverviewTabProps) {
-  const rangeLabel = overviewAnalytics.range === "30d" ? "30 ngày" : "7 ngày"
+  const rangeLabel = "30 ngày"
 
   function formatDwell(seconds: number) {
     if (seconds <= 0) {
@@ -66,20 +66,9 @@ export function OverviewTab({ overviewStats, overviewAnalytics }: OverviewTabPro
             <p className="text-sm font-semibold">Phạm vi tổng quan</p>
             <p className="text-muted-foreground text-xs">Đang xem dữ liệu {rangeLabel} gần nhất.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin?tab=overview&overviewRange=7d"
-              className={`rounded-md border px-3 py-1.5 text-sm ${overviewAnalytics.range === "7d" ? "bg-zinc-900 text-white" : "hover:bg-zinc-50"}`}
-            >
-              7 ngày
-            </Link>
-            <Link
-              href="/admin?tab=overview&overviewRange=30d"
-              className={`rounded-md border px-3 py-1.5 text-sm ${overviewAnalytics.range === "30d" ? "bg-zinc-900 text-white" : "hover:bg-zinc-50"}`}
-            >
-              30 ngày
-            </Link>
-          </div>
+          <span className="rounded-md border bg-zinc-900 px-3 py-1.5 text-sm text-white">
+            30 ngày
+          </span>
         </CardContent>
       </Card>
 
@@ -115,9 +104,6 @@ export function OverviewTab({ overviewStats, overviewAnalytics }: OverviewTabPro
           </CardHeader>
           <CardContent className="space-y-3">
             <OverviewActivityChart data={overviewAnalytics.daily} />
-            <p className="text-muted-foreground text-xs">
-              Dữ liệu gồm: tổng view hiện tại của các bài xuất bản từng ngày và số comment tạo trong ngày.
-            </p>
           </CardContent>
         </Card>
 

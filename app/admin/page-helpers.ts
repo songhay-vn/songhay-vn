@@ -271,7 +271,7 @@ export function getVisibleTabs({
 
 export function parseAdminSearchParams(resolvedSearchParams?: RawSearchParams) {
   const tabFromQuery = resolvedSearchParams?.tab
-  const overviewRange = resolvedSearchParams?.overviewRange === "30d" ? "30d" : "7d"
+  const overviewRange = "30d" as const
   const movedCategoryId = resolvedSearchParams?.moved
   const movedDirection = resolvedSearchParams?.direction
 

@@ -6,7 +6,8 @@ import { startOfDay, toDayKey, toDayLabel } from "@/app/admin/data-helpers"
 import type { AdminTab } from "@/app/admin/data-types"
 
 const ADMIN_CACHE_TTL_SECONDS = 20
-type OverviewRange = "7d" | "30d"
+type OverviewRange = "30d"
+const OVERVIEW_ANALYTICS_DAYS = 30
 
 export async function getMediaLibraryData(activeTab: AdminTab) {
   if (activeTab !== "media-library" && activeTab !== "write") {
@@ -119,7 +120,7 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
       todayComments: 0,
       todayApprovedComments: 0,
       todayTopPosts: [] as Array<{ id: string; title: string; slug: string; views: number; category: { slug: string } }>,
-      range: "7d" as OverviewRange,
+      range: "30d" as OverviewRange,
       hotSeoKeywords: [] as Array<{ id: string; keyword: string; postCount: number; totalViews: number; score: number }>,
       avgDwellSecondsPerPost: 0,
       dwellTopPosts: [] as Array<{
@@ -137,7 +138,7 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
     const todayStart = startOfDay(new Date())
     const tomorrowStart = new Date(todayStart)
     tomorrowStart.setDate(tomorrowStart.getDate() + 1)
-    const totalDays = overviewRange === "30d" ? 30 : 7
+    const totalDays = OVERVIEW_ANALYTICS_DAYS
 
     const chartStart = new Date(todayStart)
     chartStart.setDate(chartStart.getDate() - (totalDays - 1))
