@@ -116,10 +116,6 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
   if (activeTab !== "overview") {
     return {
       daily: [] as Array<{ label: string; views: number; comments: number; posts: number; avgDwellSeconds: number }>,
-      todayViews: 0,
-      todayComments: 0,
-      todayApprovedComments: 0,
-      todayTopPosts: [] as Array<{ id: string; title: string; slug: string; views: number; category: { slug: string } }>,
       range: "30d" as OverviewRange,
       hotSeoKeywords: [] as Array<{ id: string; keyword: string; postCount: number; totalViews: number; score: number }>,
       avgDwellSecondsPerPost: 0,
@@ -136,8 +132,6 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
 
   return memoizeWithTtl(`admin:overview:analytics:${overviewRange}`, ADMIN_CACHE_TTL_SECONDS, async () => {
     const todayStart = startOfDay(new Date())
-    const tomorrowStart = new Date(todayStart)
-    tomorrowStart.setDate(tomorrowStart.getDate() + 1)
     const totalDays = OVERVIEW_ANALYTICS_DAYS
 
     const chartStart = new Date(todayStart)
@@ -151,12 +145,8 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
           publishedAt: { gte: chartStart },
         },
         select: {
-          id: true,
-          title: true,
           views: true,
           publishedAt: true,
-          category: { select: { slug: true } },
-          slug: true,
         },
       }),
       prisma.comment.findMany({
@@ -164,9 +154,7 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
           createdAt: { gte: chartStart },
         },
         select: {
-          id: true,
           createdAt: true,
-          isApproved: true,
         },
       }),
       prisma.postSeoKeyword.findMany({
@@ -263,15 +251,6 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
       bucket.dwellSum += event.dwellSeconds
       bucket.dwellCount += 1
     }
-
-    const todayTopPosts = recentPosts
-      .filter((post) => post.publishedAt >= todayStart && post.publishedAt < tomorrowStart)
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 5)
-
-    const todayViews = todayTopPosts.reduce((sum, post) => sum + post.views, 0)
-    const todayComments = recentComments.filter((item) => item.createdAt >= todayStart && item.createdAt < tomorrowStart).length
-    const todayApprovedComments = recentComments.filter((item) => item.isApproved && item.createdAt >= todayStart && item.createdAt < tomorrowStart).length
 
     const daily = [...dailyMap.values()].map((item) => ({
       label: toDayLabel(item.date),
@@ -373,10 +352,6 @@ export async function getOverviewAnalytics(activeTab: AdminTab, overviewRange: O
 
     return {
       daily,
-      todayViews,
-      todayComments,
-      todayApprovedComments,
-      todayTopPosts,
       range: overviewRange,
       hotSeoKeywords,
       avgDwellSecondsPerPost,

@@ -71,10 +71,6 @@ export async function getAdminPageData({
   let pendingComments: Awaited<ReturnType<typeof getPendingComments>> = []
   let overviewAnalytics: Awaited<ReturnType<typeof getOverviewAnalytics>> = {
     daily: [],
-    todayViews: 0,
-    todayComments: 0,
-    todayApprovedComments: 0,
-    todayTopPosts: [],
     range: overviewRange,
     hotSeoKeywords: [],
     avgDwellSecondsPerPost: 0,

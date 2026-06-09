@@ -19,10 +19,6 @@ type OverviewStat = {
 
 type OverviewAnalytics = {
   daily: Array<{ label: string; views: number; comments: number; posts: number; avgDwellSeconds: number }>
-  todayViews: number
-  todayComments: number
-  todayApprovedComments: number
-  todayTopPosts: Array<{ id: string; title: string; slug: string; views: number; category: { slug: string } }>
   range: "30d"
   hotSeoKeywords: Array<{ id: string; keyword: string; postCount: number; totalViews: number; score: number }>
   avgDwellSecondsPerPost: number
@@ -96,56 +92,15 @@ export function OverviewTab({ overviewStats, overviewAnalytics }: OverviewTabPro
         })}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Biểu đồ {rangeLabel} gần nhất</CardTitle>
-            <CardDescription>So sánh tổng view bài xuất bản theo ngày và số comment phát sinh.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <OverviewActivityChart data={overviewAnalytics.daily} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Tổng quan hôm nay</CardTitle>
-            <CardDescription>Số liệu realtime cho nội dung mới và tương tác.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2 sm:grid-cols-3">
-              <div className="rounded-md border px-3 py-2">
-                <p className="text-muted-foreground text-xs">View từ bài đăng hôm nay</p>
-                <p className="text-lg font-bold text-emerald-600">{overviewAnalytics.todayViews.toLocaleString("vi-VN")}</p>
-              </div>
-              <div className="rounded-md border px-3 py-2">
-                <p className="text-muted-foreground text-xs">Comment mới hôm nay</p>
-                <p className="text-lg font-bold text-sky-600">{overviewAnalytics.todayComments.toLocaleString("vi-VN")}</p>
-              </div>
-              <div className="rounded-md border px-3 py-2">
-                <p className="text-muted-foreground text-xs">Comment đã duyệt hôm nay</p>
-                <p className="text-lg font-bold text-violet-600">{overviewAnalytics.todayApprovedComments.toLocaleString("vi-VN")}</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-sm font-semibold">Top bài xuất bản hôm nay theo view</p>
-              {overviewAnalytics.todayTopPosts.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Hôm nay chưa có bài xuất bản mới.</p>
-              ) : (
-                overviewAnalytics.todayTopPosts.map((post) => (
-                  <div key={post.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
-                    <Link href={`/${post.category.slug}/${post.slug}`} className="line-clamp-1 pr-3 font-medium hover:text-rose-600">
-                      {post.title}
-                    </Link>
-                    <Badge variant="outline">{post.views.toLocaleString("vi-VN")} view</Badge>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Biểu đồ {rangeLabel} gần nhất</CardTitle>
+          <CardDescription>So sánh tổng view bài xuất bản theo ngày và số comment phát sinh.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <OverviewActivityChart data={overviewAnalytics.daily} />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Card>
