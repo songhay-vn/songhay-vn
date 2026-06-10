@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 
 import { BioAgeWidget } from "@/components/news/bio-age-widget"
 import { SiteEngagement } from "@/components/news/site-engagement"
-import { getHomepageData, getNavCategories } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 import { NewsLayout } from "@/components/news/news-layout"
 
 export const metadata: Metadata = {
@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 }
 
 export default async function BioAgePage() {
-  const [navCategories, { mostRead }] = await Promise.all([getNavCategories(), getHomepageData()])
+  const navCategories = await getNavCategories()
 
   return (
-    <NewsLayout navCategories={navCategories} trendingPosts={mostRead} className="bg-white">
+    <NewsLayout navCategories={navCategories} className="bg-white">
       <div className="space-y-12">
         <div className="space-y-6">
           <h1 className="text-3xl font-black text-zinc-900">Máy tính tuổi sinh học</h1>

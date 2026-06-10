@@ -11,7 +11,6 @@ import {
   getPostsByCategory,
   getAllCategorySlugs,
   getNavCategories,
-  getTrendingPosts,
 } from "@/lib/queries"
 import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, toAbsoluteUrl } from "@/lib/seo"
 import { NewsLayout } from "@/components/news/news-layout"
@@ -69,12 +68,11 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category } = await params
-  const [foundCategory, posts, navCategories, trendingPosts] =
+  const [foundCategory, posts, navCategories] =
     await Promise.all([
       getCategoryBySlug(category),
       getPostsByCategory(category),
       getNavCategories(),
-      getTrendingPosts(),
     ])
 
   if (!foundCategory) {
@@ -121,7 +119,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <>
       <JsonLd data={[breadcrumbJsonLd, collectionJsonLd]} />
-      <NewsLayout navCategories={navCategories} trendingPosts={trendingPosts}>
+      <NewsLayout navCategories={navCategories}>
         <section className="flex flex-col gap-4">
           <SectionHeading title={currentCategory.name} />
 

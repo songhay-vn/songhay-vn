@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { getLatestByCategory } from "@/lib/queries"
 import { cn } from "@/lib/utils"
 
@@ -18,6 +19,7 @@ export async function CategoryArticleSections({
   categoriesLimit = 50,
   className,
 }: CategoryArticleSectionsProps) {
+  await connection()
   const previewLimit = perCategory + revealCount
   const latestByCategory = await getLatestByCategory(
     previewLimit,

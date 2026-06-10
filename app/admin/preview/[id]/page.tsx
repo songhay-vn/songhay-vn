@@ -7,7 +7,7 @@ import { normalizeArticleHtml } from "@/lib/html"
 import { requireCmsUser } from "@/lib/auth"
 import { canViewAllPosts } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
-import { getNavCategories, getTrendingPosts } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 
 export const metadata: Metadata = {
   title: "Xem trước bài viết",
@@ -49,10 +49,7 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
     redirect("/admin?tab=trash")
   }
 
-  const [trendingPosts, navCategories] = await Promise.all([
-    getTrendingPosts(),
-    getNavCategories(),
-  ])
+  const navCategories = await getNavCategories()
 
   const articleHtml = normalizeArticleHtml(post.content)
   const fullUrl = `/${post.category.slug}/${post.slug}`
@@ -63,7 +60,6 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
       article={post}
       articleHtml={articleHtml}
       fullUrl={fullUrl}
-      trendingPosts={trendingPosts}
       dateValue={post.updatedAt}
       showSocialShare={false}
       commentFormMode="preview"

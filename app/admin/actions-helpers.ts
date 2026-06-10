@@ -218,8 +218,9 @@ function warmPublicPostRoutes({
  * (published, unpublished, trashed from published, restored to published).
  *
  * Uses tag-only invalidation — NO revalidatePath / ISR page writes.
- * With cacheLife("weeks"), the next visitor after a revalidateTag call
- * automatically gets freshly fetched data without triggering an ISR write.
+ * Only the specific post's cache (post:<slug>) is invalidated — NOT the global
+ * "post-detail" broadcast tag, which would force all 250+ pre-rendered article
+ * pages to re-generate simultaneously (causing ~2K ISR hits per publish).
  */
 export async function revalidatePost(
   slug?: string,
@@ -228,7 +229,6 @@ export async function revalidatePost(
 ) {
   if (slug) {
     revalidateTag(`post:${slug}`)
-    revalidateTag("post-detail")
   }
 
   if (categorySlug) {
@@ -243,14 +243,7 @@ export async function revalidatePost(
   }
 
   if (!options || options.isVisibilityChange) {
-    revalidateTag("latest-by-category")
     revalidateTag("search-results")
-    revalidateTag("related-posts")
-    revalidateTag("recommended-posts")
-  }
-
-  if (options?.isTrendingChange || options?.isVisibilityChange) {
-    revalidateTag("trending-posts")
   }
 
   if (options?.isVideoChange || options?.isVisibilityChange) {
@@ -281,7 +274,6 @@ export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
   // and draft/pending posts never appear in them.
   if (slug) {
     revalidateTag(`post:${slug}`)
-    revalidateTag("post-detail")
   }
   if (categorySlug) {
     revalidateTag(`category:${categorySlug}`)

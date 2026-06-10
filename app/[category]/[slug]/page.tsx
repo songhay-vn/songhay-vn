@@ -7,9 +7,8 @@ import { JsonLd } from "@/components/seo/json-ld"
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd"
 import {
   getPostByCategoryAndSlug,
-  getTrendingPosts,
-  getLatestPostsForSsg,
   getNavCategories,
+  getLatestPostsForSsg,
 } from "@/lib/queries"
 import { normalizeArticleHtml } from "@/lib/html"
 import { buildAutoSeoDescription, buildAutoSeoTitle } from "@/lib/post-seo"
@@ -104,10 +103,9 @@ export async function generateMetadata({
 
 export default async function PostPage({ params }: PostPageProps) {
   const { category, slug } = await params
-  const [post, navCategories, trendingPosts] = await Promise.all([
+  const [post, navCategories] = await Promise.all([
     getPostByCategoryAndSlug(category, slug),
     getNavCategories(),
-    getTrendingPosts(),
   ])
 
   if (!post) {
@@ -167,7 +165,6 @@ export default async function PostPage({ params }: PostPageProps) {
       article={article}
       articleHtml={articleHtml}
       fullUrl={fullUrl}
-      trendingPosts={trendingPosts}
       dateValue={article.publishedAt}
       showViewTracker
       showSocialShare

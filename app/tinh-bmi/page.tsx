@@ -5,7 +5,7 @@ import Link from "next/link"
 import { BmiWidget } from "@/components/news/bmi-widget"
 import { JsonLd } from "@/components/seo/json-ld"
 import { SiteEngagement } from "@/components/news/site-engagement"
-import { getHomepageData, getNavCategories } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 import { NewsLayout } from "@/components/news/news-layout"
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 }
 
 export default async function BmiPage() {
-  const [navCategories, homepageData] = await Promise.all([getNavCategories(), getHomepageData()])
+  const navCategories = await getNavCategories()
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -53,7 +53,7 @@ export default async function BmiPage() {
   return (
     <>
       <JsonLd data={faqSchema} />
-      <NewsLayout navCategories={navCategories} trendingPosts={homepageData.mostRead} className="bg-white">
+      <NewsLayout navCategories={navCategories} className="bg-white">
         <div className="space-y-6">
           <h1 className="text-3xl font-black text-zinc-900">Đo chỉ số cân nặng - chiều cao (BMI) online</h1>
           <BmiWidget />

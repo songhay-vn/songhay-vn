@@ -6,7 +6,7 @@ import { Suspense } from "react"
 import { PostCard } from "@/components/news/post-card"
 import { SectionHeading } from "@/components/news/section-heading"
 import { NewsLayout } from "@/components/news/news-layout"
-import { getNavCategories, getHomepageData, getPublishedSearchResults, type SearchResultItem } from "@/lib/queries"
+import { getNavCategories, getPublishedSearchResults, type SearchResultItem } from "@/lib/queries"
 
 type SearchPageProps = {
   searchParams?: Promise<{
@@ -94,8 +94,8 @@ async function SearchContent({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined
   const query = normalizeQuery(resolvedSearchParams?.q)
   const page = toPositiveInt(resolvedSearchParams?.page)
-  
-  const [result, navCategories, { mostRead }] = await Promise.all([
+
+  const [result, navCategories] = await Promise.all([
     query
       ? getPublishedSearchResults(query, page, 12)
       : Promise.resolve({
@@ -107,13 +107,12 @@ async function SearchContent({ searchParams }: SearchPageProps) {
           totalPages: 0,
         }),
     getNavCategories(),
-    getHomepageData(),
   ])
 
   const hasPagination = query.length > 0 && result.totalPages > 1
 
   return (
-    <NewsLayout navCategories={navCategories} trendingPosts={mostRead}>
+    <NewsLayout navCategories={navCategories}>
       <div className="space-y-6">
         <SectionHeading title="Tìm kiếm" />
 

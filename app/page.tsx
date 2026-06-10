@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [{ mostRead, heroSlots = [] }, navCategories] = await Promise.all([
+  const [{ heroSlots = [] }, navCategories] = await Promise.all([
     getHomepageData(),
     getNavCategories(),
   ])
@@ -71,7 +71,6 @@ export default async function HomePage() {
       <JsonLd data={homepageJsonLd} />
       <NewsLayout
         navCategories={navCategories}
-        trendingPosts={mostRead}
         mainBanner={
           <Image
             src="/banner.png"

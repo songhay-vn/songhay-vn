@@ -4,7 +4,7 @@ import Link from "next/link"
 import { BabyNameWidget } from "@/components/news/baby-name-widget"
 import { NewsLayout } from "@/components/news/news-layout"
 import { JsonLd } from "@/components/seo/json-ld"
-import { getHomepageData, getNavCategories } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 
 export const metadata: Metadata = {
   title: "Đặt tên con theo Ngũ Hành",
@@ -16,11 +16,7 @@ export const metadata: Metadata = {
 }
 
 export default async function BabyNamePage() {
-  const [homepageData, navCategories] = await Promise.all([
-    getHomepageData(),
-    getNavCategories(),
-  ])
-  const { mostRead } = homepageData
+  const navCategories = await getNavCategories()
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -53,7 +49,7 @@ export default async function BabyNamePage() {
   }
 
   return (
-    <NewsLayout navCategories={navCategories} trendingPosts={mostRead}>
+    <NewsLayout navCategories={navCategories}>
       <JsonLd data={faqSchema} />
       <div className="space-y-6">
         <h1 className="text-3xl font-black text-zinc-900">

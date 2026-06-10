@@ -7,28 +7,9 @@ import { SocialShare } from "@/components/news/social-share"
 import { ViewTracker } from "@/components/news/view-tracker"
 import { SiteEngagement } from "@/components/news/site-engagement"
 import { NewsLayout } from "@/components/news/news-layout"
+import { FormattedDate } from "@/components/news/formatted-date"
 import type { CategoryWithChildren } from "@/lib/queries"
 
-type ArticleListItem = {
-  id: string
-  title: string
-  excerpt: string
-  slug: string
-  thumbnailUrl: string | null
-  publishedAt: Date | string | null
-  category: {
-    slug: string
-    name?: string
-  }
-}
-
-type TrendingListItem = ArticleListItem & {
-  views: number
-  category: {
-    slug: string
-    name: string
-  }
-}
 
 type ArticlePageShellProps = {
   navCategories: CategoryWithChildren[]
@@ -51,7 +32,6 @@ type ArticlePageShellProps = {
   }
   articleHtml: string
   fullUrl: string
-  trendingPosts: TrendingListItem[]
   dateValue: Date | string | null
   topBanner?: ReactNode
   mainBanner?: ReactNode
@@ -85,7 +65,6 @@ export function ArticlePageShell({
   article,
   articleHtml,
   fullUrl,
-  trendingPosts,
   dateValue,
   topBanner,
   mainBanner,
@@ -97,7 +76,6 @@ export function ArticlePageShell({
   return (
     <NewsLayout
       navCategories={navCategories}
-      trendingPosts={trendingPosts}
       topBanner={
         <>
           {topBanner}
@@ -136,7 +114,7 @@ export function ArticlePageShell({
               {article.excerpt.trim()}
             </p>
             <p className="text-sm text-black">
-              {dateValue ? new Date(dateValue).toLocaleString("vi-VN") : ""}
+              <FormattedDate value={dateValue} />
             </p>
           </header>
 

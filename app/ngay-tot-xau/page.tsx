@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { GoodDayFullReport } from "@/components/news/good-day-full-report"
 import { GoodDayByAgeTool } from "@/components/news/good-day-by-age-tool"
 import { NewsLayout } from "@/components/news/news-layout"
-import { getHomepageData, getNavCategories } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 
 export const metadata: Metadata = {
   title: "Xem ngày tốt xấu đầy đủ theo lịch âm",
@@ -15,13 +15,10 @@ export const metadata: Metadata = {
 }
 
 export default async function GoodDayPage() {
-  const [{ mostRead }, navCategories] = await Promise.all([
-    getHomepageData(),
-    getNavCategories(),
-  ])
+  const navCategories = await getNavCategories()
 
   return (
-    <NewsLayout navCategories={navCategories} trendingPosts={mostRead}>
+    <NewsLayout navCategories={navCategories}>
       <div className="space-y-6">
         <header className="space-y-2">
           <h1 className="text-3xl font-black text-zinc-900">Xem ngày tốt xấu theo tuổi</h1>

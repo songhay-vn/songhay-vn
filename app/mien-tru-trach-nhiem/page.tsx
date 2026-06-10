@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { DEFAULT_OG_IMAGE_PATH, toAbsoluteUrl } from "@/lib/seo"
 import { SiteEngagement } from "@/components/news/site-engagement"
-import { getNavCategories, getHomepageData } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 import { NewsLayout } from "@/components/news/news-layout"
 
 export const metadata: Metadata = {
@@ -25,13 +25,10 @@ export const metadata: Metadata = {
 }
 
 export default async function DisclaimerPage() {
-  const [navCategories, { mostRead }] = await Promise.all([
-    getNavCategories(),
-    getHomepageData(),
-  ])
+  const navCategories = await getNavCategories()
 
   return (
-    <NewsLayout navCategories={navCategories} trendingPosts={mostRead}>
+    <NewsLayout navCategories={navCategories}>
       <div className="space-y-6">
         <header className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-rose-700">Songhay.vn</p>
