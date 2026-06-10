@@ -390,8 +390,9 @@ export function OverviewTab({
               ) : null}
             </div>
             <div className="overflow-x-auto">
-              <div className="min-w-[420px]">
-                <div className="grid grid-cols-[minmax(0,1fr)_58px_58px_54px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
+              <div className="min-w-[430px]">
+                <div className="grid grid-cols-[36px_minmax(0,1fr)_58px_58px_54px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
+                  <span>#</span>
                   <span>Query</span>
                   <span className="text-right">Clicks</span>
                   <span className="text-right">CTR</span>
@@ -406,10 +407,13 @@ export function OverviewTab({
                   searchQueries.map((item, index) => (
                     <div
                       key={item.id}
-                      className="grid grid-cols-[minmax(0,1fr)_58px_58px_54px] gap-3 border-b py-2.5 last:border-b-0"
+                      className="grid grid-cols-[36px_minmax(0,1fr)_58px_58px_54px] gap-3 border-b py-2.5 last:border-b-0"
                     >
+                      <span className="text-sm text-muted-foreground tabular-nums">
+                        {index + 1}
+                      </span>
                       <span className="line-clamp-1 text-sm font-medium">
-                        {index + 1}. {item.query}
+                        {item.query}
                       </span>
                       <span className="text-right text-sm text-zinc-700">
                         {formatNumber(item.clicks)}
