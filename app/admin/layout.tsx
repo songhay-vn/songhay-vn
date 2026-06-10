@@ -5,7 +5,12 @@ import { Suspense } from "react"
 
 import "ckeditor5/ckeditor5-content.css"
 import { getAdminSnapshot } from "@/app/admin/data-loaders/index"
-import { getVisibleTabs, OVERVIEW_TAB, POSTS_SUBMENU_TABS, type NavCountKey } from "@/app/admin/page-helpers"
+import {
+  getVisibleTabs,
+  OVERVIEW_TAB,
+  POSTS_SUBMENU_TABS,
+  type NavCountKey,
+} from "@/app/admin/page-helpers"
 import { AdminActionToast } from "@/components/admin/action-toast"
 import { AdminNavButton } from "@/components/admin/admin-nav-button"
 import { Badge } from "@/components/ui/badge"
@@ -27,23 +32,32 @@ export const metadata: Metadata = {
 async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   await connection()
   const currentUser = await requireCmsUser()
+  const adminSnapshotPromise = getAdminSnapshot()
+  const notificationsPromise = prisma.notification.findMany({
+    where: { userId: currentUser.id },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  })
   const canManageSettings = can(currentUser.role, "create-category")
 
   const { contentTabs, settingsTabs } = getVisibleTabs({
     canManageSettings,
   })
 
-  const {
-    postCount,
-    categoryCount,
-    pendingCommentCount,
-    trashedPostCount,
-    draftPostCount,
-    pendingReviewPostCount,
-    pendingPublishPostCount,
-    publishedPostCount,
-    rejectedPostCount,
-  } = await getAdminSnapshot()
+  const [
+    {
+      postCount,
+      categoryCount,
+      pendingCommentCount,
+      trashedPostCount,
+      draftPostCount,
+      pendingReviewPostCount,
+      pendingPublishPostCount,
+      publishedPostCount,
+      rejectedPostCount,
+    },
+    notifications,
+  ] = await Promise.all([adminSnapshotPromise, notificationsPromise])
 
   const navCountByKey: Record<NavCountKey, number> = {
     postCount,
@@ -56,12 +70,6 @@ async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     publishedPostCount,
     rejectedPostCount,
   }
-
-  const notifications = await prisma.notification.findMany({
-    where: { userId: currentUser.id },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  })
 
   return (
     <main className="min-h-screen bg-zinc-100">
@@ -117,7 +125,9 @@ async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                           key={tab.key}
                           tab={tab}
                           count={
-                            tab.countKey ? navCountByKey[tab.countKey] : undefined
+                            tab.countKey
+                              ? navCountByKey[tab.countKey]
+                              : undefined
                           }
                         />
                       ))}
@@ -155,9 +165,7 @@ async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <section className="space-y-4 p-4 md:p-6 xl:p-8">
-          {children}
-        </section>
+        <section className="space-y-4 p-4 md:p-6 xl:p-8">{children}</section>
       </div>
     </main>
   )
@@ -168,13 +176,19 @@ function AdminLayoutSkeleton() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-100">
       <div className="flex flex-col items-center gap-3">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-600 border-t-transparent" />
-        <p className="text-sm font-medium text-zinc-600">Đang tải bảng điều khiển...</p>
+        <p className="text-sm font-medium text-zinc-600">
+          Đang tải bảng điều khiển...
+        </p>
       </div>
     </div>
   )
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <Suspense fallback={<AdminLayoutSkeleton />}>
       <AdminLayoutContent>{children}</AdminLayoutContent>

@@ -28,23 +28,7 @@ export async function getAdminPageData({
   historyPage,
   currentUser,
 }: GetAdminPageDataInput) {
-  const {
-    postCount,
-    categoryCount,
-    pendingCommentCount,
-    trashedPostCount,
-    draftPostCount,
-    pendingReviewPostCount,
-    pendingPublishPostCount,
-    publishedPostCount,
-    rejectedPostCount,
-    totalPostViews,
-    indexedPostCount,
-    notIndexedPostCount,
-    pendingInspectionCount,
-    failedInspectionCount,
-    todayInspectionUsage,
-  } = await getAdminSnapshot()
+  const adminSnapshotPromise = getAdminSnapshot()
 
   // Initialize all data with default "empty" values (matching loader short-circuits)
   let categoriesForManage: Awaited<ReturnType<typeof getCategoriesForManage>> =
@@ -115,61 +99,83 @@ export async function getAdminPageData({
   let permissionsMatrix: Awaited<ReturnType<typeof getRolePermissionsData>> = []
 
   // Selectively fire only required loaders for the active tab
-  switch (activeTab) {
-    case "overview":
-      overviewAnalytics = await getOverviewAnalytics(activeTab, overviewRange)
-      break
-    case "write":
-      ;[categoriesForWrite, seoKeywordOptions, mediaLibraryData] =
-        await Promise.all([
-          getCategoriesForWrite(activeTab),
-          getSeoKeywordOptions(activeTab),
-          getMediaLibraryData(activeTab),
-        ])
-      break
-    case "media-library":
-      mediaLibraryData = await getMediaLibraryData(activeTab)
-      break
-    case "personal-archive":
-      personalPostsData = await getPersonalPostsData(
-        activeTab,
-        personalArchiveFilters,
-        currentUser
-      )
-      break
-    case "history":
-      historyLogs = await getHistoryData(activeTab, historyPage)
-      break
-    case "categories":
-      categoriesForManage = await getCategoriesForManage(activeTab)
-      break
-    case "comments":
-      pendingComments = await getPendingComments(activeTab)
-      break
-    case "posts":
-      postsData = await getPostsData(activeTab, postsFilters, currentUser)
-      break
-    case "trash":
-      trashedPosts = await getTrashedPostsData(
-        activeTab,
-        trashFilters,
-        currentUser
-      )
-      break
-    case "settings-moderation":
-      moderationSettings = await getModerationSettingsData(activeTab)
-      break
-    case "settings-permissions":
-      permissionsMatrix = await getRolePermissionsData(activeTab)
-      break
-    case "settings-users":
-    case "settings-password":
-      usersData = await getUsersData(activeTab)
-      break
-    default:
-      // No extra data needed for "settings-password" or unknown tabs
-      break
-  }
+  const activeTabDataPromise = (async () => {
+    switch (activeTab) {
+      case "overview":
+        overviewAnalytics = await getOverviewAnalytics(activeTab, overviewRange)
+        break
+      case "write":
+        ;[categoriesForWrite, seoKeywordOptions, mediaLibraryData] =
+          await Promise.all([
+            getCategoriesForWrite(activeTab),
+            getSeoKeywordOptions(activeTab),
+            getMediaLibraryData(activeTab),
+          ])
+        break
+      case "media-library":
+        mediaLibraryData = await getMediaLibraryData(activeTab)
+        break
+      case "personal-archive":
+        personalPostsData = await getPersonalPostsData(
+          activeTab,
+          personalArchiveFilters,
+          currentUser
+        )
+        break
+      case "history":
+        historyLogs = await getHistoryData(activeTab, historyPage)
+        break
+      case "categories":
+        categoriesForManage = await getCategoriesForManage(activeTab)
+        break
+      case "comments":
+        pendingComments = await getPendingComments(activeTab)
+        break
+      case "posts":
+        postsData = await getPostsData(activeTab, postsFilters, currentUser)
+        break
+      case "trash":
+        trashedPosts = await getTrashedPostsData(
+          activeTab,
+          trashFilters,
+          currentUser
+        )
+        break
+      case "settings-moderation":
+        moderationSettings = await getModerationSettingsData(activeTab)
+        break
+      case "settings-permissions":
+        permissionsMatrix = await getRolePermissionsData(activeTab)
+        break
+      case "settings-users":
+      case "settings-password":
+        usersData = await getUsersData(activeTab)
+        break
+      default:
+        // No extra data needed for "settings-password" or unknown tabs
+        break
+    }
+  })()
+
+  const [
+    {
+      postCount,
+      categoryCount,
+      pendingCommentCount,
+      trashedPostCount,
+      draftPostCount,
+      pendingReviewPostCount,
+      pendingPublishPostCount,
+      publishedPostCount,
+      rejectedPostCount,
+      totalPostViews,
+      indexedPostCount,
+      notIndexedPostCount,
+      pendingInspectionCount,
+      failedInspectionCount,
+      todayInspectionUsage,
+    },
+  ] = await Promise.all([adminSnapshotPromise, activeTabDataPromise])
 
   const postsPaginationItems = buildPaginationItems(
     postsData.currentPage,
