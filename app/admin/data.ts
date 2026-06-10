@@ -79,9 +79,19 @@ export async function getAdminPageData({
         error: null,
         landingPages: [],
       },
+      content: {
+        propertyId: null,
+        error: null,
+        summary: {
+          screenPageViews: 0,
+          sessions: 0,
+          activeUsers: 0,
+          engagementRate: 0,
+          averageSessionDuration: 0,
+        },
+        pages: [],
+      },
     },
-    avgDwellSecondsPerPost: 0,
-    dwellTopPosts: [],
   }
   let moderationSettings: Awaited<
     ReturnType<typeof getModerationSettingsData>

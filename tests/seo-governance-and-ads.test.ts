@@ -31,7 +31,7 @@ describe("seo governance and moderation", () => {
     expect(source).toContain('const rangeLabel = "30 ngày"')
     expect(source).toContain("Tổng quan")
     expect(source).toContain("Traffic")
-    expect(source).toContain("Dwell-time")
+    expect(source).toContain("GA4 Content")
     expect(source).toContain(">SEO<")
     expect(source).toContain("Trends")
     expect(source).toContain("Search Console")
@@ -77,12 +77,13 @@ describe("ads and indexing", () => {
     expect(source).toContain("follow: false")
   })
 
-  test("view tracker sends dwell-time engagement", () => {
+  test("view tracker only records post views", () => {
     const source = readWorkspaceFile("components/news/view-tracker.tsx")
 
-    expect(source).toContain("/engagement")
-    expect(source).toContain("sendBeacon")
-    expect(source).toContain("dwellSeconds")
+    expect(source).toContain("/view")
+    expect(source).not.toContain("/engagement")
+    expect(source).not.toContain("sendBeacon")
+    expect(source).not.toContain("dwellSeconds")
   })
 
   test("media library supports click-to-expand preview", () => {

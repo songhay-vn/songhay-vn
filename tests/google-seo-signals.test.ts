@@ -2,8 +2,12 @@ import { describe, expect, mock, test } from "bun:test"
 
 mock.module("server-only", () => ({}))
 
-const { mapAnalyticsRows, mapSearchConsoleRows } =
-  await import("../lib/google-seo-signals")
+const {
+  mapAnalyticsContentRows,
+  mapAnalyticsContentSummary,
+  mapAnalyticsRows,
+  mapSearchConsoleRows,
+} = await import("../lib/google-seo-signals")
 
 describe("Google SEO signal helpers", () => {
   test("maps Search Console query rows", () => {
@@ -73,5 +77,63 @@ describe("Google SEO signal helpers", () => {
         engagementRate: 0.73,
       },
     ])
+  })
+
+  test("maps GA4 all-traffic content rows and summary", () => {
+    const rows = mapAnalyticsContentRows(
+      [
+        {
+          dimensionValues: [
+            { value: "/thoi-su/bai-moi" },
+            { value: "Bài mới" },
+          ],
+          metricValues: [
+            { value: "55" },
+            { value: "42" },
+            { value: "31" },
+            { value: "0.73" },
+            { value: "88.4" },
+          ],
+        },
+        {
+          dimensionValues: [{ value: "(not set)" }, { value: "Ignored" }],
+          metricValues: [{ value: "99" }],
+        },
+      ],
+      5
+    )
+
+    expect(rows).toEqual([
+      {
+        id: "ga-content:%2Fthoi-su%2Fbai-moi:0",
+        path: "/thoi-su/bai-moi",
+        title: "Bài mới",
+        screenPageViews: 55,
+        sessions: 42,
+        activeUsers: 31,
+        engagementRate: 0.73,
+        averageSessionDuration: 88.4,
+      },
+    ])
+
+    expect(
+      mapAnalyticsContentSummary([
+        {
+          metricValues: [
+            { value: "105" },
+            { value: "80" },
+            { value: "64" },
+            { value: "0.68" },
+            { value: "96.2" },
+          ],
+        },
+      ])
+    ).toEqual({
+      screenPageViews: 105,
+      sessions: 80,
+      activeUsers: 64,
+      engagementRate: 0.68,
+      averageSessionDuration: 96.2,
+    })
   })
 })

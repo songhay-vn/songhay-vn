@@ -1,5 +1,6 @@
 import { memoizeWithTtl } from "@/lib/data-cache"
 import {
+  fetchAnalyticsContentSignals,
   fetchAnalyticsLandingPageSignals,
   fetchSearchConsoleQuerySignals,
 } from "@/lib/google-seo-signals"
@@ -130,7 +131,6 @@ export async function getOverviewAnalytics(
         views: number
         comments: number
         posts: number
-        avgDwellSeconds: number
       }>,
       range: "30d" as OverviewRange,
       hotSeoKeywords: [],
@@ -150,16 +150,19 @@ export async function getOverviewAnalytics(
           error: null as string | null,
           landingPages: [],
         },
+        content: {
+          propertyId: null as string | null,
+          error: null as string | null,
+          summary: {
+            screenPageViews: 0,
+            sessions: 0,
+            activeUsers: 0,
+            engagementRate: 0,
+            averageSessionDuration: 0,
+          },
+          pages: [],
+        },
       },
-      avgDwellSecondsPerPost: 0,
-      dwellTopPosts: [] as Array<{
-        postId: string
-        title: string
-        slug: string
-        category: { slug: string }
-        avgDwellSeconds: number
-        eventCount: number
-      }>,
     }
   }
 
@@ -176,11 +179,10 @@ export async function getOverviewAnalytics(
       const [
         recentPosts,
         recentComments,
-        dwellEventGroups,
-        allDwellEvents,
         trendKeywordResult,
         searchConsoleQuerySignals,
         analyticsLandingPageSignals,
+        analyticsContentSignals,
       ] = await Promise.all([
         prisma.post.findMany({
           where: {
@@ -201,37 +203,16 @@ export async function getOverviewAnalytics(
             createdAt: true,
           },
         }),
-        prisma.postEngagementEvent.groupBy({
-          by: ["postId"],
-          where: {
-            createdAt: { gte: chartStart },
-            dwellSeconds: {
-              gt: 0,
-            },
-          },
-          _avg: {
-            dwellSeconds: true,
-          },
-          _count: {
-            _all: true,
-          },
-        }),
-        prisma.postEngagementEvent.findMany({
-          where: {
-            createdAt: { gte: chartStart },
-            dwellSeconds: { gt: 0 },
-          },
-          select: {
-            createdAt: true,
-            dwellSeconds: true,
-          },
-        }),
         fetchGoogleTrendKeywords({ limit: 8 }),
         fetchSearchConsoleQuerySignals({
           days: OVERVIEW_ANALYTICS_DAYS,
           limit: 5,
         }),
         fetchAnalyticsLandingPageSignals({
+          days: OVERVIEW_ANALYTICS_DAYS,
+          limit: 5,
+        }),
+        fetchAnalyticsContentSignals({
           days: OVERVIEW_ANALYTICS_DAYS,
           limit: 5,
         }),
@@ -244,8 +225,6 @@ export async function getOverviewAnalytics(
           views: number
           comments: number
           posts: number
-          dwellSum: number
-          dwellCount: number
         }
       >()
 
@@ -257,8 +236,6 @@ export async function getOverviewAnalytics(
           views: 0,
           comments: 0,
           posts: 0,
-          dwellSum: 0,
-          dwellCount: 0,
         })
       }
 
@@ -281,88 +258,12 @@ export async function getOverviewAnalytics(
         bucket.comments += 1
       }
 
-      for (const event of allDwellEvents) {
-        const key = toDayKey(event.createdAt)
-        const bucket = dailyMap.get(key)
-        if (!bucket) {
-          continue
-        }
-        bucket.dwellSum += event.dwellSeconds
-        bucket.dwellCount += 1
-      }
-
       const daily = [...dailyMap.values()].map((item) => ({
         label: toDayLabel(item.date),
         views: item.views,
         comments: item.comments,
         posts: item.posts,
-        avgDwellSeconds:
-          item.dwellCount > 0 ? Math.round(item.dwellSum / item.dwellCount) : 0,
       }))
-
-      const avgDwellSecondsPerPost = dwellEventGroups.length
-        ? Math.round(
-            dwellEventGroups.reduce(
-              (sum, item) => sum + (item._avg.dwellSeconds || 0),
-              0
-            ) / dwellEventGroups.length
-          )
-        : 0
-
-      const dwellPostIds = [
-        ...new Set(dwellEventGroups.map((item) => item.postId)),
-      ]
-      const dwellPosts = dwellPostIds.length
-        ? await prisma.post.findMany({
-            where: {
-              id: { in: dwellPostIds },
-              isDeleted: false,
-              isPublished: true,
-            },
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-              category: {
-                select: {
-                  slug: true,
-                },
-              },
-            },
-          })
-        : []
-
-      const dwellPostMap = new Map<
-        string,
-        { title: string; slug: string; category: { slug: string } }
-      >()
-      for (const post of dwellPosts) {
-        dwellPostMap.set(post.id, {
-          title: post.title,
-          slug: post.slug,
-          category: post.category,
-        })
-      }
-
-      const dwellTopPosts = dwellEventGroups
-        .map((row) => {
-          const postMeta = dwellPostMap.get(row.postId)
-          if (!postMeta) {
-            return null
-          }
-
-          return {
-            postId: row.postId,
-            title: postMeta.title,
-            slug: postMeta.slug,
-            category: postMeta.category,
-            avgDwellSeconds: Math.round(row._avg.dwellSeconds || 0),
-            eventCount: row._count._all,
-          }
-        })
-        .filter((item): item is NonNullable<typeof item> => Boolean(item))
-        .sort((a, b) => b.avgDwellSeconds - a.avgDwellSeconds)
-        .slice(0, 5)
 
       return {
         daily,
@@ -380,9 +281,8 @@ export async function getOverviewAnalytics(
             queries: searchConsoleQuerySignals.queries,
           },
           analytics: analyticsLandingPageSignals,
+          content: analyticsContentSignals,
         },
-        avgDwellSecondsPerPost,
-        dwellTopPosts,
       }
     }
   )

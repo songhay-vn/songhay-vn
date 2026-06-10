@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 import { OverviewActivityChart } from "@/components/admin/overview-activity-chart"
-import { OverviewDwellChart } from "@/components/admin/overview-dwell-chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
@@ -21,7 +20,6 @@ type OverviewAnalytics = {
     views: number
     comments: number
     posts: number
-    avgDwellSeconds: number
   }>
   range: "30d"
   hotSeoKeywords: Array<{
@@ -66,16 +64,28 @@ type OverviewAnalytics = {
         engagementRate: number
       }>
     }
+    content: {
+      propertyId: string | null
+      error: string | null
+      summary: {
+        screenPageViews: number
+        sessions: number
+        activeUsers: number
+        engagementRate: number
+        averageSessionDuration: number
+      }
+      pages: Array<{
+        id: string
+        path: string
+        title: string
+        screenPageViews: number
+        sessions: number
+        activeUsers: number
+        engagementRate: number
+        averageSessionDuration: number
+      }>
+    }
   }
-  avgDwellSecondsPerPost: number
-  dwellTopPosts: Array<{
-    postId: string
-    title: string
-    slug: string
-    category: { slug: string }
-    avgDwellSeconds: number
-    eventCount: number
-  }>
 }
 
 type OverviewTabProps = {
@@ -93,12 +103,16 @@ function formatTrendStartedAt(value: string | null) {
     return null
   }
 
-  return date.toLocaleString("vi-VN", {
-    day: "2-digit",
+  const time = date.toLocaleTimeString("vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
+  })
+  const day = date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
     month: "2-digit",
   })
+
+  return `${time} ${day}`
 }
 
 function formatPercent(value: number) {
@@ -131,6 +145,17 @@ function formatNumber(value: number) {
   return value.toLocaleString("vi-VN")
 }
 
+function formatDurationSeconds(value: number) {
+  const seconds = Math.max(0, Math.round(value))
+  if (seconds < 60) {
+    return `${seconds}s`
+  }
+
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}m ${String(remainingSeconds).padStart(2, "0")}s`
+}
+
 export function OverviewTab({
   overviewStats,
   overviewAnalytics,
@@ -139,24 +164,11 @@ export function OverviewTab({
   const searchQueries = overviewAnalytics.googleSeoSignals.searchConsole.queries
   const organicLandingPages =
     overviewAnalytics.googleSeoSignals.analytics.landingPages
+  const ga4Content = overviewAnalytics.googleSeoSignals.content
   const searchConsoleRangeLabel = formatDateRange(
     overviewAnalytics.googleSeoSignals.searchConsole.startDate,
     overviewAnalytics.googleSeoSignals.searchConsole.endDate
   )
-
-  function formatDwell(seconds: number) {
-    if (seconds <= 0) {
-      return "0s"
-    }
-
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    if (minutes === 0) {
-      return `${remainingSeconds}s`
-    }
-
-    return `${minutes}m ${String(remainingSeconds).padStart(2, "0")}s`
-  }
 
   return (
     <div className="space-y-4">
@@ -199,47 +211,92 @@ export function OverviewTab({
 
         <Card>
           <CardHeader className="flex flex-row items-end justify-between gap-3 space-y-0 pb-2">
-            <CardTitle>Dwell-time</CardTitle>
+            <div>
+              <CardTitle>GA4 Content</CardTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {ga4Content.propertyId
+                  ? `GA4 ${ga4Content.propertyId}`
+                  : "GA_PROPERTY_ID"}
+              </p>
+            </div>
             <span className="text-3xl font-black text-emerald-700">
-              {formatDwell(overviewAnalytics.avgDwellSecondsPerPost)}
+              {formatDurationSeconds(ga4Content.summary.averageSessionDuration)}
             </span>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="h-[220px] w-full">
-              <OverviewDwellChart data={overviewAnalytics.daily} />
+            <div className="grid grid-cols-4 gap-px overflow-hidden rounded-md border bg-zinc-200">
+              <div className="bg-white p-3">
+                <p className="text-xs text-muted-foreground">Views</p>
+                <p className="mt-1 text-lg font-black">
+                  {formatNumber(ga4Content.summary.screenPageViews)}
+                </p>
+              </div>
+              <div className="bg-white p-3">
+                <p className="text-xs text-muted-foreground">Sessions</p>
+                <p className="mt-1 text-lg font-black">
+                  {formatNumber(ga4Content.summary.sessions)}
+                </p>
+              </div>
+              <div className="bg-white p-3">
+                <p className="text-xs text-muted-foreground">Users</p>
+                <p className="mt-1 text-lg font-black">
+                  {formatNumber(ga4Content.summary.activeUsers)}
+                </p>
+              </div>
+              <div className="bg-white p-3">
+                <p className="text-xs text-muted-foreground">Engage</p>
+                <p className="mt-1 text-lg font-black">
+                  {formatPercent(ga4Content.summary.engagementRate)}
+                </p>
+              </div>
             </div>
 
             <div>
-              <div className="grid grid-cols-[minmax(0,1fr)_72px_64px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
-                <span>Bài</span>
-                <span className="text-right">Time</span>
-                <span className="text-right">Events</span>
-              </div>
-              {overviewAnalytics.dwellTopPosts.length === 0 ? (
-                <p className="py-3 text-sm text-muted-foreground">
-                  Chưa có dữ liệu dwell-time hợp lệ.
-                </p>
-              ) : (
-                overviewAnalytics.dwellTopPosts.map((post, index) => (
-                  <div
-                    key={post.postId}
-                    className="grid grid-cols-[minmax(0,1fr)_72px_64px] gap-3 border-b py-2.5 last:border-b-0"
-                  >
-                    <Link
-                      href={`/${post.category.slug}/${post.slug}`}
-                      className="line-clamp-1 text-sm font-medium hover:text-rose-600"
-                    >
-                      {index + 1}. {post.title}
-                    </Link>
-                    <span className="text-right text-sm font-semibold text-emerald-700">
-                      {formatDwell(post.avgDwellSeconds)}
-                    </span>
-                    <span className="text-right text-sm text-muted-foreground">
-                      {formatNumber(post.eventCount)}
-                    </span>
+              <div className="overflow-x-auto">
+                <div className="min-w-[520px]">
+                  <div className="grid grid-cols-[minmax(0,1fr)_58px_66px_62px_68px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
+                    <span>Page</span>
+                    <span className="text-right">Views</span>
+                    <span className="text-right">Sessions</span>
+                    <span className="text-right">Avg</span>
+                    <span className="text-right">Engage</span>
                   </div>
-                ))
-              )}
+                  {ga4Content.pages.length === 0 ? (
+                    <p className="py-3 text-sm text-muted-foreground">
+                      {ga4Content.error ||
+                        "Chưa có GA4 content page trong khoảng ngày này."}
+                    </p>
+                  ) : (
+                    ga4Content.pages.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="grid grid-cols-[minmax(0,1fr)_58px_66px_62px_68px] gap-3 border-b py-2.5 last:border-b-0"
+                      >
+                        <div className="min-w-0">
+                          <p className="line-clamp-1 text-sm font-medium">
+                            {index + 1}. {item.title}
+                          </p>
+                          <p className="line-clamp-1 text-xs text-muted-foreground">
+                            {item.path}
+                          </p>
+                        </div>
+                        <span className="text-right text-sm text-zinc-700">
+                          {formatNumber(item.screenPageViews)}
+                        </span>
+                        <span className="text-right text-sm text-muted-foreground">
+                          {formatNumber(item.sessions)}
+                        </span>
+                        <span className="text-right text-sm text-muted-foreground">
+                          {formatDurationSeconds(item.averageSessionDuration)}
+                        </span>
+                        <span className="text-right text-sm text-muted-foreground">
+                          {formatPercent(item.engagementRate)}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -270,8 +327,9 @@ export function OverviewTab({
               ) : null}
             </div>
             <div className="overflow-x-auto">
-              <div className="min-w-[360px]">
-                <div className="grid grid-cols-[minmax(0,1fr)_84px_76px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
+              <div className="min-w-[430px]">
+                <div className="grid grid-cols-[36px_minmax(0,1fr)_84px_104px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
+                  <span>#</span>
                   <span>Từ khóa</span>
                   <span className="text-right">Traffic</span>
                   <span className="text-right">Time</span>
@@ -287,21 +345,24 @@ export function OverviewTab({
                     return (
                       <div
                         key={item.id}
-                        className="grid grid-cols-[minmax(0,1fr)_84px_76px] gap-3 border-b py-2.5 last:border-b-0"
+                        className="grid grid-cols-[36px_minmax(0,1fr)_84px_104px] gap-3 border-b py-2.5 last:border-b-0"
                       >
+                        <span className="text-sm text-muted-foreground tabular-nums">
+                          {index + 1}
+                        </span>
                         <Link
                           href={item.trendUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="line-clamp-1 text-sm font-medium hover:text-rose-600"
                         >
-                          {index + 1}. {item.keyword}
+                          {item.keyword}
                         </Link>
-                        <span className="text-right text-sm text-zinc-700">
+                        <span className="text-right text-sm whitespace-nowrap text-zinc-700">
                           {item.trafficLabel ||
                             `${formatNumber(item.trafficScore)}+`}
                         </span>
-                        <span className="text-right text-sm text-muted-foreground">
+                        <span className="text-right text-sm whitespace-nowrap text-muted-foreground tabular-nums">
                           {startedAtLabel || "-"}
                         </span>
                       </div>

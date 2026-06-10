@@ -36,6 +36,10 @@ type GoogleAnalyticsRunReportResponse = {
   rows?: GoogleAnalyticsRunReportRow[]
 }
 
+type GoogleAnalyticsBatchRunReportsResponse = {
+  reports?: GoogleAnalyticsRunReportResponse[]
+}
+
 export type SearchConsoleQuerySignal = {
   id: string
   query: string
@@ -67,6 +71,40 @@ export type AnalyticsLandingPageSignalResult = {
   propertyId: string | null
   error: string | null
   landingPages: AnalyticsLandingPageSignal[]
+}
+
+export type AnalyticsContentPageSignal = {
+  id: string
+  path: string
+  title: string
+  screenPageViews: number
+  sessions: number
+  activeUsers: number
+  engagementRate: number
+  averageSessionDuration: number
+}
+
+export type AnalyticsContentSummary = {
+  screenPageViews: number
+  sessions: number
+  activeUsers: number
+  engagementRate: number
+  averageSessionDuration: number
+}
+
+export type AnalyticsContentSignalResult = {
+  propertyId: string | null
+  error: string | null
+  summary: AnalyticsContentSummary
+  pages: AnalyticsContentPageSignal[]
+}
+
+const emptyAnalyticsContentSummary: AnalyticsContentSummary = {
+  screenPageViews: 0,
+  sessions: 0,
+  activeUsers: 0,
+  engagementRate: 0,
+  averageSessionDuration: 0,
 }
 
 function toDateInput(date: Date) {
@@ -182,6 +220,51 @@ export function mapAnalyticsRows(
     })
     .filter((item): item is AnalyticsLandingPageSignal => Boolean(item))
     .slice(0, limit)
+}
+
+export function mapAnalyticsContentRows(
+  rows: GoogleAnalyticsRunReportRow[] | undefined,
+  limit: number
+) {
+  return (rows || [])
+    .map((row, index) => {
+      const path = row.dimensionValues?.[0]?.value?.trim() || ""
+      if (!path || path === "(not set)") {
+        return null
+      }
+
+      const title = row.dimensionValues?.[1]?.value?.trim() || path
+
+      return {
+        id: `ga-content:${encodeURIComponent(path)}:${index}`,
+        path,
+        title,
+        screenPageViews: Math.round(toNumber(row.metricValues?.[0]?.value)),
+        sessions: Math.round(toNumber(row.metricValues?.[1]?.value)),
+        activeUsers: Math.round(toNumber(row.metricValues?.[2]?.value)),
+        engagementRate: toNumber(row.metricValues?.[3]?.value),
+        averageSessionDuration: toNumber(row.metricValues?.[4]?.value),
+      }
+    })
+    .filter((item): item is AnalyticsContentPageSignal => Boolean(item))
+    .slice(0, limit)
+}
+
+export function mapAnalyticsContentSummary(
+  rows: GoogleAnalyticsRunReportRow[] | undefined
+): AnalyticsContentSummary {
+  const row = rows?.[0]
+  if (!row) {
+    return emptyAnalyticsContentSummary
+  }
+
+  return {
+    screenPageViews: Math.round(toNumber(row.metricValues?.[0]?.value)),
+    sessions: Math.round(toNumber(row.metricValues?.[1]?.value)),
+    activeUsers: Math.round(toNumber(row.metricValues?.[2]?.value)),
+    engagementRate: toNumber(row.metricValues?.[3]?.value),
+    averageSessionDuration: toNumber(row.metricValues?.[4]?.value),
+  }
 }
 
 export async function fetchSearchConsoleQuerySignals({
@@ -331,6 +414,101 @@ export async function fetchAnalyticsLandingPageSignals({
       propertyId,
       error: getErrorMessage(error),
       landingPages: [],
+    }
+  }
+}
+
+export async function fetchAnalyticsContentSignals({
+  days = 30,
+  limit = 5,
+}: {
+  days?: number
+  limit?: number
+} = {}): Promise<AnalyticsContentSignalResult> {
+  const propertyId = getGoogleAnalyticsPropertyId()
+
+  if (!propertyId) {
+    return {
+      propertyId: null,
+      error: "Missing GA_PROPERTY_ID",
+      summary: emptyAnalyticsContentSummary,
+      pages: [],
+    }
+  }
+
+  if (!isGoogleServiceAccountConfigured()) {
+    return {
+      propertyId,
+      error: "Missing GOOGLE_SERVICE_ACCOUNT_KEY_JSON_BASE64",
+      summary: emptyAnalyticsContentSummary,
+      pages: [],
+    }
+  }
+
+  try {
+    const accessToken = await getGoogleServiceAccountAccessToken([
+      ANALYTICS_READONLY_SCOPE,
+    ])
+    const metrics = [
+      { name: "screenPageViews" },
+      { name: "sessions" },
+      { name: "activeUsers" },
+      { name: "engagementRate" },
+      { name: "averageSessionDuration" },
+    ]
+    const dateRanges = [{ startDate: `${days}daysAgo`, endDate: "yesterday" }]
+    const response = await fetch(
+      `${GA_DATA_API_BASE}/properties/${propertyId}:batchRunReports`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          requests: [
+            {
+              dateRanges,
+              dimensions: [
+                { name: "pagePathPlusQueryString" },
+                { name: "pageTitle" },
+              ],
+              metrics,
+              limit: String(limit),
+              orderBys: [
+                {
+                  metric: { metricName: "screenPageViews" },
+                  desc: true,
+                },
+              ],
+            },
+            {
+              dateRanges,
+              metrics,
+            },
+          ],
+        }),
+        next: { revalidate: GOOGLE_API_REVALIDATE_SECONDS },
+      }
+    )
+
+    const body =
+      await readGoogleApiResponse<GoogleAnalyticsBatchRunReportsResponse>(
+        response
+      )
+
+    return {
+      propertyId,
+      error: null,
+      pages: mapAnalyticsContentRows(body.reports?.[0]?.rows, limit),
+      summary: mapAnalyticsContentSummary(body.reports?.[1]?.rows),
+    }
+  } catch (error) {
+    return {
+      propertyId,
+      error: getErrorMessage(error),
+      summary: emptyAnalyticsContentSummary,
+      pages: [],
     }
   }
 }

@@ -127,7 +127,6 @@ model Post {
   comments              Comment[]
   history               PostHistory[]
   seoKeywordLinks       PostSeoKeyword[]
-  engagementEvents      PostEngagementEvent[]
   notifications         Notification[]
   searchConsoleStatuses SearchConsoleUrlStatus[]
   searchConsoleJobs     SearchConsoleJob[]
@@ -264,17 +263,6 @@ model ForbiddenKeyword {
   updatedAt      DateTime @updatedAt
 
   @@index([term])
-}
-
-model PostEngagementEvent {
-  id           String   @id @default(cuid())
-  postId       String
-  dwellSeconds Int
-  createdAt    DateTime @default(now())
-  post         Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@index([createdAt])
-  @@index([postId, createdAt])
 }
 
 model PostHistory {
