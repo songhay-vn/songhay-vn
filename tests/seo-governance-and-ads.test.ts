@@ -29,12 +29,14 @@ describe("seo governance and moderation", () => {
     const source = readWorkspaceFile("components/admin/overview-tab.tsx")
 
     expect(source).toContain('const rangeLabel = "30 ngày"')
-    expect(source).toContain("Từ khóa SEO hot")
-    expect(source).toContain("Tín hiệu Google")
+    expect(source).toContain("Tổng quan")
+    expect(source).toContain("Traffic")
+    expect(source).toContain("Dwell-time")
+    expect(source).toContain(">SEO<")
+    expect(source).toContain("Trends")
     expect(source).toContain("Search Console")
-    expect(source).toContain("GA4 Organic Search")
+    expect(source).toContain("Organic landing page")
     expect(source).not.toContain("Search indexing")
-    expect(source).toContain("Thời gian ở lại trung bình")
   })
 
   test("root layout installs Google Analytics measurement tag", () => {
