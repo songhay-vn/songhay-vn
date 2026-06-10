@@ -7,7 +7,12 @@ import "./globals.css"
 import { AdsenseHydrator } from "@/components/news/adsense-hydrator"
 import { FloatingGiftButton } from "@/components/news/floating-gift-button"
 import { JsonLd } from "@/components/seo/json-ld"
-import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, SITE_NAME, toAbsoluteUrl } from "@/lib/seo"
+import {
+  DEFAULT_OG_IMAGE_PATH,
+  getSiteUrl,
+  SITE_NAME,
+  toAbsoluteUrl,
+} from "@/lib/seo"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ScrollToTopOnRouteChange } from "@/components/scroll-to-top-on-route-change"
@@ -26,6 +31,8 @@ const fontSerif = Merriweather({
 })
 
 const siteUrl = getSiteUrl()
+const googleAnalyticsMeasurementId =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-C1ZX5NG9PC"
 const defaultDescription =
   "Songhay.vn - cổng thông tin phong cách sống Việt Nam với tin tức song hay, sống khỏe, mẹo hay, đời sống, góc stress, tử vi và video."
 const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
@@ -40,7 +47,15 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  keywords: ["Songhay", "tin tuc", "song khoe", "meo hay", "doi song", "tu vi", "video"],
+  keywords: [
+    "Songhay",
+    "tin tuc",
+    "song khoe",
+    "meo hay",
+    "doi song",
+    "tu vi",
+    "video",
+  ],
   authors: [{ name: SITE_NAME }],
   robots: {
     index: true,
@@ -129,6 +144,18 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsMeasurementId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${googleAnalyticsMeasurementId}');
+          `}
+        </Script>
         <Suspense fallback={null}>
           <AdsenseHydrator />
         </Suspense>

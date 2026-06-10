@@ -47,7 +47,8 @@ export async function getAdminPageData({
   } = await getAdminSnapshot()
 
   // Initialize all data with default "empty" values (matching loader short-circuits)
-  let categoriesForManage: Awaited<ReturnType<typeof getCategoriesForManage>> = []
+  let categoriesForManage: Awaited<ReturnType<typeof getCategoriesForManage>> =
+    []
   let categoriesForWrite: Awaited<ReturnType<typeof getCategoriesForWrite>> = []
   let seoKeywordOptions: Awaited<ReturnType<typeof getSeoKeywordOptions>> = []
   let postsData: Awaited<ReturnType<typeof getPostsData>> = {
@@ -78,10 +79,29 @@ export async function getAdminPageData({
     daily: [],
     range: overviewRange,
     hotSeoKeywords: [],
+    hotSeoKeywordGeo: process.env.GOOGLE_TRENDS_GEO || "VN",
+    hotSeoKeywordSourceUrl: null,
+    hotSeoKeywordError: null,
+    googleSeoSignals: {
+      searchConsole: {
+        sourceUrl: null,
+        startDate: null,
+        endDate: null,
+        error: null,
+        queries: [],
+      },
+      analytics: {
+        propertyId: null,
+        error: null,
+        landingPages: [],
+      },
+    },
     avgDwellSecondsPerPost: 0,
     dwellTopPosts: [],
   }
-  let moderationSettings: Awaited<ReturnType<typeof getModerationSettingsData>> = {
+  let moderationSettings: Awaited<
+    ReturnType<typeof getModerationSettingsData>
+  > = {
     forbiddenKeywords: [],
     seoKeywords: [],
   }
@@ -100,17 +120,22 @@ export async function getAdminPageData({
       overviewAnalytics = await getOverviewAnalytics(activeTab, overviewRange)
       break
     case "write":
-      ;[categoriesForWrite, seoKeywordOptions, mediaLibraryData] = await Promise.all([
-        getCategoriesForWrite(activeTab),
-        getSeoKeywordOptions(activeTab),
-        getMediaLibraryData(activeTab),
-      ])
+      ;[categoriesForWrite, seoKeywordOptions, mediaLibraryData] =
+        await Promise.all([
+          getCategoriesForWrite(activeTab),
+          getSeoKeywordOptions(activeTab),
+          getMediaLibraryData(activeTab),
+        ])
       break
     case "media-library":
       mediaLibraryData = await getMediaLibraryData(activeTab)
       break
     case "personal-archive":
-      personalPostsData = await getPersonalPostsData(activeTab, personalArchiveFilters, currentUser)
+      personalPostsData = await getPersonalPostsData(
+        activeTab,
+        personalArchiveFilters,
+        currentUser
+      )
       break
     case "history":
       historyLogs = await getHistoryData(activeTab, historyPage)
@@ -125,7 +150,11 @@ export async function getAdminPageData({
       postsData = await getPostsData(activeTab, postsFilters, currentUser)
       break
     case "trash":
-      trashedPosts = await getTrashedPostsData(activeTab, trashFilters, currentUser)
+      trashedPosts = await getTrashedPostsData(
+        activeTab,
+        trashFilters,
+        currentUser
+      )
       break
     case "settings-moderation":
       moderationSettings = await getModerationSettingsData(activeTab)
@@ -142,8 +171,14 @@ export async function getAdminPageData({
       break
   }
 
-  const postsPaginationItems = buildPaginationItems(postsData.currentPage, postsData.totalPages)
-  const historyPaginationItems = buildPaginationItems(historyLogs.currentPage, historyLogs.totalPages)
+  const postsPaginationItems = buildPaginationItems(
+    postsData.currentPage,
+    postsData.totalPages
+  )
+  const historyPaginationItems = buildPaginationItems(
+    historyLogs.currentPage,
+    historyLogs.totalPages
+  )
 
   return {
     postCount,
