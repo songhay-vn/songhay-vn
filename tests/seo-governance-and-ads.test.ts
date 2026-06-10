@@ -27,17 +27,22 @@ describe("seo governance and moderation", () => {
 
   test("overview dashboard includes range filter and new SEO metrics", () => {
     const source = readWorkspaceFile("components/admin/overview-tab.tsx")
+    const signalsSource = readWorkspaceFile(
+      "components/admin/overview-signals-section.tsx"
+    )
 
     expect(source).toContain('const rangeLabel = "30 ngày"')
     expect(source).toContain("Tổng quan")
     expect(source).toContain("Traffic")
-    expect(source).toContain("GA4 Content")
-    expect(source).toContain(">SEO<")
-    expect(source).toContain("Trends")
-    expect(source).toContain("Search Console")
-    expect(source).toContain("Organic landing page")
+    // GA4 Content, SEO signals live in overview-signals-section.tsx (Suspense streaming)
+    expect(signalsSource).toContain("GA4 Content")
+    expect(signalsSource).toContain(">SEO<")
+    expect(signalsSource).toContain("Trends")
+    expect(signalsSource).toContain("Search Console")
+    expect(signalsSource).toContain("Organic landing page")
     expect(source).not.toContain("Search indexing")
   })
+
 
   test("root layout installs Google Analytics measurement tag", () => {
     const source = readWorkspaceFile("app/layout.tsx")

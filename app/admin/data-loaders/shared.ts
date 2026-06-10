@@ -12,6 +12,8 @@ import { startOfDay, toDayKey, toDayLabel } from "@/app/admin/data-helpers"
 import type { AdminTab } from "@/app/admin/data-types"
 
 const ADMIN_CACHE_TTL_SECONDS = 20
+/** External APIs (Google Trends, Search Console, GA4) change slowly — 5-min cache */
+const OVERVIEW_SIGNALS_CACHE_TTL_SECONDS = 5 * 60
 type OverviewRange = "30d"
 const OVERVIEW_ANALYTICS_DAYS = 30
 
@@ -120,6 +122,11 @@ export async function getPendingComments(activeTab: AdminTab) {
   )
 }
 
+/**
+ * Fast path: only queries the DB for the activity chart data (posts + comments
+ * bucketed by day). This runs eagerly on every overview page load and renders
+ * immediately while the slow signals section streams in via Suspense.
+ */
 export async function getOverviewAnalytics(
   activeTab: AdminTab,
   overviewRange: OverviewRange
@@ -133,36 +140,6 @@ export async function getOverviewAnalytics(
         posts: number
       }>,
       range: "30d" as OverviewRange,
-      hotSeoKeywords: [],
-      hotSeoKeywordGeo: process.env.GOOGLE_TRENDS_GEO || "VN",
-      hotSeoKeywordSourceUrl: null as string | null,
-      hotSeoKeywordError: null as string | null,
-      googleSeoSignals: {
-        searchConsole: {
-          sourceUrl: null as string | null,
-          startDate: null as string | null,
-          endDate: null as string | null,
-          error: null as string | null,
-          queries: [],
-        },
-        analytics: {
-          propertyId: null as string | null,
-          error: null as string | null,
-          landingPages: [],
-        },
-        content: {
-          propertyId: null as string | null,
-          error: null as string | null,
-          summary: {
-            screenPageViews: 0,
-            sessions: 0,
-            activeUsers: 0,
-            engagementRate: 0,
-            averageSessionDuration: 0,
-          },
-          pages: [],
-        },
-      },
     }
   }
 
@@ -176,14 +153,7 @@ export async function getOverviewAnalytics(
       const chartStart = new Date(todayStart)
       chartStart.setDate(chartStart.getDate() - (totalDays - 1))
 
-      const [
-        recentPosts,
-        recentComments,
-        trendKeywordResult,
-        searchConsoleQuerySignals,
-        analyticsLandingPageSignals,
-        analyticsContentSignals,
-      ] = await Promise.all([
+      const [recentPosts, recentComments] = await Promise.all([
         prisma.post.findMany({
           where: {
             isDeleted: false,
@@ -202,19 +172,6 @@ export async function getOverviewAnalytics(
           select: {
             createdAt: true,
           },
-        }),
-        fetchGoogleTrendKeywords({ limit: 8 }),
-        fetchSearchConsoleQuerySignals({
-          days: OVERVIEW_ANALYTICS_DAYS,
-          limit: 5,
-        }),
-        fetchAnalyticsLandingPageSignals({
-          days: OVERVIEW_ANALYTICS_DAYS,
-          limit: 5,
-        }),
-        fetchAnalyticsContentSignals({
-          days: OVERVIEW_ANALYTICS_DAYS,
-          limit: 5,
         }),
       ])
 
@@ -265,9 +222,44 @@ export async function getOverviewAnalytics(
         posts: item.posts,
       }))
 
+      return { daily, range: overviewRange }
+    }
+  )
+}
+
+/**
+ * Slow path: fetches Google Trends RSS, Search Console, and GA4 signals.
+ * Cached for 5 minutes — these external APIs change slowly and should not
+ * block the initial page render. Called from async Server Components wrapped
+ * in <Suspense> so the page streams them in after the fast DB content is shown.
+ */
+export async function getOverviewSignals() {
+  return memoizeWithTtl(
+    "admin:overview:signals",
+    OVERVIEW_SIGNALS_CACHE_TTL_SECONDS,
+    async () => {
+      const [
+        trendKeywordResult,
+        searchConsoleQuerySignals,
+        analyticsLandingPageSignals,
+        analyticsContentSignals,
+      ] = await Promise.all([
+        fetchGoogleTrendKeywords({ limit: 8 }),
+        fetchSearchConsoleQuerySignals({
+          days: OVERVIEW_ANALYTICS_DAYS,
+          limit: 5,
+        }),
+        fetchAnalyticsLandingPageSignals({
+          days: OVERVIEW_ANALYTICS_DAYS,
+          limit: 5,
+        }),
+        fetchAnalyticsContentSignals({
+          days: OVERVIEW_ANALYTICS_DAYS,
+          limit: 5,
+        }),
+      ])
+
       return {
-        daily,
-        range: overviewRange,
         hotSeoKeywords: trendKeywordResult.keywords,
         hotSeoKeywordGeo: trendKeywordResult.geo,
         hotSeoKeywordSourceUrl: trendKeywordResult.sourceUrl,

@@ -307,6 +307,7 @@ export async function fetchSearchConsoleQuerySignals({
         rowLimit: limit,
         searchType: "web",
       }),
+      signal: AbortSignal.timeout(10_000),
       next: { revalidate: GOOGLE_API_REVALIDATE_SECONDS },
     })
 
@@ -397,6 +398,7 @@ export async function fetchAnalyticsLandingPageSignals({
             },
           ],
         }),
+        signal: AbortSignal.timeout(10_000),
         next: { revalidate: GOOGLE_API_REVALIDATE_SECONDS },
       }
     )
@@ -488,6 +490,7 @@ export async function fetchAnalyticsContentSignals({
             },
           ],
         }),
+        signal: AbortSignal.timeout(10_000),
         next: { revalidate: GOOGLE_API_REVALIDATE_SECONDS },
       }
     )

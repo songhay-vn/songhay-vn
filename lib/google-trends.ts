@@ -191,6 +191,7 @@ export async function fetchGoogleTrendKeywords({
         accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
         "user-agent": "songhay-vn-admin/1.0",
       },
+      signal: AbortSignal.timeout(10_000),
       next: { revalidate: GOOGLE_TRENDS_REVALIDATE_SECONDS },
     })
 

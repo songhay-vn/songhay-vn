@@ -62,36 +62,6 @@ export async function getAdminPageData({
   let overviewAnalytics: Awaited<ReturnType<typeof getOverviewAnalytics>> = {
     daily: [],
     range: overviewRange,
-    hotSeoKeywords: [],
-    hotSeoKeywordGeo: process.env.GOOGLE_TRENDS_GEO || "VN",
-    hotSeoKeywordSourceUrl: null,
-    hotSeoKeywordError: null,
-    googleSeoSignals: {
-      searchConsole: {
-        sourceUrl: null,
-        startDate: null,
-        endDate: null,
-        error: null,
-        queries: [],
-      },
-      analytics: {
-        propertyId: null,
-        error: null,
-        landingPages: [],
-      },
-      content: {
-        propertyId: null,
-        error: null,
-        summary: {
-          screenPageViews: 0,
-          sessions: 0,
-          activeUsers: 0,
-          engagementRate: 0,
-          averageSessionDuration: 0,
-        },
-        pages: [],
-      },
-    },
   }
   let moderationSettings: Awaited<
     ReturnType<typeof getModerationSettingsData>
