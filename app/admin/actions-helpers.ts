@@ -258,6 +258,11 @@ export async function revalidatePost(
     revalidateTag("most-watched-videos")
   }
 
+  if (!options || options.isVisibilityChange) {
+    // Bust news-sitemap so it reflects the new publish set within the next crawl window
+    revalidateTag("news-sitemap")
+  }
+
   if (options?.warmPublicRoutes) {
     warmPublicPostRoutes({
       slug,

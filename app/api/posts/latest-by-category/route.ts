@@ -38,5 +38,11 @@ export async function GET(request: unknown) {
     })),
   }))
 
-  return NextResponse.json({ items })
+  return NextResponse.json({ items }, {
+    headers: {
+      // Edge/CDN cache for 5 min, then serve stale while revalidating for up to 1 hour.
+      // The data-layer cache in getLatestByCategory() is the true source-of-truth TTL.
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+    },
+  })
 }

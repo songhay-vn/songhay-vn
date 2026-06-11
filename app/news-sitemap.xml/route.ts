@@ -1,4 +1,4 @@
-import { connection } from "next/server"
+import { cacheLife, cacheTag } from "next/cache"
 
 import { prisma } from "@/lib/prisma"
 import { getSiteUrl } from "@/lib/seo"
@@ -14,14 +14,17 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;")
 }
 
-export async function GET() {
-  await connection()
+async function getNewsSitemapPosts() {
+  "use cache"
+  cacheTag("news-sitemap")
+  // Revalidate every 10 min — Googlebot pings this frequently but there's no need
+  // to hit Neon on every crawl. Hard-expire after 1 hour so the 2-day window stays fresh.
+  cacheLife({ revalidate: 600, expire: 3600 })
 
-  const siteUrl = getSiteUrl()
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
   const now = new Date()
 
-  const posts = await prisma.post.findMany({
+  return prisma.post.findMany({
     where: {
       isPublished: true,
       isDeleted: false,
@@ -39,6 +42,11 @@ export async function GET() {
     orderBy: { publishedAt: "desc" },
     take: NEWS_SITEMAP_LIMIT,
   })
+}
+
+export async function GET() {
+  const siteUrl = getSiteUrl()
+  const posts = await getNewsSitemapPosts()
 
   const urls = posts
     .map((post) => {
@@ -72,7 +80,7 @@ export async function GET() {
   return new Response(xml, {
     headers: {
       "content-type": "application/xml; charset=utf-8",
-      "cache-control": "public, s-maxage=300, stale-while-revalidate=600",
+      "cache-control": "public, s-maxage=600, stale-while-revalidate=3600",
     },
   })
 }
