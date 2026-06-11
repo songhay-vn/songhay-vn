@@ -242,6 +242,14 @@ export async function revalidatePost(
     revalidateTag("homepage")
   }
 
+  if (!options || options.isVisibilityChange || options.isTrendingChange) {
+    revalidateTag("trending-posts")
+  }
+
+  if (!options || options.isVisibilityChange) {
+    revalidateTag("latest-by-category")
+  }
+
   if (!options || options.isVisibilityChange) {
     revalidateTag("search-results")
   }

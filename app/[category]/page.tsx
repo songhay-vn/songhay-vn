@@ -1,10 +1,8 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { PostCardList } from "@/components/news/post-card-list"
 import { SectionHeading } from "@/components/news/section-heading"
-import { SiteEngagement } from "@/components/news/site-engagement"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
   getCategoryBySlug,
@@ -128,14 +126,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           ) : (
             <PostCardList posts={posts} prefetchFirst={8} />
           )}
-
-          <Suspense
-            fallback={
-              <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
-            }
-          >
-            <SiteEngagement />
-          </Suspense>
         </section>
       </NewsLayout>
     </>

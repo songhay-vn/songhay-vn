@@ -166,7 +166,6 @@ export default async function PostPage({ params }: PostPageProps) {
       articleHtml={articleHtml}
       fullUrl={fullUrl}
       dateValue={article.publishedAt}
-      showViewTracker
       showSocialShare
       commentFormMode="live"
       mainBanner={

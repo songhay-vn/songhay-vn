@@ -1,8 +1,6 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
 
 import { BioAgeWidget } from "@/components/news/bio-age-widget"
-import { SiteEngagement } from "@/components/news/site-engagement"
 import { getNavCategories } from "@/lib/queries"
 import { NewsLayout } from "@/components/news/news-layout"
 
@@ -24,10 +22,6 @@ export default async function BioAgePage() {
           <h1 className="text-3xl font-black text-zinc-900">Máy tính tuổi sinh học</h1>
           <BioAgeWidget />
         </div>
-
-        <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
-          <SiteEngagement />
-        </Suspense>
       </div>
     </NewsLayout>
   )

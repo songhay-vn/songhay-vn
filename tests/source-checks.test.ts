@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
 function readWorkspaceFile(relativePath: string) {
@@ -75,16 +75,12 @@ describe("Source Verification: Shared public bottom sections", () => {
   test("homepage data exposes non-overlapping hero and latest sets", () => {
     const source = readWorkspaceFile("lib/queries.ts")
     const notFoundSource = readWorkspaceFile("app/not-found.tsx")
-    const engagementSource = readWorkspaceFile(
-      "components/news/site-engagement.tsx"
-    )
 
     expect(source).toContain("const heroSlots = latest.slice(0, 7)")
     expect(source).toContain("const latestRest = latest.slice(7)")
     expect(source).toContain("return { heroSlots, latestRest, mostRead }")
     expect(source).not.toContain("return { heroSlots, mostRead, latest }")
     expect(notFoundSource).toContain("latestRest.slice(0, 4)")
-    expect(engagementSource).toContain("latestRest.slice(0, 10)")
   })
 
   test("NewsLayout owns the shared category article bottom section", () => {
@@ -118,10 +114,9 @@ describe("Source Verification: Shared public bottom sections", () => {
     expect(buttonSource).toContain("setExpanded(true)")
   })
 
-  test("SiteEngagement no longer owns category article sections", () => {
-    const source = readWorkspaceFile("components/news/site-engagement.tsx")
-
-    expect(source).not.toContain("getLatestByCategory")
-    expect(source).not.toContain("latestByCategory")
+  test("engagement component has been removed", () => {
+    expect(
+      existsSync(join(process.cwd(), "components/news/site-engagement.tsx"))
+    ).toBe(false)
   })
 })

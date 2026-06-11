@@ -1,8 +1,6 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { DEFAULT_OG_IMAGE_PATH, toAbsoluteUrl } from "@/lib/seo"
-import { SiteEngagement } from "@/components/news/site-engagement"
 import { getNavCategories } from "@/lib/queries"
 import { NewsLayout } from "@/components/news/news-layout"
 
@@ -78,10 +76,6 @@ export default async function DisclaimerPage() {
         <Link href="/" className="inline-flex text-sm font-semibold text-zinc-700 underline underline-offset-2 hover:text-rose-700">
           Quay về trang chủ
         </Link>
-
-        <Suspense fallback={<div className="h-60 animate-pulse rounded-lg bg-zinc-100" />}>
-          <SiteEngagement />
-        </Suspense>
       </div>
     </NewsLayout>
   )

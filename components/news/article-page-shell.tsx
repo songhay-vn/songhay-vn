@@ -1,15 +1,12 @@
-import { Suspense, type ReactNode } from "react"
+import type { ReactNode } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
 import { CommentForm } from "@/components/news/comment-form"
 import { SocialShare } from "@/components/news/social-share"
-import { ViewTracker } from "@/components/news/view-tracker"
-import { SiteEngagement } from "@/components/news/site-engagement"
 import { NewsLayout } from "@/components/news/news-layout"
 import { FormattedDate } from "@/components/news/formatted-date"
 import type { CategoryWithChildren } from "@/lib/queries"
-
 
 type ArticlePageShellProps = {
   navCategories: CategoryWithChildren[]
@@ -36,7 +33,6 @@ type ArticlePageShellProps = {
   topBanner?: ReactNode
   mainBanner?: ReactNode
   metadataNodes?: ReactNode
-  showViewTracker?: boolean
   showSocialShare?: boolean
   commentFormMode?: "live" | "preview" | "hidden"
 }
@@ -69,19 +65,13 @@ export function ArticlePageShell({
   topBanner,
   mainBanner,
   metadataNodes,
-  showViewTracker = false,
   showSocialShare = true,
   commentFormMode = "live",
 }: ArticlePageShellProps) {
   return (
     <NewsLayout
       navCategories={navCategories}
-      topBanner={
-        <>
-          {topBanner}
-          {showViewTracker ? <ViewTracker postId={article.id} /> : null}
-        </>
-      }
+      topBanner={topBanner}
       mainBanner={mainBanner}
       className="bg-white"
       containerClassName="flex flex-col gap-6 py-8 md:py-10"
@@ -172,14 +162,6 @@ export function ArticlePageShell({
           </section>
 
           {renderCommentForm(commentFormMode, article.id)}
-
-          <Suspense
-            fallback={
-              <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
-            }
-          >
-            <SiteEngagement />
-          </Suspense>
         </article>
       </div>
     </NewsLayout>

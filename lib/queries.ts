@@ -48,7 +48,7 @@ function createPublishedSearchWhere(
 
 async function getMostReadPostsHome() {
   "use cache"
-  cacheTag("homepage-most-read")
+  cacheTag("homepage", "homepage-most-read")
   cacheLife("weeks")
   return prisma.post.findMany({
     where: publishedPostWhere(),
@@ -63,7 +63,7 @@ async function getMostReadPostsHome() {
 
 async function getLatestPostsHome() {
   "use cache"
-  cacheTag("homepage-latest")
+  cacheTag("homepage", "homepage-latest")
   cacheLife("weeks")
   return prisma.post.findMany({
     where: publishedPostWhere(),
@@ -269,8 +269,10 @@ export async function getPostByCategoryAndSlug(
 }
 
 export async function getTrendingPosts() {
-  // No "use cache" — called from TrendingSidebar which is a dynamic Suspense island.
-  // Runs a fresh DB query on every request so the sidebar is always up to date.
+  "use cache"
+  cacheTag("trending-posts")
+  cacheLife("hours")
+
   return prisma.post.findMany({
     where: publishedPostWhere(),
     include: {
@@ -378,8 +380,10 @@ export async function getLatestByCategory(
   perCategory = 4,
   categoriesLimit = 6
 ) {
-  // No "use cache" — called from CategoryArticleSections which is a dynamic Suspense island.
-  // Runs fresh on every request so the footer always reflects the latest posts.
+  "use cache"
+  cacheTag("latest-by-category", "category-posts", "categories")
+  cacheLife("hours")
+
   const topCategories = await prisma.category.findMany({
     where: { parentId: null },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -424,50 +428,6 @@ export async function getLatestByCategory(
   return topCategories
     .map((cat) => ({ ...cat, posts: grouped.get(cat.id) ?? [] }))
     .filter((cat) => cat.posts.length > 0)
-}
-
-/**
- * Dynamic (uncached) latest posts for SiteEngagement.
- * Always fresh — no "use cache" since SiteEngagement is a dynamic Suspense island.
- */
-export async function fetchLatestPostsDynamic(limit = 10) {
-  return prisma.post.findMany({
-    where: { ...publishedPostWhere(), isDraft: false },
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
-    orderBy: { publishedAt: "desc" },
-    take: limit,
-  })
-}
-
-/**
- * Dynamic (uncached) recommended posts for SiteEngagement.
- * Always fresh — no "use cache" since SiteEngagement is a dynamic Suspense island.
- */
-export async function fetchRecommendedPostsDynamic(
-  postId?: string,
-  limit = 4
-) {
-  const posts = await prisma.post.findMany({
-    where: {
-      ...publishedPostWhere(),
-      OR: [{ isFeatured: true }, { isTrending: true }],
-    },
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
-    orderBy: [
-      { isFeatured: "desc" },
-      { isTrending: "desc" },
-      { publishedAt: "desc" },
-    ],
-    take: limit + 1,
-  })
-  const filtered = postId ? posts.filter((p) => p.id !== postId) : posts
-  return filtered.slice(0, limit)
 }
 
 // --- Build-time helpers (no cache needed — run at build in generateStaticParams) ---
