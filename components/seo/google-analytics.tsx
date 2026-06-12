@@ -11,7 +11,11 @@ type GoogleAnalyticsProps = {
 type AnalyticsWindow = Window & Record<`ga-disable-${string}`, boolean>
 
 function isAnalyticsExcludedPath(pathname: string | null) {
-  return pathname === "/admin" || Boolean(pathname?.startsWith("/admin/"))
+  return (
+    pathname === "/admin" ||
+    Boolean(pathname?.startsWith("/admin/")) ||
+    pathname === "/login"
+  )
 }
 
 function GoogleAnalyticsInner({ measurementId }: GoogleAnalyticsProps) {
