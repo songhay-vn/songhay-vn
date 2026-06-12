@@ -2,7 +2,7 @@
 
 import Script from "next/script"
 import { usePathname } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 
 type GoogleAnalyticsProps = {
   measurementId: string
@@ -14,7 +14,7 @@ function isAnalyticsExcludedPath(pathname: string | null) {
   return pathname === "/admin" || Boolean(pathname?.startsWith("/admin/"))
 }
 
-export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+function GoogleAnalyticsInner({ measurementId }: GoogleAnalyticsProps) {
   const pathname = usePathname()
   const isExcluded = isAnalyticsExcludedPath(pathname)
   const disableKey = `ga-disable-${measurementId}` as const
@@ -53,5 +53,13 @@ export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
         `}
       </Script>
     </>
+  )
+}
+
+export function GoogleAnalytics(props: GoogleAnalyticsProps) {
+  return (
+    <Suspense fallback={null}>
+      <GoogleAnalyticsInner {...props} />
+    </Suspense>
   )
 }
