@@ -80,7 +80,7 @@ function createPool() {
   return new Pool({
     connectionString: buildPgConnectionString(connectionString, ssl),
     ssl,
-    max: isBuild ? 1 : 5,
+    max: isBuild ? 1 : (process.env.NODE_ENV === "development" ? 2 : 5),
   })
 }
 
