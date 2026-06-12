@@ -31,7 +31,7 @@ export function NewsLayout({
   gridClassName = "grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]",
   showSidebar = true,
   showZalo = true,
-  showBottomCategorySections = true,
+  showBottomCategorySections = false,
 }: NewsLayoutProps) {
   return (
     <div className={`min-h-screen bg-zinc-50 text-zinc-900 ${className || ""}`}>

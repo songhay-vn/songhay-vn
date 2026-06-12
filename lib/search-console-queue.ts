@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 import { getSiteUrl } from "@/lib/seo"
 import {
   getDailyInspectionSoftLimit,
+  getSearchConsoleSitemapUrl,
   getSearchConsoleNewsSitemapUrl,
   inspectUrl,
   isSearchConsoleConfigured,
@@ -122,6 +123,13 @@ export async function enqueuePublishedPostSearchConsoleJobs({
   await Promise.all([
     enqueuePublishedPostInspection(postId, publicUrl),
     enqueueSitemapSubmit(),
+  ])
+}
+
+export async function enqueueRemovedPostSearchConsoleJobs() {
+  await Promise.all([
+    enqueueSitemapSubmit(getSearchConsoleSitemapUrl()),
+    enqueueSitemapSubmit(getSearchConsoleNewsSitemapUrl()),
   ])
 }
 

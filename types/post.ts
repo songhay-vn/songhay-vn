@@ -1,14 +1,5 @@
 import { Prisma } from "@prisma/client"
 
-export type PostListItem = Prisma.PostGetPayload<{
-  include: {
-    category: true
-    _count: { select: { comments: { where: { isApproved: true } } } }
-  }
-}>
-
-export type PostWithCategoryAndComments = PostListItem
-
 export type PostFull = Prisma.PostGetPayload<{
   include: {
     category: true
@@ -24,7 +15,7 @@ export type PostCompact = {
   slug: string
   thumbnailUrl: string | null
   excerpt: string
-  publishedAt: Date
+  publishedAt: Date | null
   category: {
     name: string
     slug: string
@@ -33,6 +24,10 @@ export type PostCompact = {
     comments: number
   }
 }
+
+export type PostListItem = PostCompact
+
+export type PostWithCategoryAndComments = PostListItem
 
 export type PostWithCategory = Prisma.PostGetPayload<{
   include: {

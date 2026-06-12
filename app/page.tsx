@@ -69,6 +69,7 @@ export default async function HomePage() {
       <JsonLd data={homepageJsonLd} />
       <NewsLayout
         navCategories={navCategories}
+        showBottomCategorySections
         mainBanner={
           <Image
             src="/banner.png"

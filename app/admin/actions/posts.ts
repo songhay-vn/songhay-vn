@@ -16,6 +16,7 @@ import { resolvePostSeoInput } from "@/lib/post-seo"
 import {
   buildPublicPostUrl,
   enqueuePublishedPostInspection,
+  enqueueRemovedPostSearchConsoleJobs,
   enqueuePublishedPostSearchConsoleJobs,
   scheduleSearchConsoleDrain,
 } from "@/lib/search-console-queue"
@@ -440,6 +441,7 @@ export async function movePostToTrash(formData: FormData) {
     select: {
       authorId: true,
       slug: true,
+      isPublished: true,
       editorialStatus: true,
       category: {
         select: {
@@ -475,10 +477,12 @@ export async function movePostToTrash(formData: FormData) {
     fromStatus: existingPost.editorialStatus,
   })
 
-  // moveToTrash: post becomes non-public — do full revalidate only if it was published
-  // We always do full revalidate here since we don't have isPublished in select above;
-  // this is safe, just slightly more expensive. To optimize further, add isPublished to select.
+  // moveToTrash: post becomes non-public, so refresh public caches and sitemaps.
   await revalidatePost(existingPost.slug, existingPost.category?.slug, { isVisibilityChange: true })
+  if (existingPost.isPublished && existingPost.category?.slug) {
+    await enqueueRemovedPostSearchConsoleJobs()
+    scheduleSearchConsoleDrain()
+  }
   clearDataCache()
   return { toast: "post_moved_trash" }
 }
@@ -544,6 +548,7 @@ export async function deletePostPermanently(formData: FormData) {
     select: {
       authorId: true,
       editorialStatus: true,
+      isPublished: true,
       slug: true,
       category: { select: { slug: true } },
     },
@@ -560,6 +565,10 @@ export async function deletePostPermanently(formData: FormData) {
   await prisma.post.delete({ where: { id: postId } })
 
   await revalidatePost(existingPost.slug, existingPost.category?.slug, { isVisibilityChange: true })
+  if (existingPost.isPublished && existingPost.category?.slug) {
+    await enqueueRemovedPostSearchConsoleJobs()
+    scheduleSearchConsoleDrain()
+  }
   clearDataCache()
   return { toast: "post_deleted_permanently" }
 }
@@ -608,18 +617,32 @@ export async function bulkTrashPosts(formData: FormData) {
 
   const posts = await prisma.post.findMany({
     where: { id: { in: postIds } },
-    select: { slug: true, category: { select: { slug: true } } },
+    select: {
+      isPublished: true,
+      slug: true,
+      category: { select: { slug: true } },
+    },
   })
 
   // Need to ensure user has permission for all these posts (simplification for brevity)
   await prisma.post.updateMany({
     where: { id: { in: postIds } },
-    data: { isDeleted: true, deletedAt: new Date() }
+    data: {
+      isDeleted: true,
+      deletedAt: new Date(),
+      isPublished: false,
+      isFeatured: false,
+      isTrending: false,
+    },
   })
 
   for (const post of posts) {
     // Trashed posts become non-public — full revalidate to update homepage/category
     await revalidatePost(post.slug, post.category?.slug, { isVisibilityChange: true })
+  }
+  if (posts.some((post) => post.isPublished && post.category?.slug)) {
+    await enqueueRemovedPostSearchConsoleJobs()
+    scheduleSearchConsoleDrain()
   }
   clearDataCache()
 }

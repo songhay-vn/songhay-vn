@@ -15,7 +15,7 @@ type CategoryArticleSectionsProps = {
 export async function CategoryArticleSections({
   perCategory = 4,
   revealCount = 4,
-  categoriesLimit = 50,
+  categoriesLimit = 6,
   className,
 }: CategoryArticleSectionsProps) {
   const previewLimit = perCategory + revealCount

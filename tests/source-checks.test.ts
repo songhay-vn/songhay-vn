@@ -104,7 +104,7 @@ describe("Source Verification: Shared public bottom sections", () => {
     expect(source).toContain("perCategory = 4")
     expect(source).toContain("revealCount = 4")
     expect(source).toContain("const previewLimit = perCategory + revealCount")
-    expect(source).toContain("categoriesLimit = 50")
+    expect(source).toContain("categoriesLimit = 6")
     expect(source).toContain("getLatestByCategory(")
     expect(source).toContain("previewLimit,")
     expect(source).toContain("categoriesLimit")

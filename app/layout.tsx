@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import "./globals.css"
 import { AdsenseHydrator } from "@/components/news/adsense-hydrator"
 import { FloatingGiftButton } from "@/components/news/floating-gift-button"
+import { GoogleAnalytics } from "@/components/seo/google-analytics"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
   DEFAULT_OG_IMAGE_PATH,
@@ -144,18 +145,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsMeasurementId}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){window.dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${googleAnalyticsMeasurementId}');
-          `}
-        </Script>
+        <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
         <Suspense fallback={null}>
           <AdsenseHydrator />
         </Suspense>

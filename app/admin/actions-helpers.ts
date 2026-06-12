@@ -197,27 +197,21 @@ function scheduleRouteWarm(paths: string[]) {
 function warmPublicPostRoutes({
   slug,
   categorySlug,
-  includeListingRoutes,
 }: {
   slug?: string
   categorySlug?: string
-  includeListingRoutes: boolean
 }) {
   if (!slug || !categorySlug) return
 
-  const paths = [`/${categorySlug}/${slug}`]
-  if (includeListingRoutes) {
-    paths.push("/", `/${categorySlug}`)
-  }
-
-  scheduleRouteWarm(paths)
+  scheduleRouteWarm([`/${categorySlug}/${slug}`])
 }
 
 /**
  * Full cache tag invalidation: use when a post's PUBLIC visibility changes
  * (published, unpublished, trashed from published, restored to published).
  *
- * Uses tag-only invalidation — NO revalidatePath / ISR page writes.
+ * Uses tag-only invalidation — NO revalidatePath. If route warming is enabled,
+ * only the article URL is fetched so listing pages regenerate lazily.
  * Only the specific post's cache (post:<slug>) is invalidated — NOT the global
  * "post-detail" broadcast tag, which would force all 250+ pre-rendered article
  * pages to re-generate simultaneously (causing ~2K ISR hits per publish).
@@ -238,7 +232,12 @@ export async function revalidatePost(
     }
   }
 
-  if (!options || options.isVisibilityChange || options.isFeaturedChange || options.isTrendingChange) {
+  if (
+    !options ||
+    options.isVisibilityChange ||
+    options.isFeaturedChange ||
+    options.isTrendingChange
+  ) {
     revalidateTag("homepage")
   }
 
@@ -267,10 +266,6 @@ export async function revalidatePost(
     warmPublicPostRoutes({
       slug,
       categorySlug,
-      includeListingRoutes:
-        !!options.isVisibilityChange ||
-        !!options.isFeaturedChange ||
-        !!options.isTrendingChange,
     })
   }
 }

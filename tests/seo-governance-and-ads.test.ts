@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
 function readWorkspaceFile(relativePath: string) {
@@ -45,12 +45,27 @@ describe("seo governance and moderation", () => {
 
 
   test("root layout installs Google Analytics measurement tag", () => {
-    const source = readWorkspaceFile("app/layout.tsx")
+    const layoutSource = readWorkspaceFile("app/layout.tsx")
+    const analyticsSource = readWorkspaceFile(
+      "components/seo/google-analytics.tsx"
+    )
 
-    expect(source).toContain("NEXT_PUBLIC_GA_MEASUREMENT_ID")
-    expect(source).toContain("G-C1ZX5NG9PC")
-    expect(source).toContain("https://www.googletagmanager.com/gtag/js")
-    expect(source).toContain("gtag('config'")
+    expect(layoutSource).toContain("NEXT_PUBLIC_GA_MEASUREMENT_ID")
+    expect(layoutSource).toContain("G-C1ZX5NG9PC")
+    expect(layoutSource).toContain("GoogleAnalytics")
+    expect(analyticsSource).toContain(
+      "https://www.googletagmanager.com/gtag/js"
+    )
+    expect(analyticsSource).toContain("gtag('config'")
+  })
+
+  test("Google Analytics excludes admin routes", () => {
+    const source = readWorkspaceFile("components/seo/google-analytics.tsx")
+
+    expect(source).toContain("usePathname")
+    expect(source).toContain('pathname === "/admin"')
+    expect(source).toContain('startsWith("/admin/")')
+    expect(source).toContain("ga-disable-")
   })
 
   test("preview flow does not upsert new seo keywords before submit", () => {
@@ -82,13 +97,19 @@ describe("ads and indexing", () => {
     expect(source).toContain("follow: false")
   })
 
-  test("view tracker only records post views", () => {
-    const source = readWorkspaceFile("components/news/view-tracker.tsx")
-
-    expect(source).toContain("/view")
-    expect(source).not.toContain("/engagement")
-    expect(source).not.toContain("sendBeacon")
-    expect(source).not.toContain("dwellSeconds")
+  test("custom engagement tracking endpoints are removed", () => {
+    expect(
+      existsSync(join(process.cwd(), "components/news/view-tracker.tsx"))
+    ).toBe(false)
+    expect(
+      existsSync(join(process.cwd(), "components/news/site-engagement.tsx"))
+    ).toBe(false)
+    expect(
+      existsSync(join(process.cwd(), "app/api/posts/[id]/view/route.ts"))
+    ).toBe(false)
+    expect(
+      existsSync(join(process.cwd(), "app/api/posts/[id]/engagement/route.ts"))
+    ).toBe(false)
   })
 
   test("media library supports click-to-expand preview", () => {

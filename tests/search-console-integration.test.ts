@@ -15,6 +15,7 @@ describe("search console integration wiring", () => {
     )
 
     expect(postsSource).toContain("enqueuePublishedPostSearchConsoleJobs")
+    expect(postsSource).toContain("enqueueRemovedPostSearchConsoleJobs")
     expect(postsSource).toContain("scheduleSearchConsoleDrain()")
     expect(postsSource).toContain("export async function checkPostIndex")
     expect(postsSource).toContain("if (!post.isPublished || !post.category?.slug)")
@@ -54,5 +55,23 @@ describe("search console integration wiring", () => {
 
     expect(robotsSource).toContain("news-sitemap.xml")
     expect(robotsSource).toContain("sitemap.xml")
+  })
+
+  test("delete workflows submit sitemaps for removed public URLs", () => {
+    const postsSource = readWorkspaceFile("app/admin/actions/posts.ts")
+    const queueSource = readWorkspaceFile("lib/search-console-queue.ts")
+
+    expect(queueSource).toContain("enqueueRemovedPostSearchConsoleJobs")
+    expect(queueSource).toContain("getSearchConsoleSitemapUrl()")
+    expect(queueSource).toContain("getSearchConsoleNewsSitemapUrl()")
+    expect(postsSource).toMatch(
+      /movePostToTrash[\s\S]*?isPublished: false[\s\S]*?enqueueRemovedPostSearchConsoleJobs/
+    )
+    expect(postsSource).toMatch(
+      /deletePostPermanently[\s\S]*?enqueueRemovedPostSearchConsoleJobs/
+    )
+    expect(postsSource).toMatch(
+      /bulkTrashPosts[\s\S]*?isPublished: false[\s\S]*?enqueueRemovedPostSearchConsoleJobs/
+    )
   })
 })

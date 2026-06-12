@@ -2,6 +2,7 @@ import { cacheTag, cacheLife } from "next/cache"
 import type { Prisma } from "@prisma/client"
 
 import { NAV_CATEGORIES } from "./categories"
+import { fetchAnalyticsContentSignals } from "@/lib/google-seo-signals"
 import { prisma } from "@/lib/prisma"
 import { publishedPostWhere, selectApprovedCommentsCount } from "./query-utils"
 
@@ -24,6 +25,257 @@ export type {
 const SEARCH_PAGE_SIZE_DEFAULT = 12
 const SEARCH_PAGE_SIZE_MAX = 24
 const SEARCH_SUGGEST_LIMIT_MAX = 10
+const CATEGORY_SECTION_CANDIDATE_MULTIPLIER = 3
+const CATEGORY_SECTION_CANDIDATE_MAX = 180
+const POPULAR_POSTS_ANALYTICS_DAYS = 7
+const POPULAR_POSTS_ANALYTICS_CANDIDATE_MULTIPLIER = 8
+const POPULAR_POSTS_ANALYTICS_CANDIDATE_MIN = 30
+const POPULAR_POSTS_ANALYTICS_CANDIDATE_MAX = 100
+
+const postCardSelect = {
+  id: true,
+  title: true,
+  slug: true,
+  excerpt: true,
+  thumbnailUrl: true,
+  publishedAt: true,
+  category: {
+    select: {
+      name: true,
+      slug: true,
+    },
+  },
+  _count: selectApprovedCommentsCount,
+} satisfies Prisma.PostSelect
+
+const postCardWithViewsSelect = {
+  ...postCardSelect,
+  views: true,
+} satisfies Prisma.PostSelect
+
+const postCardWithRootCategorySelect = {
+  id: true,
+  title: true,
+  slug: true,
+  excerpt: true,
+  thumbnailUrl: true,
+  publishedAt: true,
+  category: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      parentId: true,
+    },
+  },
+  _count: selectApprovedCommentsCount,
+} satisfies Prisma.PostSelect
+
+type PostCardWithViews = Prisma.PostGetPayload<{
+  select: typeof postCardWithViewsSelect
+}>
+
+type PopularFallbackOrder = "trending" | "views"
+
+type AnalyticsArticlePath = {
+  categorySlug: string
+  slug: string
+  views: number
+}
+
+function clampPositiveInt(value: number, fallback: number, max: number) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return fallback
+  }
+
+  return Math.min(Math.floor(value), max)
+}
+
+function safeDecodePathSegment(segment: string) {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return segment
+  }
+}
+
+function getAnalyticsPathname(path: string) {
+  const trimmedPath = path.trim()
+  if (!trimmedPath || trimmedPath === "(not set)") {
+    return ""
+  }
+
+  try {
+    const url = new URL(trimmedPath, "https://songhay.vn")
+    return url.pathname.replace(/\/+$/, "")
+  } catch {
+    const [pathname = ""] = trimmedPath.split(/[?#]/)
+    return pathname.replace(/\/+$/, "")
+  }
+}
+
+function getAnalyticsArticlePath(path: string): AnalyticsArticlePath | null {
+  const parts = getAnalyticsPathname(path)
+    .split("/")
+    .filter(Boolean)
+    .map(safeDecodePathSegment)
+
+  if (parts.length !== 2) {
+    return null
+  }
+
+  const [categorySlug, slug] = parts
+  if (!categorySlug || !slug || categorySlug === "admin") {
+    return null
+  }
+
+  return { categorySlug, slug, views: 0 }
+}
+
+function getPopularPostKey(categorySlug: string, slug: string) {
+  return `${categorySlug}/${slug}`
+}
+
+async function getAnalyticsPopularPosts({
+  limit,
+  categorySlug,
+}: {
+  limit: number
+  categorySlug: string
+}): Promise<PostCardWithViews[]> {
+  const analyticsLimit = Math.min(
+    Math.max(
+      limit * POPULAR_POSTS_ANALYTICS_CANDIDATE_MULTIPLIER,
+      POPULAR_POSTS_ANALYTICS_CANDIDATE_MIN
+    ),
+    POPULAR_POSTS_ANALYTICS_CANDIDATE_MAX
+  )
+  const analytics = await fetchAnalyticsContentSignals({
+    days: POPULAR_POSTS_ANALYTICS_DAYS,
+    limit: analyticsLimit,
+  })
+
+  if (analytics.error || analytics.pages.length === 0) {
+    return []
+  }
+
+  const seen = new Set<string>()
+  const rankedPaths: AnalyticsArticlePath[] = []
+
+  for (const page of analytics.pages) {
+    const articlePath = getAnalyticsArticlePath(page.path)
+    if (!articlePath) {
+      continue
+    }
+
+    if (categorySlug && articlePath.categorySlug !== categorySlug) {
+      continue
+    }
+
+    const key = getPopularPostKey(articlePath.categorySlug, articlePath.slug)
+    if (seen.has(key)) {
+      continue
+    }
+
+    seen.add(key)
+    rankedPaths.push({ ...articlePath, views: page.screenPageViews })
+  }
+
+  if (rankedPaths.length === 0) {
+    return []
+  }
+
+  const posts = await prisma.post.findMany({
+    where: {
+      ...publishedPostWhere(),
+      isDraft: false,
+      OR: rankedPaths.map(({ categorySlug, slug }) => ({
+        slug,
+        category: { slug: categorySlug },
+      })),
+    },
+    select: postCardWithViewsSelect,
+    take: rankedPaths.length,
+  })
+  const postsByPath = new Map(
+    posts.map((post) => [
+      getPopularPostKey(post.category.slug, post.slug),
+      post,
+    ])
+  )
+
+  return rankedPaths
+    .map((articlePath) => {
+      const post = postsByPath.get(
+        getPopularPostKey(articlePath.categorySlug, articlePath.slug)
+      )
+
+      return post ? { ...post, views: articlePath.views } : null
+    })
+    .filter((post): post is PostCardWithViews => Boolean(post))
+    .slice(0, limit)
+}
+
+async function getFallbackPopularPosts({
+  limit,
+  categorySlug,
+  excludeIds,
+  order,
+}: {
+  limit: number
+  categorySlug: string
+  excludeIds: Set<string>
+  order: PopularFallbackOrder
+}) {
+  if (limit <= 0) {
+    return []
+  }
+
+  return prisma.post.findMany({
+    where: {
+      ...publishedPostWhere(),
+      isDraft: false,
+      ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+      ...(excludeIds.size > 0 ? { id: { notIn: [...excludeIds] } } : {}),
+    },
+    select: postCardWithViewsSelect,
+    orderBy:
+      order === "trending"
+        ? [{ isTrending: "desc" }, { views: "desc" }, { publishedAt: "desc" }]
+        : [{ views: "desc" }, { publishedAt: "desc" }],
+    take: limit,
+  })
+}
+
+async function getPopularPosts({
+  limit,
+  categorySlug,
+  fallbackOrder,
+}: {
+  limit: number
+  categorySlug?: string
+  fallbackOrder: PopularFallbackOrder
+}) {
+  const safeLimit = clampPositiveInt(limit, 5, 20)
+  const safeCategorySlug = (categorySlug || "").trim()
+  const analyticsPosts = await getAnalyticsPopularPosts({
+    limit: safeLimit,
+    categorySlug: safeCategorySlug,
+  })
+
+  if (analyticsPosts.length >= safeLimit) {
+    return analyticsPosts
+  }
+
+  const fallbackPosts = await getFallbackPopularPosts({
+    limit: safeLimit - analyticsPosts.length,
+    categorySlug: safeCategorySlug,
+    excludeIds: new Set(analyticsPosts.map((post) => post.id)),
+    order: fallbackOrder,
+  })
+
+  return [...analyticsPosts, ...fallbackPosts].slice(0, safeLimit)
+}
 
 function normalizeSearchQuery(query: string) {
   return query.trim().replace(/\s+/g, " ")
@@ -49,15 +301,32 @@ function createPublishedSearchWhere(
 async function getMostReadPostsHome() {
   "use cache"
   cacheTag("homepage", "homepage-most-read")
-  cacheLife("weeks")
-  return prisma.post.findMany({
-    where: publishedPostWhere(),
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
-    orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
-    take: 5,
+  cacheLife("hours")
+
+  return getPopularPosts({
+    limit: 5,
+    fallbackOrder: "views",
+  })
+}
+
+export async function getMostReadPosts({
+  limit = 5,
+  categorySlug = "",
+}: {
+  limit?: number
+  categorySlug?: string
+} = {}) {
+  "use cache"
+  cacheTag("homepage", "trending-posts", "homepage-most-read")
+  if (categorySlug) {
+    cacheTag(`category:${categorySlug}`)
+  }
+  cacheLife("hours")
+
+  return getPopularPosts({
+    limit,
+    categorySlug,
+    fallbackOrder: "views",
   })
 }
 
@@ -67,10 +336,7 @@ async function getLatestPostsHome() {
   cacheLife("weeks")
   return prisma.post.findMany({
     where: publishedPostWhere(),
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
+    select: postCardSelect,
     orderBy: { publishedAt: "desc" },
     take: 30,
   })
@@ -100,10 +366,7 @@ export async function getPostsByCategory(categorySlug: string) {
         { category: { parent: { slug: categorySlug } } },
       ],
     },
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
+    select: postCardSelect,
     orderBy: { publishedAt: "desc" },
     take: 20,
   })
@@ -273,18 +536,9 @@ export async function getTrendingPosts() {
   cacheTag("trending-posts")
   cacheLife("hours")
 
-  return prisma.post.findMany({
-    where: publishedPostWhere(),
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
-    orderBy: [
-      { isTrending: "desc" },
-      { views: "desc" },
-      { publishedAt: "desc" },
-    ],
-    take: 12,
+  return getPopularPosts({
+    limit: 5,
+    fallbackOrder: "trending",
   })
 }
 
@@ -309,10 +563,7 @@ async function getRecommendedPostsCached(
 
   return prisma.post.findMany({
     where,
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
+    select: postCardSelect,
     orderBy: [
       { isFeatured: "desc" },
       { isTrending: "desc" },
@@ -386,6 +637,7 @@ export async function getLatestByCategory(
 
   const topCategories = await prisma.category.findMany({
     where: { parentId: null },
+    select: { id: true, name: true, slug: true, parentId: true },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     take: categoriesLimit,
   })
@@ -401,14 +653,14 @@ export async function getLatestByCategory(
         OR: [{ id: { in: categoryIds } }, { parentId: { in: categoryIds } }],
       },
     },
-    include: {
-      category: true,
-      _count: selectApprovedCommentsCount,
-    },
+    select: postCardWithRootCategorySelect,
     orderBy: { publishedAt: "desc" },
-    // Fetch 5× the needed amount to ensure all categories get enough posts even
-    // if recent posts cluster in one category (e.g. a burst of song-khoe articles)
-    take: perCategory * categoriesLimit * 5,
+    // Fetch extra candidates to keep categories populated when recent posts
+    // cluster in one section, but cap the scan so card queries stay cheap.
+    take: Math.min(
+      perCategory * categoriesLimit * CATEGORY_SECTION_CANDIDATE_MULTIPLIER,
+      CATEGORY_SECTION_CANDIDATE_MAX
+    ),
   })
 
   // Group posts by their root category (parent or self) and limit per group

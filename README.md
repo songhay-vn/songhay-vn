@@ -22,7 +22,6 @@ Production-ready Vietnamese news portal inspired by Kenh14 / Ngoisao / Tuvi with
 app/
 	admin/page.tsx                    # CMS dashboard
 	api/comments/route.ts             # Comment submission endpoint
-	api/posts/[id]/view/route.ts      # View counter endpoint
 	[category]/page.tsx               # Category listing
 	[category]/[slug]/page.tsx        # Article details
 	layout.tsx                        # Global metadata + OG
@@ -39,7 +38,6 @@ components/
 		site-footer.tsx
 		site-header.tsx
 		social-share.tsx
-		view-tracker.tsx
 	ui/
 		button.tsx
 lib/

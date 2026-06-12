@@ -110,7 +110,7 @@ describe("schema default field awareness", () => {
     const mostRead = readWorkspaceFile("app/api/posts/most-read/route.ts")
     const latestByCatQueries = readWorkspaceFile("lib/queries.ts")
 
-    expect(mostRead).toContain("isDraft: false")
+    expect(mostRead).toContain("getMostReadPosts")
     expect(latestByCatQueries).toContain("isDraft: false")
   })
 })

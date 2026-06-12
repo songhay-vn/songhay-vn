@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { cacheTag, cacheLife } from "next/cache"
-import { prisma } from "@/lib/prisma"
+import { getMostReadPosts } from "@/lib/queries"
 
 function toPositiveInt(value: string | null, fallback: number) {
   const parsed = Number.parseInt(value || "", 10)
@@ -11,24 +10,9 @@ function toPositiveInt(value: string | null, fallback: number) {
 }
 
 async function getMostReadData(limit: number, categorySlug: string) {
-  "use cache"
-  cacheTag("homepage", "trending-posts")
-  cacheLife("hours")
-
-  return prisma.post.findMany({
-    where: {
-      isPublished: true,
-      isDeleted: false,
-      isDraft: false,
-      ...(categorySlug.length > 0 ? { category: { slug: categorySlug } } : {}),
-    },
-    select: {
-      id: true, title: true, slug: true,
-      thumbnailUrl: true, views: true, publishedAt: true,
-      category: { select: { slug: true, name: true } },
-    },
-    orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
-    take: limit,
+  return getMostReadPosts({
+    limit,
+    categorySlug,
   })
 }
 

@@ -7,6 +7,11 @@ mock.module("next/server", () => ({
   connection: () => Promise.resolve(),
 }))
 
+mock.module("next/cache", () => ({
+  cacheLife: () => undefined,
+  cacheTag: () => undefined,
+}))
+
 process.env.NEXT_PUBLIC_SITE_URL = "https://songhay.vn"
 
 const mockFindMany = mock()

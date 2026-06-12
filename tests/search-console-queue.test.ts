@@ -59,6 +59,7 @@ mock.module("@/lib/search-console", () => ({
   }),
   getDailyInspectionSoftLimit: () => 1800,
   getSearchConsoleNewsSitemapUrl: () => "https://songhay.vn/news-sitemap.xml",
+  getSearchConsoleSitemapUrl: () => "https://songhay.vn/sitemap.xml",
   inspectUrl: mockInspectUrl,
   isSearchConsoleConfigured: mockIsConfigured,
   parseGoogleServiceAccountKey: (encodedOrJson: string) => {
@@ -80,6 +81,7 @@ mock.module("@/lib/search-console", () => ({
 const {
   drainSearchConsoleJobs,
   enqueuePublishedPostSearchConsoleJobs,
+  enqueueRemovedPostSearchConsoleJobs,
 } = await import("../lib/search-console-queue")
 
 describe("search console queue", () => {
@@ -120,6 +122,22 @@ describe("search console queue", () => {
         "SITEMAP_SUBMIT:https://songhay.vn/news-sitemap.xml:"
       )
     ).toBe(true)
+  })
+
+  test("enqueues standard and news sitemap submits for removed posts", async () => {
+    mockCreate.mockResolvedValue({})
+
+    await enqueueRemovedPostSearchConsoleJobs()
+
+    expect(mockCreate).toHaveBeenCalledTimes(2)
+    expect(mockCreate.mock.calls[0][0].data).toMatchObject({
+      type: "SITEMAP_SUBMIT",
+      url: "https://songhay.vn/sitemap.xml",
+    })
+    expect(mockCreate.mock.calls[1][0].data).toMatchObject({
+      type: "SITEMAP_SUBMIT",
+      url: "https://songhay.vn/news-sitemap.xml",
+    })
   })
 
   test("does not inspect URLs after the daily soft limit is reached", async () => {

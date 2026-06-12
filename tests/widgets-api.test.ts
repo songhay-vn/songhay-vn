@@ -7,13 +7,16 @@ function readWorkspaceFile(relativePath: string) {
 }
 
 describe("widgets API integration", () => {
-  test("most-read endpoint sorts by views and published time", () => {
+  test("most-read endpoint uses GA4-backed popular posts helper", () => {
     const source = readWorkspaceFile("app/api/posts/most-read/route.ts")
+    const queriesSource = readWorkspaceFile("lib/queries.ts")
 
-    expect(source).toContain(
-      'orderBy: [{ views: "desc" }, { publishedAt: "desc" }]'
-    )
-    expect(source).toContain("isDraft: false")
+    expect(source).toContain("getMostReadPosts")
+    expect(source).toContain("categorySlug")
+    expect(queriesSource).toContain("fetchAnalyticsContentSignals")
+    expect(queriesSource).toContain("screenPageViews")
+    expect(queriesSource).toContain('fallbackOrder: "views"')
+    expect(queriesSource).toContain("isDraft: false")
     expect(source).toContain("return NextResponse.json")
   })
 
