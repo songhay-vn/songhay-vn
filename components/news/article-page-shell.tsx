@@ -76,6 +76,7 @@ export function ArticlePageShell({
       className="bg-white"
       containerClassName="flex flex-col gap-6 py-8 md:py-10"
       gridClassName="grid gap-8 md:grid-cols-[1fr_320px]"
+      showBottomCategorySections={true}
     >
       <div className="relative">
         {showSocialShare ? (

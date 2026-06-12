@@ -70,19 +70,16 @@ function buildPgConnectionString(
   return url.toString()
 }
 
-// Cap at 1 connection per process during build to prevent pool exhaustion when Next.js
-// runs parallel build workers making concurrent cold DB calls. Capped at 5 in runtime.
+
 function createPool() {
-  const isBuild = process.env.NEXT_PHASE === "phase-production-build"
-  const isDev = process.env.NODE_ENV === "development"
   const ssl = getDatabaseSslConfig()
   const connectionString = process.env.DATABASE_URL || ""
 
   return new Pool({
     connectionString: buildPgConnectionString(connectionString, ssl),
     ssl,
-    max: isBuild ? 1 : (isDev ? 1 : 2),
-    idleTimeoutMillis: isDev ? 1000 : 5000,
+    max: 1,
+    idleTimeoutMillis: 1000,
   })
 }
 
