@@ -19,6 +19,10 @@ export async function TrendingSidebar() {
         views: post.views,
         slug: post.slug,
         categorySlug: post.category.slug,
+        category: {
+          name: post.category.name,
+          slug: post.category.slug,
+        },
       }))}
     />
   )

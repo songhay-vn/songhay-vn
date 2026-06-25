@@ -301,7 +301,7 @@ function createPublishedSearchWhere(
 
 async function getMostReadPostsHome() {
   "use cache"
-  cacheTag("homepage", "homepage-most-read")
+  cacheTag("homepage-most-read")
   cacheLife("hours")
 
   return getPopularPosts({
@@ -318,7 +318,7 @@ export async function getMostReadPosts({
   categorySlug?: string
 } = {}) {
   "use cache"
-  cacheTag("homepage", "trending-posts", "homepage-most-read")
+  cacheTag("trending-posts", "homepage-most-read")
   if (categorySlug) {
     cacheTag(`category:${categorySlug}`)
   }

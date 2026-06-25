@@ -55,5 +55,6 @@ describe("widgets API integration", () => {
 
     expect(source).not.toContain('"use client"')
     expect(source).toContain("{ posts }: MostReadProps")
+    expect(source).toContain("post.category.name")
   })
 })

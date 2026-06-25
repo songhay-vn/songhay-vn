@@ -241,7 +241,7 @@ export async function revalidatePost(
     revalidateTag("homepage")
   }
 
-  if (!options || options.isVisibilityChange || options.isTrendingChange) {
+  if (!options || options.isTrendingChange) {
     revalidateTag("trending-posts")
   }
 

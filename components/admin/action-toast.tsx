@@ -247,7 +247,7 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
   },
   pen_name_avatar_upload_failed: {
     title: "Upload ảnh bút danh thất bại",
-    description: "Vui lòng chọn ảnh hợp lệ dưới 5MB.",
+    description: "Vui lòng chọn ảnh hợp lệ dưới 25MB. Ảnh sẽ được tối ưu khi tải lên.",
     type: "error",
   },
   pen_name_action_forbidden: {

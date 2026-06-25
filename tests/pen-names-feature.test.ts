@@ -53,6 +53,7 @@ describe("pen names feature", () => {
     expect(componentSource).toContain('name="avatarUpload"')
     expect(componentSource).toContain("không lưu vào kho media")
     expect(actionsSource).toContain("uploadPenNameAvatar")
+    expect(actionsSource).toContain("25 * 1024 * 1024")
     expect(actionsSource).toContain("deleteCloudinaryAsset")
     expect(actionsSource).toContain("prisma.post.updateMany")
     expect(actionsSource).not.toContain("mediaAsset.create")
@@ -86,5 +87,12 @@ describe("pen names feature", () => {
     expect(shellSource).not.toContain("mt-4 text-right text-zinc-900")
     expect(querySource).toContain("penNameProfile: { select: { name: true, avatarUrl: true } }")
     expect(previewSource).toContain("penNameProfile: { select: { name: true, avatarUrl: true } }")
+  })
+
+  test("pen name avatar uploads are normalized by Cloudinary", () => {
+    const cloudinarySource = readWorkspaceFile("lib/cloudinary.ts")
+
+    expect(cloudinarySource).toContain("folder: \"songhay/pen-names\"")
+    expect(cloudinarySource).toContain("c_fill,w_320,h_320,g_face,q_auto:good,f_auto")
   })
 })

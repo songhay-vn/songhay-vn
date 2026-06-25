@@ -24,7 +24,7 @@ const INSTITUTE_PRODUCTS = [
 export function InstituteProductsSection() {
   return (
     <section className="space-y-3">
-      <SectionHeading title="Sản phẩm của viện hàn lâm" />
+      <SectionHeading title="Sản phẩm từ nghiên cứu của Viện Hàn Lâm KH&CN Việt Nam" />
       <div className="grid grid-cols-4 gap-2 md:gap-3">
         {INSTITUTE_PRODUCTS.map((product) => (
           <div

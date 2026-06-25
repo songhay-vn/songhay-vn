@@ -69,6 +69,23 @@ describe("Source Verification: Admin Actions revalidation", () => {
     const source = readWorkspaceFile("app/admin/actions/workflow.ts")
     expect(source).toContain("revalidatePost")
   })
+
+  test("post publish invalidation does not flush most-read sidebars", () => {
+    const helpersSource = readWorkspaceFile("app/admin/actions-helpers.ts")
+    const queriesSource = readWorkspaceFile("lib/queries.ts")
+
+    expect(helpersSource).toContain("options.isTrendingChange")
+    expect(helpersSource).not.toContain(
+      "options.isVisibilityChange || options.isTrendingChange"
+    )
+    expect(queriesSource).toContain('cacheTag("homepage-most-read")')
+    expect(queriesSource).toContain(
+      'cacheTag("trending-posts", "homepage-most-read")'
+    )
+    expect(queriesSource).not.toContain(
+      'cacheTag("homepage", "homepage-most-read")'
+    )
+  })
 })
 
 describe("Source Verification: Shared public bottom sections", () => {

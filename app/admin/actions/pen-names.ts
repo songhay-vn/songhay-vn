@@ -12,7 +12,7 @@ import { canEditPenNames } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 
 const PEN_NAME_TAB_PATH = "/admin?tab=settings-pen-names"
-const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024
+const MAX_AVATAR_UPLOAD_BYTES = 25 * 1024 * 1024
 
 async function requirePenNameEditor() {
   const currentUser = await requireCmsUser()

@@ -52,7 +52,6 @@ Supports image and video assets with visibility controls (PRIVATE/SHARED) and sp
 - `bun run db:generate`: Generate Prisma client.
 - `bun run db:push`: Sync schema to database (development).
 - `bun run db:migrate`: Run Prisma migrations.
-- `bun run db:seed`: Seed the database with initial data.
 
 ## Testing
 The project uses `bun:test` for unit and integration testing.

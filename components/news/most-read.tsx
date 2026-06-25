@@ -8,6 +8,10 @@ type MostReadItem = {
   views: number
   slug: string
   categorySlug: string
+  category: {
+    name: string
+    slug: string
+  }
 }
 
 type MostReadProps = {
@@ -30,6 +34,12 @@ export function MostRead({ posts }: MostReadProps) {
               className="w-24 aspect-[12/7] flex-shrink-0 object-cover"
             />
             <div className="flex-1 space-y-1">
+              <Link
+                href={`/${post.category.slug}`}
+                className="text-xs font-semibold uppercase leading-none text-rose-600 transition hover:text-rose-700"
+              >
+                {post.category.name}
+              </Link>
               <Link
                 href={`/${post.categorySlug}/${post.slug}`}
                 className="line-clamp-3 text-sm font-bold leading-snug text-zinc-800 transition hover:text-rose-600"
