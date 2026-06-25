@@ -30,7 +30,7 @@ export function InstituteProductsSection() {
         href={ZALO_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="block transition-opacity hover:opacity-90"
+        className="block"
       >
         <SectionHeading title="Sản phẩm từ nghiên cứu của Viện Hàn Lâm KH&CN Việt Nam" />
       </a>
@@ -41,7 +41,7 @@ export function InstituteProductsSection() {
             href={ZALO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative block aspect-square overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 transition-transform hover:scale-[1.02]"
+            className="relative block aspect-square overflow-hidden rounded-md border border-zinc-200 bg-zinc-100"
           >
             <Image
               src={product.src}
