@@ -353,6 +353,21 @@ export async function getHomepageData() {
   return { heroSlots, latestRest, mostRead }
 }
 
+export async function getLatestPublishedPosts(limit = 4) {
+  "use cache"
+  cacheTag("homepage", "homepage-latest")
+  cacheLife("hours")
+
+  const safeLimit = Math.min(Math.max(limit, 1), 12)
+
+  return prisma.post.findMany({
+    where: publishedPostWhere(),
+    select: postCardSelect,
+    orderBy: { publishedAt: "desc" },
+    take: safeLimit,
+  })
+}
+
 export async function getPostsByCategory(categorySlug: string) {
   "use cache"
   cacheTag("category-posts", `category:${categorySlug}`)

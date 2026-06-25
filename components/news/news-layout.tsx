@@ -6,6 +6,7 @@ import { TrendingSidebar } from "./trending-sidebar"
 import { ClientSideWidgets } from "./client-side-widgets"
 import { ZaloChatButton } from "./zalo-chat-button"
 import { CategoryArticleSections } from "./category-article-sections"
+import { LatestArticleSection } from "./latest-article-section"
 import { DontMissWidget } from "./dont-miss-widget"
 import { InstituteProductsSection } from "./institute-products-section"
 import { SectionHeading } from "./section-heading"
@@ -59,13 +60,22 @@ export function NewsLayout({
               </>
             ) : null}
             {showBottomCategorySections ? (
-              <Suspense
-                fallback={
-                  <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
-                }
-              >
-                <CategoryArticleSections />
-              </Suspense>
+              <>
+                <Suspense
+                  fallback={
+                    <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
+                  }
+                >
+                  <LatestArticleSection />
+                </Suspense>
+                <Suspense
+                  fallback={
+                    <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
+                  }
+                >
+                  <CategoryArticleSections />
+                </Suspense>
+              </>
             ) : null}
           </main>
 

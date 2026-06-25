@@ -85,11 +85,22 @@ describe("Source Verification: Shared public bottom sections", () => {
 
   test("NewsLayout owns the shared category article bottom section", () => {
     const source = readWorkspaceFile("components/news/news-layout.tsx")
+    const latestSectionSource = readWorkspaceFile(
+      "components/news/latest-article-section.tsx"
+    )
 
     expect(source).toContain(
       'import { CategoryArticleSections } from "./category-article-sections"'
     )
+    expect(source).toContain(
+      'import { LatestArticleSection } from "./latest-article-section"'
+    )
     expect(source).toContain("showBottomCategorySections")
+    expect(source.indexOf("<LatestArticleSection />")).toBeLessThan(
+      source.indexOf("<CategoryArticleSections />")
+    )
+    expect(latestSectionSource).toContain("getLatestPublishedPosts")
+    expect(latestSectionSource).toContain('title="Tin mới nhất"')
     expect(source).toContain("<CategoryArticleSections />")
   })
 
