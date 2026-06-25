@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Check, Plus, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { parseSeoKeywordInput } from "@/lib/seo-keywords"
 
@@ -27,6 +26,31 @@ function labelKeyword(raw: string) {
   return raw.trim().replace(/\s+/g, " ")
 }
 
+function mergeKeywordLabels(items: string[]) {
+  return parseSeoKeywordInput(items.join(", "))
+}
+
+function getActiveKeywordFragment(value: string) {
+  const parts = value.split(",")
+  return labelKeyword(parts[parts.length - 1] || "")
+}
+
+function replaceActiveKeyword(value: string, keyword: string) {
+  const activeKeyword = getActiveKeywordFragment(value)
+  const normalizedActiveKeyword = normalizeKeyword(activeKeyword)
+  const parsedKeywords = parseSeoKeywordInput(value)
+  const shouldReplaceActiveKeyword =
+    normalizedActiveKeyword.length > 0 &&
+    parsedKeywords.length > 0 &&
+    normalizeKeyword(parsedKeywords[parsedKeywords.length - 1]) ===
+      normalizedActiveKeyword
+  const baseKeywords = shouldReplaceActiveKeyword
+    ? parsedKeywords.slice(0, -1)
+    : parsedKeywords
+
+  return mergeKeywordLabels([...baseKeywords, keyword]).join(", ")
+}
+
 export function SeoKeywordPicker({
   options,
   initialSelectedIds = [],
@@ -34,12 +58,17 @@ export function SeoKeywordPicker({
 }: SeoKeywordPickerProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [selectedIds, setSelectedIds] = useState(() => {
-    const optionIds = new Set(options.map((item) => item.id))
-    return [...new Set(initialSelectedIds.filter((id) => optionIds.has(id)))]
+  const [keywordText, setKeywordText] = useState(() => {
+    const optionById = new Map(options.map((item) => [item.id, item]))
+    const selectedKeywords = initialSelectedIds
+      .map((id) => optionById.get(id)?.keyword || "")
+      .filter(Boolean)
+
+    return mergeKeywordLabels([
+      ...selectedKeywords,
+      ...initialCustomKeywords,
+    ]).join(", ")
   })
-  const [customKeywords, setCustomKeywords] = useState(() => parseSeoKeywordInput(initialCustomKeywords.join(", ")))
 
   const optionById = useMemo(() => {
     const map = new Map<string, SeoKeywordOption>()
@@ -49,22 +78,64 @@ export function SeoKeywordPicker({
     return map
   }, [options])
 
-  const normalizedCustom = useMemo(() => new Set(customKeywords.map((item) => normalizeKeyword(item))), [customKeywords])
-  const normalizedSelected = useMemo(
-    () => new Set(selectedIds.map((id) => normalizeKeyword(optionById.get(id)?.keyword || "")).filter(Boolean)),
-    [optionById, selectedIds]
+  const optionByNormalizedKeyword = useMemo(() => {
+    const map = new Map<string, SeoKeywordOption>()
+    for (const item of options) {
+      const normalized = normalizeKeyword(item.keyword)
+      if (!map.has(normalized)) {
+        map.set(normalized, item)
+      }
+    }
+    return map
+  }, [options])
+
+  const displayKeywords = useMemo(
+    () => parseSeoKeywordInput(keywordText),
+    [keywordText]
   )
 
   const selectedOptions = useMemo(
-    () => selectedIds.map((id) => optionById.get(id)).filter((item): item is SeoKeywordOption => Boolean(item)),
-    [optionById, selectedIds]
+    () =>
+      displayKeywords
+        .map((keyword) =>
+          optionByNormalizedKeyword.get(normalizeKeyword(keyword))
+        )
+        .filter((item): item is SeoKeywordOption => Boolean(item)),
+    [displayKeywords, optionByNormalizedKeyword]
+  )
+  const selectedIds = useMemo(
+    () => selectedOptions.map((item) => item.id),
+    [selectedOptions]
+  )
+  const customKeywords = useMemo(
+    () =>
+      displayKeywords.filter(
+        (keyword) => !optionByNormalizedKeyword.has(normalizeKeyword(keyword))
+      ),
+    [displayKeywords, optionByNormalizedKeyword]
   )
 
+  const query = getActiveKeywordFragment(keywordText)
   const normalizedQuery = normalizeKeyword(query)
+  const committedKeywords = useMemo(() => {
+    if (!normalizedQuery) {
+      return displayKeywords
+    }
+
+    const lastKeyword = displayKeywords[displayKeywords.length - 1]
+    if (lastKeyword && normalizeKeyword(lastKeyword) === normalizedQuery) {
+      return displayKeywords.slice(0, -1)
+    }
+
+    return displayKeywords
+  }, [displayKeywords, normalizedQuery])
+  const normalizedCommittedKeywords = useMemo(
+    () => new Set(committedKeywords.map((item) => normalizeKeyword(item))),
+    [committedKeywords]
+  )
   const canCreateQueryKeyword =
     normalizedQuery.length > 0 &&
-    !normalizedCustom.has(normalizedQuery) &&
-    !normalizedSelected.has(normalizedQuery) &&
+    !normalizedCommittedKeywords.has(normalizedQuery) &&
     !options.some((item) => normalizeKeyword(item.keyword) === normalizedQuery)
 
   const suggestions = useMemo(() => {
@@ -75,7 +146,9 @@ export function SeoKeywordPicker({
     }
 
     return base
-      .filter((item) => normalizeKeyword(item.keyword).includes(normalizedQuery))
+      .filter((item) =>
+        normalizeKeyword(item.keyword).includes(normalizedQuery)
+      )
       .slice(0, 12)
   }, [normalizedQuery, options, selectedIds])
 
@@ -95,8 +168,13 @@ export function SeoKeywordPicker({
   }, [])
 
   function selectSuggestion(id: string) {
-    setSelectedIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
-    setQuery("")
+    const keyword = optionById.get(id)?.keyword
+    if (!keyword) {
+      return
+    }
+
+    setKeywordText((prev) => replaceActiveKeyword(prev, keyword))
+    setOpen(true)
   }
 
   function addCustomKeyword(raw: string) {
@@ -106,14 +184,17 @@ export function SeoKeywordPicker({
       return
     }
 
-    setCustomKeywords((prev) => {
-      if (prev.some((item) => normalizeKeyword(item) === normalized)) {
-        return prev
-      }
-      return [...prev, label]
-    })
-    setQuery("")
+    setKeywordText((prev) => replaceActiveKeyword(prev, label))
     setOpen(true)
+  }
+
+  function removeKeyword(keyword: string) {
+    const normalized = normalizeKeyword(keyword)
+    setKeywordText((prev) =>
+      parseSeoKeywordInput(prev)
+        .filter((item) => normalizeKeyword(item) !== normalized)
+        .join(", ")
+    )
   }
 
   return (
@@ -121,15 +202,15 @@ export function SeoKeywordPicker({
       {selectedIds.map((id) => (
         <input key={id} type="hidden" name="seoKeywordIds" value={id} />
       ))}
-      <input type="hidden" name="seoKeywords" value={customKeywords.join(", ")} />
 
       <div className="relative">
         <Input
           id="seoKeywords"
-          value={query}
+          name="seoKeywords"
+          value={keywordText}
           onFocus={() => setOpen(true)}
           onChange={(event) => {
-            setQuery(event.target.value)
+            setKeywordText(event.target.value)
             setOpen(true)
           }}
           onKeyDown={(event) => {
@@ -145,7 +226,7 @@ export function SeoKeywordPicker({
               }
             }
           }}
-          placeholder="Tìm từ khóa có sẵn hoặc nhập để thêm mới"
+          placeholder="Nhập từ khóa SEO, cách nhau bằng dấu phẩy"
         />
 
         {open ? (
@@ -180,7 +261,9 @@ export function SeoKeywordPicker({
             ) : null}
 
             {!canCreateQueryKeyword && suggestions.length === 0 ? (
-              <p className="px-2 py-2 text-xs text-muted-foreground">Không tìm thấy từ khóa phù hợp.</p>
+              <p className="px-2 py-2 text-xs text-muted-foreground">
+                Không tìm thấy từ khóa phù hợp.
+              </p>
             ) : null}
           </div>
         ) : null}
@@ -193,7 +276,7 @@ export function SeoKeywordPicker({
             <button
               type="button"
               className="inline-flex size-4 items-center justify-center rounded-full hover:bg-muted"
-              onClick={() => setSelectedIds((prev) => prev.filter((id) => id !== item.id))}
+              onClick={() => removeKeyword(item.keyword)}
               aria-label={`Bỏ chọn ${item.keyword}`}
             >
               <X className="size-3" />
@@ -201,12 +284,16 @@ export function SeoKeywordPicker({
           </Badge>
         ))}
         {customKeywords.map((item) => (
-          <Badge key={`custom-${item}`} variant="secondary" className="gap-1.5 pr-1">
+          <Badge
+            key={`custom-${item}`}
+            variant="secondary"
+            className="gap-1.5 pr-1"
+          >
             {item}
             <button
               type="button"
               className="inline-flex size-4 items-center justify-center rounded-full hover:bg-muted"
-              onClick={() => setCustomKeywords((prev) => prev.filter((value) => value !== item))}
+              onClick={() => removeKeyword(item)}
               aria-label={`Xóa từ khóa ${item}`}
             >
               <X className="size-3" />
@@ -215,8 +302,9 @@ export function SeoKeywordPicker({
         ))}
       </div>
 
-      <p className="text-muted-foreground text-xs">
-        Chọn từ khóa có sẵn trong popup gợi ý. Nếu chưa có, nhấn dấu + để thêm tạm vào bài;
+      <p className="text-xs text-muted-foreground">
+        Nhập trực tiếp hoặc chọn từ khóa có sẵn trong popup gợi ý. Nếu chưa có,
+        nhấn dấu + để thêm tạm vào bài.
       </p>
     </div>
   )
