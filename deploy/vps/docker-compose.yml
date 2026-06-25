@@ -1,0 +1,51 @@
+name: songhay
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: songhay-postgres
+    restart: unless-stopped
+    env_file:
+      - /opt/songhay/env/db.env
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - /opt/songhay/backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: songhay-app:latest
+    container_name: songhay-app
+    restart: unless-stopped
+    env_file:
+      - /opt/songhay/env/app.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: songhay-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - /opt/songhay/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:

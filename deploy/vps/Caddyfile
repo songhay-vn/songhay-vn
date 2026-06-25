@@ -1,0 +1,8 @@
+www.songhay.vn {
+	redir https://songhay.vn{uri} permanent
+}
+
+songhay.vn {
+	encode zstd gzip
+	reverse_proxy app:3000
+}
