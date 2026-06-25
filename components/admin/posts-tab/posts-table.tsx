@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { BookOpen, Clock, Trash } from "lucide-react"
 
 import { PostThumbnail } from "@/components/admin/post-thumbnail"
@@ -38,54 +38,53 @@ type PostsTableProps = {
 
 export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [isPending, setIsPending] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const [postToAddFeatured, setPostToAddFeatured] = useState<PostRow | null>(null)
   const [selectedOldPostId, setSelectedOldPostId] = useState<string>("")
-  const [isReplacingFeatured, setIsReplacingFeatured] = useState(false)
 
-  const handleSetFeatured = async (post: PostRow) => {
+  const handleSetFeatured = (post: PostRow) => {
     const featuredCount = featuredPosts?.length || 0
     if (featuredCount < 5) {
-      setIsPending(true)
-      const formData = new FormData()
-      formData.set("postId", post.id)
-      formData.set("featured", "true")
-      const res = await rest.togglePostFeatured(formData)
-      setIsPending(false)
-      if (res?.toast) {
-        showToastByKey(res.toast)
-      }
+      startTransition(async () => {
+        const formData = new FormData()
+        formData.set("postId", post.id)
+        formData.set("featured", "true")
+        const res = await rest.togglePostFeatured(formData)
+        if (res?.toast) {
+          showToastByKey(res.toast)
+        }
+      })
     } else {
       setSelectedOldPostId(featuredPosts[0]?.id || "")
       setPostToAddFeatured(post)
     }
   }
 
-  const handleRemoveFeatured = async (post: PostRow) => {
-    setIsPending(true)
-    const formData = new FormData()
-    formData.set("postId", post.id)
-    formData.set("featured", "false")
-    const res = await rest.togglePostFeatured(formData)
-    setIsPending(false)
-    if (res?.toast) {
-      showToastByKey(res.toast)
-    }
+  const handleRemoveFeatured = (post: PostRow) => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set("postId", post.id)
+      formData.set("featured", "false")
+      const res = await rest.togglePostFeatured(formData)
+      if (res?.toast) {
+        showToastByKey(res.toast)
+      }
+    })
   }
 
-  const handleConfirmReplacement = async () => {
+  const handleConfirmReplacement = () => {
     if (!postToAddFeatured || !selectedOldPostId) return
-    setIsReplacingFeatured(true)
-    const formData = new FormData()
-    formData.set("oldPostId", selectedOldPostId)
-    formData.set("newPostId", postToAddFeatured.id)
-    const res = await rest.replaceFeaturedPost(formData)
-    setIsReplacingFeatured(false)
-    setPostToAddFeatured(null)
-    if (res?.toast) {
-      showToastByKey(res.toast)
-    }
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set("oldPostId", selectedOldPostId)
+      formData.set("newPostId", postToAddFeatured.id)
+      const res = await rest.replaceFeaturedPost(formData)
+      setPostToAddFeatured(null)
+      if (res?.toast) {
+        showToastByKey(res.toast)
+      }
+    })
   }
 
   const toggleSelectAll = () => {
@@ -106,25 +105,25 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
     setSelectedIds(newSet)
   }
 
-  const handleBulkTrash = async () => {
+  const handleBulkTrash = () => {
     if (!confirm("Bạn có chắc chắn muốn xóa các bài viết đã chọn?")) return
-    setIsPending(true)
-    const formData = new FormData()
-    formData.set("postIds", Array.from(selectedIds).join(","))
-    await bulkTrashPosts(formData)
-    setSelectedIds(new Set())
-    setIsPending(false)
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set("postIds", Array.from(selectedIds).join(","))
+      await bulkTrashPosts(formData)
+      setSelectedIds(new Set())
+    })
   }
 
-  const handleBulkStatus = async (status: string) => {
+  const handleBulkStatus = (status: string) => {
     if (!confirm(`Bạn có chắc chắn muốn chuyển các bài viết đã chọn sang trạng thái ${status}?`)) return
-    setIsPending(true)
-    const formData = new FormData()
-    formData.set("postIds", Array.from(selectedIds).join(","))
-    formData.set("status", status)
-    await bulkUpdateStatus(formData)
-    setSelectedIds(new Set())
-    setIsPending(false)
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set("postIds", Array.from(selectedIds).join(","))
+      formData.set("status", status)
+      await bulkUpdateStatus(formData)
+      setSelectedIds(new Set())
+    })
   }
 
   if (posts.length === 0) {
@@ -442,16 +441,16 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
             <Button
               variant="outline"
               onClick={() => setPostToAddFeatured(null)}
-              disabled={isReplacingFeatured}
+              disabled={isPending}
             >
               Hủy
             </Button>
             <Button
               className="bg-rose-600 text-white hover:bg-rose-700"
               onClick={handleConfirmReplacement}
-              disabled={isReplacingFeatured || !selectedOldPostId}
+              disabled={isPending || !selectedOldPostId}
             >
-              {isReplacingFeatured ? "Đang xử lý..." : "Xác nhận thay thế"}
+              {isPending ? "Đang xử lý..." : "Xác nhận thay thế"}
             </Button>
           </DialogFooter>
         </DialogContent>
