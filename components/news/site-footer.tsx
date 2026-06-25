@@ -160,6 +160,13 @@ export async function SiteFooter({
             Theo dõi để nhận tin nổi bật, video mới và chương trình hợp tác
             truyền thông.
           </p>
+          <p className="border-t border-zinc-200 pt-3 text-sm leading-relaxed text-zinc-600">
+            Sống Hay (songhay.vn) là chuyên trang chuyên sâu về lối sống thuận
+            tự nhiên, được vận hành bởi đội ngũ nhà báo và các chuyên gia y tế
+            chuyên trách. Chúng tôi kết nối tri thức bản địa cùng các thành tựu
+            khoa học hiện đại (phân phối sản phẩm từ Viện Hàn lâm KH&amp;CN Việt
+            Nam) để mang lại giải pháp sức khỏe bền vững cho cộng đồng.
+          </p>
         </div>
       </div>
     </footer>
