@@ -21,15 +21,27 @@ const INSTITUTE_PRODUCTS = [
   },
 ]
 
+const ZALO_URL = "http://zalo.me/1461723500320922510?src=qr&f=1"
+
 export function InstituteProductsSection() {
   return (
     <section className="space-y-3">
-      <SectionHeading title="Sản phẩm từ nghiên cứu của Viện Hàn Lâm KH&CN Việt Nam" />
+      <a
+        href={ZALO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block transition-opacity hover:opacity-90"
+      >
+        <SectionHeading title="Sản phẩm từ nghiên cứu của Viện Hàn Lâm KH&CN Việt Nam" />
+      </a>
       <div className="grid grid-cols-4 gap-2 md:gap-3">
         {INSTITUTE_PRODUCTS.map((product) => (
-          <div
+          <a
             key={product.src}
-            className="relative aspect-square overflow-hidden rounded-md border border-zinc-200 bg-zinc-100"
+            href={ZALO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative block aspect-square overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 transition-transform hover:scale-[1.02]"
           >
             <Image
               src={product.src}
@@ -38,7 +50,7 @@ export function InstituteProductsSection() {
               sizes="(max-width: 640px) 25vw, (max-width: 1024px) 20vw, 170px"
               className="object-cover"
             />
-          </div>
+          </a>
         ))}
       </div>
     </section>
