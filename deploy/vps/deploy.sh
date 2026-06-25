@@ -7,11 +7,28 @@ RUNTIME_DIR="$BASE_DIR/runtime"
 RELEASES_DIR="$RUNTIME_DIR/releases"
 COMPOSE_FILE="$BASE_DIR/docker-compose.yml"
 LOCK_FILE=/tmp/songhay-deploy.lock
+HEARTBEAT_PID=
 
 exec 9>"$LOCK_FILE"
 flock -n 9 || {
   echo "Another deploy is already running" >&2
   exit 1
+}
+
+cleanup() {
+  local status=$?
+  if [[ -n "${HEARTBEAT_PID:-}" ]]; then
+    kill "$HEARTBEAT_PID" >/dev/null 2>&1 || true
+  fi
+  rm -f "$SOURCE_DIR/.env"
+  exit "$status"
+}
+
+heartbeat() {
+  while true; do
+    sleep 30
+    echo "deploy heartbeat $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  done
 }
 
 export BUN_INSTALL="${BUN_INSTALL:-/home/deploy/.bun}"
@@ -32,7 +49,9 @@ install -m 0644 "$SOURCE_DIR/deploy/vps/Caddyfile" "$BASE_DIR/Caddyfile"
 
 cd "$SOURCE_DIR"
 cp "$BASE_DIR/env/build.env" .env
-trap 'rm -f "$SOURCE_DIR/.env"' EXIT
+trap cleanup EXIT
+heartbeat &
+HEARTBEAT_PID=$!
 
 bun install --frozen-lockfile
 bunx --bun prisma migrate deploy
@@ -56,6 +75,7 @@ ln -sfn "$RELEASE_DIR" "$RUNTIME_DIR/current"
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 
 docker image prune -f --filter "until=24h" >/dev/null
+docker builder prune -f --filter "until=24h" >/dev/null
 find "$RELEASES_DIR" -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +4 | xargs -r rm -rf
 
 echo "Deployed release $RELEASE_ID"
