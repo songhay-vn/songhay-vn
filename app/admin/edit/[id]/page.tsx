@@ -7,6 +7,7 @@ import { ArrowLeft, Globe, Save, Send, SendToBack } from "lucide-react"
 
 import { RichTextField } from "@/components/admin/rich-text-field/index"
 import { SeoFields } from "@/components/admin/seo-fields"
+import { ConfirmSubmitButton } from "@/components/admin/confirm-submit-button"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -408,17 +409,19 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
                 <div className="grid gap-2 sm:grid-cols-2">
                   {post.editorialStatus !== "DRAFT" && (post.editorialStatus !== "PUBLISHED" || canPublish) ? (
-                    <PendingSubmitButton
+                    <ConfirmSubmitButton
                       type="submit"
                       name="submitAction"
                       value="save-draft"
                       variant="outline"
                       size="lg"
+                      confirmMessage="Chuyển bài viết này về nháp? Bài sẽ không còn nằm trong hàng duyệt/xuất bản hiện tại."
+                      confirmText="Chuyển về nháp"
                       pendingText="Đang chuyển về nháp..."
                     >
                       <Save className="size-4 mr-1.5" />
                       Chuyển về nháp
-                    </PendingSubmitButton>
+                    </ConfirmSubmitButton>
                   ) : null}
 
                   <PendingSubmitButton

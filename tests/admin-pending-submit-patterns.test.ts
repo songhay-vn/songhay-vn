@@ -49,6 +49,9 @@ describe("admin pending submit patterns", () => {
     const confirmActionForm = readWorkspaceFile(
       "components/admin/confirm-action-form.tsx"
     )
+    const confirmSubmitButton = readWorkspaceFile(
+      "components/admin/confirm-submit-button.tsx"
+    )
     const mediaLibrary = readWorkspaceFile(
       "components/admin/media-library-tab.tsx"
     )
@@ -56,7 +59,19 @@ describe("admin pending submit patterns", () => {
     expect(confirmActionForm).toContain("AlertDialog")
     expect(confirmActionForm).not.toContain("window.confirm")
 
+    expect(confirmSubmitButton).toContain("AlertDialog")
+    expect(confirmSubmitButton).toContain("requestSubmit")
+    expect(confirmSubmitButton).not.toContain("window.confirm")
+
     expect(mediaLibrary).toContain("AlertDialog")
     expect(mediaLibrary).not.toContain("window.confirm")
+  })
+
+  test("edit page confirms before returning an article to draft", () => {
+    const editPage = readWorkspaceFile("app/admin/edit/[id]/page.tsx")
+
+    expect(editPage).toContain("ConfirmSubmitButton")
+    expect(editPage).toContain('value="save-draft"')
+    expect(editPage).toContain("Chuyển bài viết này về nháp?")
   })
 })
