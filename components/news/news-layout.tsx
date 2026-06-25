@@ -6,6 +6,9 @@ import { TrendingSidebar } from "./trending-sidebar"
 import { ClientSideWidgets } from "./client-side-widgets"
 import { ZaloChatButton } from "./zalo-chat-button"
 import { CategoryArticleSections } from "./category-article-sections"
+import { DontMissWidget } from "./dont-miss-widget"
+import { InstituteProductsSection } from "./institute-products-section"
+import { SectionHeading } from "./section-heading"
 import type { CategoryWithChildren } from "@/lib/queries"
 
 type NewsLayoutProps = {
@@ -18,6 +21,7 @@ type NewsLayoutProps = {
   gridClassName?: string
   showSidebar?: boolean
   showZalo?: boolean
+  showDontMissSection?: boolean
   showBottomCategorySections?: boolean
 }
 
@@ -31,6 +35,7 @@ export function NewsLayout({
   gridClassName = "grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]",
   showSidebar = true,
   showZalo = true,
+  showDontMissSection = true,
   showBottomCategorySections = false,
 }: NewsLayoutProps) {
   return (
@@ -44,6 +49,15 @@ export function NewsLayout({
           {/* Main Content */}
           <main className="flex flex-col gap-6">
             {children}
+            {showDontMissSection ? (
+              <>
+                <section className="space-y-3">
+                  <SectionHeading title="Đừng bỏ lỡ!" />
+                  <DontMissWidget />
+                </section>
+                <InstituteProductsSection />
+              </>
+            ) : null}
             {showBottomCategorySections ? (
               <Suspense
                 fallback={

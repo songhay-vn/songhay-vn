@@ -1,9 +1,7 @@
 import Image from "next/image"
 import type { Metadata } from "next"
 
-import { DontMissWidget } from "@/components/news/dont-miss-widget"
 import { PostCard } from "@/components/news/post-card"
-import { SectionHeading } from "@/components/news/section-heading"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
   getHomepageData,
@@ -141,11 +139,6 @@ export default async function HomePage() {
               />
             ))}
           </div>
-        </section>
-
-        <section className="space-y-3">
-          <SectionHeading title="Đừng bỏ lỡ!" />
-          <DontMissWidget />
         </section>
       </NewsLayout>
     </>

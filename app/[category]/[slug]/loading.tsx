@@ -6,6 +6,7 @@ export default function PostLoading() {
       className="bg-white"
       containerClassName="py-8"
       gridClassName="grid gap-8 md:grid-cols-[1fr_320px]"
+      showDontMissSection={false}
       showBottomCategorySections={false}
     >
       <article className="space-y-6">
