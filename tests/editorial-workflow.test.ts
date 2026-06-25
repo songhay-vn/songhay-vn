@@ -22,7 +22,10 @@ describe("editorial workflow", () => {
       /redirect\(\s*"\/admin\?tab=personal-archive&toast=post_saved_draft"\s*\)/
     )
     expect(source).toContain('redirect("/admin?tab=write&toast=missing_fields")')
-    expect(source).toContain('if (!title || !penName)')
+    expect(source).toContain('const penNameId = String(formData.get("penNameId") || "").trim()')
+    expect(source).toContain("const selectedPenName = penNameId")
+    expect(source).toContain("const penName = selectedPenName?.name || \"\"")
+    expect(source).toContain("if (!title || !selectedPenName)")
     expect(source).toContain('if (submitAction !== "save-draft" && (!excerpt || !plainContent || !categoryId))')
     expect(source).toContain("authorId: currentUser.id")
   })

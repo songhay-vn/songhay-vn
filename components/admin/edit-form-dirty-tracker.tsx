@@ -5,7 +5,7 @@ import { autosaveDraftAction } from "@/app/admin/edit/[id]/autosave-action"
 
 const WRITE_FORM_TRACKED_FIELDS = new Set([
   "title",
-  "penName",
+  "penNameId",
   "excerpt",
   "content",
   "mainCategoryId",

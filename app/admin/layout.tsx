@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { requireCmsUser } from "@/lib/auth"
-import { can, ROLE_LABELS_VI } from "@/lib/permissions"
+import { can, canEditPenNames, ROLE_LABELS_VI } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { AdminNotifications } from "@/components/admin/admin-notifications"
 
@@ -42,6 +42,7 @@ async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const { contentTabs, settingsTabs } = getVisibleTabs({
     canManageSettings,
+    canEditPenNames: canEditPenNames(currentUser.role),
   })
 
   const [

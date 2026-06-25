@@ -4,11 +4,13 @@ import {
   addSeoKeyword,
   approvePendingPost,
   checkPostIndex,
+  createPenName,
   createSubordinateAccount,
   createCategory,
   createPost,
   deleteCategory,
   deleteForbiddenKeyword,
+  deletePenName,
   deletePostPermanently,
   deleteSeoKeyword,
   moderateComment,
@@ -24,7 +26,9 @@ import {
   updateCategory,
   updateOwnPassword,
   resetUserPassword,
+  removePenNameAvatar,
   updateRolePermissions,
+  updatePenName,
   updateUserRole,
   deleteUser,
 } from "@/app/admin/actions"
@@ -43,6 +47,7 @@ import { PostsTab } from "@/components/admin/posts-tab"
 import type { PostActions, PostPermissions } from "@/components/admin/posts-tab/types"
 import { SettingsModerationTab } from "@/components/admin/settings-moderation-tab"
 import { SettingsPasswordTab } from "@/components/admin/settings-password-tab"
+import { SettingsPenNamesTab } from "@/components/admin/settings-pen-names-tab"
 import { SettingsPermissionsTab } from "@/components/admin/settings-permissions-tab"
 import { SettingsUsersTab } from "@/components/admin/settings-users-tab"
 import { TrashTab } from "@/components/admin/trash-tab"
@@ -53,6 +58,7 @@ import {
   canApprovePendingReview,
   canCreateSubordinateAccount,
   canEditByStatus,
+  canEditPenNames,
   canPublishNow,
   canSubmitPendingPublish,
   canViewAllPosts,
@@ -114,9 +120,11 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
   const currentUser = await requireCmsUser()
   const canSeeAllPosts = canViewAllPosts(currentUser.role)
   const canManageSettings = can(currentUser.role, "create-category")
+  const canManagePenNames = canEditPenNames(currentUser.role)
 
   const { visibleTabs } = getVisibleTabs({
     canManageSettings,
+    canEditPenNames: canManagePenNames,
   })
 
   const {
@@ -149,6 +157,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     categoriesForManage,
     categoriesForWrite,
     seoKeywordOptions,
+    penNameOptions,
     postsData,
     postsPaginationItems,
     personalPostsData,
@@ -161,6 +170,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     historyLogs,
     historyPaginationItems,
     permissionsMatrix,
+    penNamesSettingsData,
   } = await getAdminPageData({
     activeTab,
     overviewRange,
@@ -307,6 +317,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
           )}
           categoriesForWrite={categoriesForWrite}
           seoKeywordOptions={seoKeywordOptions}
+          penNameOptions={penNameOptions}
           mediaAssets={mediaLibraryData}
           currentUserId={currentUser.id}
           createPost={createPost}
@@ -343,6 +354,15 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
           deleteForbiddenKeyword={deleteForbiddenKeyword}
           addSeoKeyword={addSeoKeyword}
           deleteSeoKeyword={deleteSeoKeyword}
+        />
+      ) : null}
+      {activeTab === "settings-pen-names" ? (
+        <SettingsPenNamesTab
+          rows={penNamesSettingsData}
+          createPenName={createPenName}
+          updatePenName={updatePenName}
+          removePenNameAvatar={removePenNameAvatar}
+          deletePenName={deletePenName}
         />
       ) : null}
       {activeTab === "posts" ? (

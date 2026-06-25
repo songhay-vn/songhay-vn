@@ -17,6 +17,7 @@ export type NavIconName =
   | "fileSearch"
   | "timer"
   | "globe"
+  | "signature"
 
 export type NavLeaf = {
   key: string
@@ -165,6 +166,13 @@ export const SETTINGS_TABS: NavLeaf[] = [
     adminOnly: true,
   },
   {
+    key: "settings-pen-names",
+    tabKey: "settings-pen-names",
+    label: "Bút danh",
+    description: "Quản lý tên tác giả và ảnh đại diện hiển thị công khai",
+    iconName: "signature",
+  },
+  {
     key: "categories",
     tabKey: "categories",
     label: "Chuyên mục",
@@ -228,12 +236,20 @@ type RawSearchParams = {
 
 export function getVisibleTabs({
   canManageSettings,
+  canEditPenNames,
 }: {
   canManageSettings: boolean
+  canEditPenNames: boolean
 }) {
   const contentTabs = CONTENT_MANAGEMENT_TABS.filter((item) => (item.adminOnly ? canManageSettings : true))
 
-  const settingsTabs = SETTINGS_TABS.filter((item) => (item.adminOnly ? canManageSettings : true))
+  const settingsTabs = SETTINGS_TABS.filter((item) => {
+    if (item.tabKey === "settings-pen-names") {
+      return canEditPenNames
+    }
+
+    return item.adminOnly ? canManageSettings : true
+  })
 
   const tabRegistry: NavLeaf[] = [
     OVERVIEW_TAB,

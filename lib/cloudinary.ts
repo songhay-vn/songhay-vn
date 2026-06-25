@@ -140,6 +140,23 @@ export async function uploadThumbnail(file: File | null) {
   return result.url
 }
 
+export async function uploadPenNameAvatar(file: File | null) {
+  if (!file || file.size === 0) {
+    return null
+  }
+
+  const bytes = await file.arrayBuffer()
+  const buffer = Buffer.from(bytes)
+
+  return uploadImageToCloudinary({
+    buffer,
+    filename: file.name,
+    mimeType: file.type || "image/jpeg",
+    folder: "songhay/pen-names",
+    transformation: "c_fill,w_320,h_320,g_face,q_auto:good,f_auto",
+  })
+}
+
 export async function uploadVideoToCloudinary({ buffer, filename, mimeType, folder = "songhay", transformation }: UploadParams) {
   return uploadAssetToCloudinary({
     buffer,

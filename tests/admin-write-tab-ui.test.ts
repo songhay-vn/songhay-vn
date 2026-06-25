@@ -13,6 +13,7 @@ describe("admin write tab UI", () => {
 
     expect(source).toContain("SeoFields")
     expect(source).toContain("SeoKeywordPicker")
+    expect(source).toContain("PenNameSelect")
     expect(seoFieldsSource).toContain(
       '<legend className="px-1 text-sm font-semibold">SEO</legend>'
     )
@@ -40,6 +41,21 @@ describe("admin write tab UI", () => {
     expect(source).toContain("canPublishNow")
     expect(source).toContain("canSubmitPendingPublish")
     expect(source).not.toContain("Xuất bản (chỉ admin)")
+  })
+
+  test("write and edit pages use configured pen name selector", () => {
+    const writeSource = readWorkspaceFile("components/admin/write-tab.tsx")
+    const editSource = readWorkspaceFile("app/admin/edit/[id]/page.tsx")
+    const selectSource = readWorkspaceFile("components/admin/pen-name-select.tsx")
+
+    expect(writeSource).toContain("penNameOptions")
+    expect(writeSource).toContain("<PenNameSelect")
+    expect(writeSource).not.toContain('name="penName"')
+    expect(editSource).toContain("prisma.penName.findMany")
+    expect(editSource).toContain("defaultValue={post.penNameId}")
+    expect(editSource).not.toContain('name="penName"')
+    expect(selectSource).toContain('name = "penNameId"')
+    expect(selectSource).toContain("avatarUrl")
   })
 
   test("write tab pending review button uses destructive variant", () => {

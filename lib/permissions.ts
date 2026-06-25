@@ -25,6 +25,7 @@ export type PermissionAction =
   | "edit-published"
   | "view-all-posts"
   | "delete-any-media"
+  | "edit-pen-name"
   | "create-subordinate-account"
   | "delete-post"
 
@@ -43,6 +44,7 @@ export const ACTION_LABELS_VI: Record<PermissionAction, string> = {
   "edit-published": "Sửa bài đã xuất bản",
   "view-all-posts": "Xem tất cả bài viết",
   "delete-any-media": "Xóa media của người khác",
+  "edit-pen-name": "Chỉnh sửa bút danh",
   "create-subordinate-account": "Tạo tài khoản cấp dưới",
   "delete-post": "Xóa bài viết",
 }
@@ -62,6 +64,7 @@ export const ALL_PERMISSION_ACTIONS: PermissionAction[] = [
   "edit-published",
   "view-all-posts",
   "delete-any-media",
+  "edit-pen-name",
   "create-subordinate-account",
   "delete-post",
 ]
@@ -91,6 +94,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Set<PermissionAction>> = {
     "edit-published",
     "view-all-posts",
     "delete-any-media",
+    "edit-pen-name",
     "create-subordinate-account",
     "delete-post",
   ]),
@@ -115,6 +119,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Set<PermissionAction>> = {
     "edit-published",
     "view-all-posts",
     "delete-any-media",
+    "edit-pen-name",
     "create-subordinate-account",
     "delete-post",
   ]),
@@ -238,6 +243,10 @@ export function canEditByStatus(role: UserRole, status: EditorialStatus) {
 
 export function canDeleteAnyMedia(role: UserRole) {
   return can(role, "delete-any-media")
+}
+
+export function canEditPenNames(role: UserRole) {
+  return can(role, "edit-pen-name")
 }
 
 export function canCreateSubordinateAccount(role: UserRole) {

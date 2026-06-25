@@ -210,6 +210,51 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
     description: "Bạn không có quyền thực hiện thao tác này.",
     type: "error",
   },
+  pen_name_saved: {
+    title: "Đã lưu bút danh",
+    description: "Thông tin bút danh đã được cập nhật.",
+    type: "success",
+  },
+  pen_name_deleted: {
+    title: "Đã xóa bút danh",
+    description: "Bút danh đã được xóa, bài cũ vẫn giữ tên hiển thị đã lưu.",
+    type: "success",
+  },
+  pen_name_avatar_removed: {
+    title: "Đã gỡ ảnh bút danh",
+    description: "Ảnh đại diện đã được xóa khỏi Cloudinary.",
+    type: "success",
+  },
+  pen_name_duplicated: {
+    title: "Bút danh đã tồn tại",
+    description: "Vui lòng dùng một tên bút danh khác.",
+    type: "error",
+  },
+  pen_name_not_found: {
+    title: "Không tìm thấy bút danh",
+    description: "Bút danh có thể đã bị xóa trước đó.",
+    type: "error",
+  },
+  pen_name_save_failed: {
+    title: "Không thể lưu bút danh",
+    description: "Vui lòng kiểm tra lại tên và ảnh đại diện.",
+    type: "error",
+  },
+  pen_name_delete_failed: {
+    title: "Không thể xóa bút danh",
+    description: "Dữ liệu thao tác không hợp lệ. Vui lòng thử lại.",
+    type: "error",
+  },
+  pen_name_avatar_upload_failed: {
+    title: "Upload ảnh bút danh thất bại",
+    description: "Vui lòng chọn ảnh hợp lệ dưới 5MB.",
+    type: "error",
+  },
+  pen_name_action_forbidden: {
+    title: "Không có quyền chỉnh bút danh",
+    description: "Role hiện tại chưa được cấp quyền Chỉnh sửa bút danh.",
+    type: "error",
+  },
   user_role_updated: {
     title: "Đã cập nhật vai trò",
     description: "Vai trò người dùng đã được thay đổi thành công.",

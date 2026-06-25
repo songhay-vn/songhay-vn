@@ -17,6 +17,7 @@ import {
   Newspaper,
   PenSquare,
   ShieldCheck,
+  Signature,
   Timer,
   Trash2,
   UserSquare2,
@@ -49,6 +50,7 @@ const navIcons: Record<NavIconName, typeof LayoutDashboard> = {
   fileSearch: FileSearch,
   timer: Timer,
   globe: Globe,
+  signature: Signature,
 }
 
 type AdminNavButtonProps = {

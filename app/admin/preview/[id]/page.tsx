@@ -29,6 +29,7 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
     where: { id },
     include: {
       category: { select: { name: true, slug: true } },
+      penNameProfile: { select: { name: true, avatarUrl: true } },
       author: { select: { name: true, email: true } },
       comments: {
         where: { isApproved: true },

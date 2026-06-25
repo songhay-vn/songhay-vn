@@ -7,6 +7,7 @@ import { SocialShare } from "@/components/news/social-share"
 import { NewsLayout } from "@/components/news/news-layout"
 import { FormattedDate } from "@/components/news/formatted-date"
 import type { CategoryWithChildren } from "@/lib/queries"
+import { getPenNameInitials } from "@/lib/pen-names"
 
 type ArticlePageShellProps = {
   navCategories: CategoryWithChildren[]
@@ -15,6 +16,10 @@ type ArticlePageShellProps = {
     title: string
     excerpt: string
     penName: string | null
+    penNameProfile?: {
+      name: string
+      avatarUrl: string | null
+    } | null
     thumbnailUrl: string | null
     videoEmbedUrl: string | null
     category: {
@@ -35,6 +40,34 @@ type ArticlePageShellProps = {
   metadataNodes?: ReactNode
   showSocialShare?: boolean
   commentFormMode?: "live" | "preview" | "hidden"
+}
+
+function ArticleAuthorByline({
+  penName,
+  avatarUrl,
+}: {
+  penName: string
+  avatarUrl: string | null
+}) {
+  return (
+    <div className="flex items-center gap-2.5 text-left font-sans">
+      <span className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 text-xs font-bold text-zinc-600">
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={`Ảnh đại diện ${penName}`}
+            width={40}
+            height={40}
+            sizes="40px"
+            className="size-full object-cover"
+          />
+        ) : (
+          getPenNameInitials(penName)
+        )}
+      </span>
+      <span className="text-sm font-bold text-zinc-900">{penName}</span>
+    </div>
+  )
 }
 
 function renderCommentForm(
@@ -68,6 +101,9 @@ export function ArticlePageShell({
   showSocialShare = true,
   commentFormMode = "live",
 }: ArticlePageShellProps) {
+  const displayPenName = article.penNameProfile?.name || article.penName
+  const displayPenNameAvatarUrl = article.penNameProfile?.avatarUrl || null
+
   return (
     <NewsLayout
       navCategories={navCategories}
@@ -101,6 +137,12 @@ export function ArticlePageShell({
             <h1 className="text-4xl leading-tight font-black text-zinc-900">
               {article.title}
             </h1>
+            {displayPenName ? (
+              <ArticleAuthorByline
+                penName={displayPenName}
+                avatarUrl={displayPenNameAvatarUrl}
+              />
+            ) : null}
             <p className="text-xl leading-relaxed font-bold text-zinc-950">
               {article.excerpt.trim()}
             </p>
@@ -122,12 +164,6 @@ export function ArticlePageShell({
             className="article-content ck-content max-w-none text-black"
             dangerouslySetInnerHTML={{ __html: articleHtml }}
           />
-
-          {article.penName ? (
-            <div className="mt-4 text-right text-zinc-900">
-              {article.penName}
-            </div>
-          ) : null}
 
           {article.videoEmbedUrl ? (
             <div className="overflow-hidden border border-zinc-200">

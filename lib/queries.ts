@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client"
 import { NAV_CATEGORIES } from "./categories"
 import { fetchAnalyticsContentSignals } from "@/lib/google-seo-signals"
 import { prisma } from "@/lib/prisma"
+import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
 import { publishedPostWhere, selectApprovedCommentsCount } from "./query-utils"
 
 import type {
@@ -529,21 +530,58 @@ export async function getPostByCategoryAndSlug(
   cacheTag(`post:${slug}`)
   cacheLife("weeks")
 
-  return prisma.post.findFirst({
-    where: {
-      ...publishedPostWhere(),
-      slug,
-      category: { slug: categorySlug },
-    },
-    include: {
-      category: true,
-      author: { select: { name: true } },
-      comments: {
-        where: { isApproved: true },
-        orderBy: { createdAt: "desc" },
+  try {
+    return await prisma.post.findFirst({
+      where: {
+        ...publishedPostWhere(),
+        slug,
+        category: { slug: categorySlug },
       },
-    },
-  })
+      include: {
+        category: true,
+        penNameProfile: { select: { name: true, avatarUrl: true } },
+        author: { select: { name: true } },
+        comments: {
+          where: { isApproved: true },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    })
+  } catch (error) {
+    if (!isPrismaSchemaMismatchError(error)) {
+      throw error
+    }
+
+    return prisma.post.findFirst({
+      where: {
+        ...publishedPostWhere(),
+        slug,
+        category: { slug: categorySlug },
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        content: true,
+        penName: true,
+        thumbnailUrl: true,
+        videoEmbedUrl: true,
+        seoTitle: true,
+        seoDescription: true,
+        ogImage: true,
+        publishedAt: true,
+        updatedAt: true,
+        category: { select: { name: true, slug: true } },
+        author: { select: { name: true } },
+        comments: {
+          where: { isApproved: true },
+          select: { id: true, authorName: true, content: true },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    })
+  }
 }
 
 export async function getTrendingPosts() {

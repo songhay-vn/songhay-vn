@@ -16,6 +16,7 @@ describe("admin navigation submenu", () => {
     expect(helperSource).toContain("Kho bài")
     expect(helperSource).toContain("Kho dữ liệu")
     expect(helperSource).toContain("Lưu trữ cá nhân")
+    expect(helperSource).toContain("Bút danh")
     expect(helperSource).toContain("Đổi mật khẩu")
   })
 
@@ -27,6 +28,7 @@ describe("admin navigation submenu", () => {
     expect(source).toContain('key: "media-library"')
     expect(source).toContain('key: "personal-archive"')
     expect(source).toContain('key: "settings-password"')
+    expect(source).toContain('key: "settings-pen-names"')
   })
 
   test("maps sidebar counts to related tabs", () => {
@@ -58,6 +60,7 @@ describe("admin navigation submenu", () => {
 
     expect(source).toContain('adminOnly: true')
     expect(source).toContain("canManageSettings")
+    expect(source).toContain("canEditPenNames")
     expect(source).toContain("CONTENT_MANAGEMENT_TABS.filter")
     expect(source).toContain("SETTINGS_TABS.filter")
     expect(pageSource).toContain("getVisibleTabs")

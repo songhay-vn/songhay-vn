@@ -12,6 +12,7 @@ export type AdminTab =
   | "trash"
   | "settings-password"
   | "settings-moderation"
+  | "settings-pen-names"
   | "settings-permissions"
   | "settings-users"
 

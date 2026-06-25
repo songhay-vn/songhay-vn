@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client"
 
 import { NAV_CATEGORIES } from "../lib/categories"
 import { hashPassword } from "../lib/password"
+import { normalizePenName, toPenNameDisplayName } from "../lib/pen-names"
 import { slugify } from "../lib/slug"
 import { DEFAULT_PERMISSIONS, ALL_EDITABLE_ROLES, ALL_PERMISSION_ACTIONS } from "../lib/permissions"
 
@@ -349,6 +350,30 @@ async function main() {
     },
   })
 
+  const penNameByNormalizedName = new Map<string, string>()
+  async function ensureSeedPenName(inputName: string) {
+    const name = toPenNameDisplayName(inputName)
+    const normalizedName = normalizePenName(name)
+    const cached = penNameByNormalizedName.get(normalizedName)
+
+    if (cached) {
+      return cached
+    }
+
+    const row = await prisma.penName.upsert({
+      where: { normalizedName },
+      update: { name },
+      create: {
+        name,
+        normalizedName,
+      },
+      select: { id: true },
+    })
+
+    penNameByNormalizedName.set(normalizedName, row.id)
+    return row.id
+  }
+
   const categoryBySlug = new Map<string, string>()
 
   // Seed parent categories first
@@ -387,6 +412,8 @@ async function main() {
 
     const slug = slugify(post.title)
     const publishedAt = new Date(Date.now() - index * 8 * 60 * 60 * 1000)
+    const penName = index % 2 === 0 ? "Phạm Anh" : "Thị Lan"
+    const penNameId = await ensureSeedPenName(penName)
 
     const upserted = await prisma.post.upsert({
       where: { slug },
@@ -400,7 +427,8 @@ async function main() {
         seoDescription: post.excerpt,
         ogImage: post.thumbnailUrl,
         categoryId,
-        penName: index % 2 === 0 ? "Phạm Anh" : "Thị Lan",
+        penName,
+        penNameId,
         isFeatured: Boolean(post.isFeatured),
         isTrending: Boolean(post.isTrending),
         isPublished: true,
@@ -423,7 +451,8 @@ async function main() {
         seoDescription: post.excerpt,
         ogImage: post.thumbnailUrl,
         categoryId,
-        penName: index % 2 === 0 ? "Phạm Anh" : "Thị Lan",
+        penName,
+        penNameId,
         isFeatured: Boolean(post.isFeatured),
         isTrending: Boolean(post.isTrending),
         isPublished: true,
@@ -488,6 +517,8 @@ async function main() {
 
     const slug = slugify(post.title)
     const publishedAt = new Date(Date.now() - (index + 1) * 3 * 60 * 60 * 1000)
+    const penName = post.author.name
+    const penNameId = await ensureSeedPenName(penName)
 
     await prisma.post.upsert({
       where: { slug },
@@ -497,7 +528,8 @@ async function main() {
         content: post.content,
         thumbnailUrl: post.thumbnailUrl,
         categoryId,
-        penName: post.author.name,
+        penName,
+        penNameId,
         authorId: post.author.id,
         approverId: editorInChief.id,
         lastEditorId: managingEditor.id,
@@ -515,7 +547,8 @@ async function main() {
         content: post.content,
         thumbnailUrl: post.thumbnailUrl,
         categoryId,
-        penName: post.author.name,
+        penName,
+        penNameId,
         authorId: post.author.id,
         approverId: editorInChief.id,
         lastEditorId: managingEditor.id,
@@ -569,6 +602,8 @@ async function main() {
     if (!categoryId) continue
 
     const slug = slugify(post.title)
+    const penName = post.author.name
+    const penNameId = await ensureSeedPenName(penName)
 
     await prisma.post.upsert({
       where: { slug },
@@ -578,7 +613,8 @@ async function main() {
         content: post.content,
         thumbnailUrl: post.thumbnailUrl,
         categoryId,
-        penName: post.author.name,
+        penName,
+        penNameId,
         authorId: post.author.id,
         lastEditorId: (post as any).lastEditorId || post.author.id,
         isPublished: false,
@@ -592,7 +628,8 @@ async function main() {
         content: post.content,
         thumbnailUrl: post.thumbnailUrl,
         categoryId,
-        penName: post.author.name,
+        penName,
+        penNameId,
         authorId: post.author.id,
         lastEditorId: (post as any).lastEditorId || post.author.id,
         isPublished: false,
@@ -622,6 +659,7 @@ async function main() {
 
   // ── Editor draft (not submitted) ─────────────────────────────────────────
   const editor1DraftSlug = slugify("BTV Lan [DRAFT]: Bi kip chup anh do an dep tren dien thoai")
+  const editor1DraftPenNameId = await ensureSeedPenName(editor1.name)
   await prisma.post.upsert({
     where: { slug: editor1DraftSlug },
     update: {
@@ -631,6 +669,7 @@ async function main() {
       thumbnailUrl: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80",
       categoryId: categoryBySlug.get("meo-cong-nghe") || "",
       penName: editor1.name,
+      penNameId: editor1DraftPenNameId,
       authorId: editor1.id,
       lastEditorId: editor1.id,
       isPublished: false,
@@ -645,6 +684,7 @@ async function main() {
       thumbnailUrl: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80",
       categoryId: categoryBySlug.get("meo-cong-nghe") || "",
       penName: editor1.name,
+      penNameId: editor1DraftPenNameId,
       authorId: editor1.id,
       lastEditorId: editor1.id,
       isPublished: false,

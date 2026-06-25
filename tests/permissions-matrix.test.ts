@@ -6,6 +6,7 @@ import {
   canCreateSubordinateAccount,
   canDeleteAnyMedia,
   canEditByStatus,
+  canEditPenNames,
   canPublishNow,
   canSubmitPendingPublish,
   canViewAllPosts,
@@ -62,6 +63,16 @@ describe("permissions matrix by role", () => {
     expect(canCreateSubordinateAccount("TEAM_LEAD")).toBe(false)
     expect(canCreateSubordinateAccount("REPORTER_TRANSLATOR")).toBe(false)
     expect(canCreateSubordinateAccount("CONTRIBUTOR")).toBe(false)
+  })
+
+  test("pen name management defaults to practical admin roles only", () => {
+    expect(canEditPenNames("ADMIN")).toBe(true)
+    expect(canEditPenNames("EDITOR_IN_CHIEF")).toBe(true)
+    expect(canEditPenNames("USER")).toBe(false)
+    expect(canEditPenNames("MANAGING_EDITOR")).toBe(false)
+    expect(canEditPenNames("TEAM_LEAD")).toBe(false)
+    expect(canEditPenNames("REPORTER_TRANSLATOR")).toBe(false)
+    expect(canEditPenNames("CONTRIBUTOR")).toBe(false)
   })
 
   test("edit-by-status edge cases are enforced", () => {

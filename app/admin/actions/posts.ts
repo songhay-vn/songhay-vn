@@ -43,7 +43,7 @@ export async function createPost(formData: FormData) {
   )
 
   const title = String(formData.get("title") || "").trim()
-  const penName = String(formData.get("penName") || "").trim()
+  const penNameId = String(formData.get("penNameId") || "").trim()
   const excerpt = String(formData.get("excerpt") || "").trim()
   const content = String(formData.get("content") || "").trim()
   const plainContent = getPlainTextFromHtml(content)
@@ -65,7 +65,15 @@ export async function createPost(formData: FormData) {
   const scheduledPublishAt = rawScheduledPublishAt ? new Date(rawScheduledPublishAt) : null
   const canonicalUrl = String(formData.get("canonicalUrl") || "").trim() || null
 
-  if (!title || !penName) {
+  const selectedPenName = penNameId
+    ? await prisma.penName.findUnique({
+        where: { id: penNameId },
+        select: { id: true, name: true },
+      })
+    : null
+  const penName = selectedPenName?.name || ""
+
+  if (!title || !selectedPenName) {
     redirect("/admin?tab=write&toast=missing_fields")
   }
 
@@ -126,6 +134,7 @@ export async function createPost(formData: FormData) {
             title,
             slug,
             penName,
+            penNameId,
             excerpt,
             content,
             categoryId,
@@ -157,6 +166,7 @@ export async function createPost(formData: FormData) {
         title,
         slug,
         penName,
+        penNameId,
         excerpt,
         content,
         categoryId,
@@ -244,7 +254,7 @@ export async function createPostForPreview(
   )
 
   const title = String(formData.get("title") || "").trim()
-  const penName = String(formData.get("penName") || "").trim()
+  const penNameId = String(formData.get("penNameId") || "").trim()
   const excerpt = String(formData.get("excerpt") || "").trim()
   const content = String(formData.get("content") || "").trim()
   const plainContent = getPlainTextFromHtml(content)
@@ -260,7 +270,15 @@ export async function createPostForPreview(
   const thumbnailUrlInput = String(formData.get("thumbnailUrl") || "").trim()
   const previewPostId = String(formData.get("previewPostId") || "").trim() || null
 
-  if (!title || !penName) {
+  const selectedPenName = penNameId
+    ? await prisma.penName.findUnique({
+        where: { id: penNameId },
+        select: { id: true, name: true },
+      })
+    : null
+  const penName = selectedPenName?.name || ""
+
+  if (!title || !selectedPenName) {
     return { error: "missing_fields" }
   }
 
@@ -294,6 +312,7 @@ export async function createPostForPreview(
         data: {
           title,
           penName,
+          penNameId,
           excerpt,
           content,
           categoryId,
@@ -317,6 +336,7 @@ export async function createPostForPreview(
         title,
         slug,
         penName,
+        penNameId,
         excerpt,
         content,
         categoryId,

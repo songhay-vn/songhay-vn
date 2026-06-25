@@ -9,11 +9,10 @@ interface PreviewButtonProps {
 
 export function PreviewButton({ postId }: PreviewButtonProps) {
   function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
-    const penNameInput = document.getElementById("postPenName") as HTMLInputElement
-    if (penNameInput && !penNameInput.value.trim()) {
+    const penNameInput = document.getElementById("postPenNameId") as HTMLInputElement | null
+    if (!penNameInput?.value.trim()) {
       e.preventDefault()
-      alert("Vui lòng nhập Bút danh trước khi Xem trước!")
-      penNameInput.focus()
+      alert("Vui lòng chọn Bút danh trước khi Xem trước!")
       return
     }
     window.open(`/admin/preview/${postId}`, "_blank", "noreferrer")

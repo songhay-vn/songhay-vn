@@ -21,6 +21,7 @@ import { SeoFields } from "@/components/admin/seo-fields"
 import { SeoKeywordPicker } from "@/components/admin/seo-keyword-picker"
 import { EditFormDirtyTracker } from "@/components/admin/edit-form-dirty-tracker"
 import { ThumbnailPicker } from "@/components/admin/thumbnail-picker"
+import { PenNameSelect } from "@/components/admin/pen-name-select"
 
 type CategoryWriteRow = {
   id: string
@@ -35,6 +36,11 @@ type WriteTabProps = {
   seoKeywordOptions: Array<{
     id: string
     keyword: string
+  }>
+  penNameOptions: Array<{
+    id: string
+    name: string
+    avatarUrl: string | null
   }>
   mediaAssets: Array<{
     id: string
@@ -58,6 +64,7 @@ export function WriteTab({
   canSubmitPendingPublish,
   categoriesForWrite,
   seoKeywordOptions,
+  penNameOptions,
   mediaAssets,
   currentUserId,
   createPost,
@@ -71,6 +78,11 @@ export function WriteTab({
   const handlePreview = useCallback(() => {
     if (!formRef.current) return
     if (!formRef.current.reportValidity()) return
+    const penNameInput = document.getElementById("postPenNameId") as HTMLInputElement | null
+    if (!penNameInput?.value) {
+      alert("Vui lòng chọn Bút danh trước khi Xem trước!")
+      return
+    }
 
     const formData = new FormData(formRef.current)
     startPreviewTransition(async () => {
@@ -109,14 +121,8 @@ export function WriteTab({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="postPenName">Bút danh</Label>
-              <Input
-                id="postPenName"
-                name="penName"
-                autoComplete="off"
-                placeholder="Tên tác giả hiển thị công khai"
-                required
-              />
+              <Label htmlFor="postPenNameId">Bút danh</Label>
+              <PenNameSelect options={penNameOptions} />
             </div>
 
             <div className="space-y-1.5">

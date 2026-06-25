@@ -44,7 +44,7 @@ const ACTION_GROUPS: { label: string; actions: PermissionAction[] }[] = [
   },
   {
     label: "Quản trị",
-    actions: ["moderate-comment", "create-subordinate-account"],
+    actions: ["moderate-comment", "edit-pen-name", "create-subordinate-account"],
   },
 ]
 
@@ -127,23 +127,6 @@ export function SettingsPermissionsTab({
 
   return (
     <div className="space-y-4">
-      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
-        <CardContent className="pt-4">
-          <p className="text-sm text-amber-800 dark:text-amber-200">
-            <strong>Lưu ý:</strong> Thay đổi phân quyền được lưu vào database và
-            áp dụng ngay lập tức cho tất cả người dùng của role đó. Role{" "}
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/50">
-              ADMIN
-            </code>{" "}
-            và{" "}
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/50">
-              USER
-            </code>{" "}
-            (legacy) không thể chỉnh sửa.
-          </p>
-        </CardContent>
-      </Card>
-
       {ALL_EDITABLE_ROLES.map((role) => {
         const row = matrixByRole.get(role) ?? {
           role,

@@ -88,6 +88,19 @@ model Category {
   posts       Post[]
 }
 
+model PenName {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  avatarUrl      String?
+  avatarPublicId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  posts          Post[]
+
+  @@index([name])
+}
+
 model Post {
   id                    String                   @id @default(cuid())
   title                 String
@@ -95,6 +108,7 @@ model Post {
   excerpt               String
   content               String
   penName               String?
+  penNameId             String?
   thumbnailUrl          String?
   videoEmbedUrl         String?
   seoTitle              String?
@@ -121,6 +135,7 @@ model Post {
   approverId            String?
   lastEditorId          String?
   category              Category                 @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  penNameProfile        PenName?                 @relation(fields: [penNameId], references: [id], onDelete: SetNull)
   author                User?                    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   approver              User?                    @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
   lastEditor            User?                    @relation("PostLastEditor", fields: [lastEditorId], references: [id], onDelete: SetNull)
@@ -132,6 +147,7 @@ model Post {
   searchConsoleJobs     SearchConsoleJob[]
 
   @@index([categoryId])
+  @@index([penNameId])
   @@index([authorId])
   @@index([approverId])
   @@index([lastEditorId])

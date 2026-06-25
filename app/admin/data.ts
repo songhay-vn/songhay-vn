@@ -13,6 +13,8 @@ import {
   getUsersData,
   getHistoryData,
   getRolePermissionsData,
+  getPenNameOptions,
+  getPenNamesSettingsData,
 } from "@/app/admin/data-loaders/index"
 import { buildPaginationItems } from "@/app/admin/data-helpers"
 import type { GetAdminPageDataInput } from "@/app/admin/data-types"
@@ -35,6 +37,7 @@ export async function getAdminPageData({
     []
   let categoriesForWrite: Awaited<ReturnType<typeof getCategoriesForWrite>> = []
   let seoKeywordOptions: Awaited<ReturnType<typeof getSeoKeywordOptions>> = []
+  let penNameOptions: Awaited<ReturnType<typeof getPenNameOptions>> = []
   let postsData: Awaited<ReturnType<typeof getPostsData>> = {
     posts: [],
     totalCount: 0,
@@ -77,6 +80,9 @@ export async function getAdminPageData({
     currentPage: 1,
   }
   let permissionsMatrix: Awaited<ReturnType<typeof getRolePermissionsData>> = []
+  let penNamesSettingsData: Awaited<
+    ReturnType<typeof getPenNamesSettingsData>
+  > = []
 
   // Selectively fire only required loaders for the active tab
   const activeTabDataPromise = (async () => {
@@ -85,11 +91,17 @@ export async function getAdminPageData({
         overviewAnalytics = await getOverviewAnalytics(activeTab, overviewRange)
         break
       case "write":
-        ;[categoriesForWrite, seoKeywordOptions, mediaLibraryData] =
+        ;[
+          categoriesForWrite,
+          seoKeywordOptions,
+          mediaLibraryData,
+          penNameOptions,
+        ] =
           await Promise.all([
             getCategoriesForWrite(activeTab),
             getSeoKeywordOptions(activeTab),
             getMediaLibraryData(activeTab),
+            getPenNameOptions(activeTab),
           ])
         break
       case "media-library":
@@ -126,6 +138,9 @@ export async function getAdminPageData({
         break
       case "settings-permissions":
         permissionsMatrix = await getRolePermissionsData(activeTab)
+        break
+      case "settings-pen-names":
+        penNamesSettingsData = await getPenNamesSettingsData(activeTab)
         break
       case "settings-users":
       case "settings-password":
@@ -185,6 +200,7 @@ export async function getAdminPageData({
     categoriesForManage,
     categoriesForWrite,
     seoKeywordOptions,
+    penNameOptions,
     postsData,
     postsPaginationItems,
     postsFilters,
@@ -200,5 +216,6 @@ export async function getAdminPageData({
     historyLogs,
     historyPaginationItems,
     permissionsMatrix,
+    penNamesSettingsData,
   }
 }
