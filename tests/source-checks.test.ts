@@ -89,6 +89,31 @@ describe("Source Verification: Admin Actions revalidation", () => {
 })
 
 describe("Source Verification: Shared public bottom sections", () => {
+  test("dont miss widget promotes biological age test only", () => {
+    const source = readWorkspaceFile("components/news/dont-miss-widget.tsx")
+
+    expect(source).toContain("Xét nghiệm tuổi sinh học")
+    expect(source).toContain('href="/tuoi-sinh-hoc"')
+    expect(source).toContain("Làm trắc nghiệm")
+    expect(source).not.toContain("GoodDayByAgeTool")
+    expect(source).not.toContain("Tính BMI")
+    expect(source).not.toContain("Đặt tên cho con")
+  })
+
+  test("biological age page has static SEO content and FAQ structured data", () => {
+    const pageSource = readWorkspaceFile("app/tuoi-sinh-hoc/page.tsx")
+    const widgetSource = readWorkspaceFile("components/news/bio-age-widget.tsx")
+    const sitemapSource = readWorkspaceFile("app/sitemap.ts")
+
+    expect(pageSource).toContain("Xét nghiệm tuổi sinh học")
+    expect(pageSource).toContain("openGraph")
+    expect(pageSource).toContain('"@type": "FAQPage"')
+    expect(pageSource).toContain("<JsonLd data={[webPageJsonLd, faqJsonLd]}")
+    expect(widgetSource).toContain("const QUESTIONS")
+    expect(widgetSource).toContain("Kết quả chỉ dùng để tự quan sát lối sống")
+    expect(sitemapSource).toContain("${siteUrl}/tuoi-sinh-hoc")
+  })
+
   test("homepage data exposes non-overlapping hero and latest sets", () => {
     const source = readWorkspaceFile("lib/queries.ts")
     const notFoundSource = readWorkspaceFile("app/not-found.tsx")

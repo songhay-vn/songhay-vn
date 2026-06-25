@@ -28,6 +28,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.3,
     },
+    {
+      url: `${siteUrl}/tuoi-sinh-hoc`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    },
   ]
 
   const rawCategories = await prisma.category.findMany({
