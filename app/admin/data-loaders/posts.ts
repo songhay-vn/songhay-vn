@@ -22,6 +22,7 @@ export async function getPostsData(
       totalCount: 0,
       totalPages: 1,
       currentPage: 1,
+      featuredPosts: [] as Array<{ id: string; title: string; slug: string; publishedAt: Date | null }>,
       filterOptions: {
         authors: [] as Array<{ id: string; name: string; email: string }>,
         categories: [] as Array<{ id: string; name: string; slug: string }>,
@@ -217,11 +218,28 @@ export async function getPostsData(
     filterOptionsPromise,
   ])
 
+  const featuredPosts = await prisma.post.findMany({
+    where: {
+      isFeatured: true,
+      isPublished: true,
+      isDeleted: false,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      publishedAt: true,
+    },
+    orderBy: { publishedAt: "desc" },
+    take: 5,
+  })
+
   return {
     posts,
     totalCount,
     totalPages,
     currentPage,
+    featuredPosts,
     filterOptions: {
       authors: authorOptions,
       categories: categoryOptions,

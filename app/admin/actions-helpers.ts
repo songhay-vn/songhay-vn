@@ -245,6 +245,10 @@ export async function revalidatePost(
     revalidateTag("trending-posts")
   }
 
+  if (!options || options.isFeaturedChange || options.isVisibilityChange) {
+    revalidateTag("featured-posts")
+  }
+
   if (!options || options.isVisibilityChange) {
     revalidateTag("latest-by-category")
   }

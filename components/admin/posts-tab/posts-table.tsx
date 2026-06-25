@@ -6,6 +6,15 @@ import { BookOpen, Clock, Trash } from "lucide-react"
 import { PostThumbnail } from "@/components/admin/post-thumbnail"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   TableBody,
   TableCell,
@@ -16,18 +25,68 @@ import {
 import { cn } from "@/lib/utils"
 
 import { bulkTrashPosts, bulkUpdateStatus } from "@/app/admin/actions/posts"
+import { showToastByKey } from "@/components/admin/action-toast"
 import { PostActionsCell } from "./post-actions-cell"
 import { STATUS_CONFIG, getSearchConsoleIndexState, getTimelineLabel } from "./types"
-import type { PostActions, PostPermissions, PostRow } from "./types"
+import type { PostActions, PostPermissions, PostRow, FeaturedPostRow } from "./types"
 
 type PostsTableProps = {
   posts: PostRow[]
+  featuredPosts?: FeaturedPostRow[]
 } & PostPermissions &
   PostActions
 
-export function PostsTable({ posts, ...rest }: PostsTableProps) {
+export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isPending, setIsPending] = useState(false)
+
+  const [postToAddFeatured, setPostToAddFeatured] = useState<PostRow | null>(null)
+  const [selectedOldPostId, setSelectedOldPostId] = useState<string>("")
+  const [isReplacingFeatured, setIsReplacingFeatured] = useState(false)
+
+  const handleSetFeatured = async (post: PostRow) => {
+    const featuredCount = featuredPosts?.length || 0
+    if (featuredCount < 5) {
+      setIsPending(true)
+      const formData = new FormData()
+      formData.set("postId", post.id)
+      formData.set("featured", "true")
+      const res = await rest.togglePostFeatured(formData)
+      setIsPending(false)
+      if (res?.toast) {
+        showToastByKey(res.toast)
+      }
+    } else {
+      setSelectedOldPostId(featuredPosts[0]?.id || "")
+      setPostToAddFeatured(post)
+    }
+  }
+
+  const handleRemoveFeatured = async (post: PostRow) => {
+    setIsPending(true)
+    const formData = new FormData()
+    formData.set("postId", post.id)
+    formData.set("featured", "false")
+    const res = await rest.togglePostFeatured(formData)
+    setIsPending(false)
+    if (res?.toast) {
+      showToastByKey(res.toast)
+    }
+  }
+
+  const handleConfirmReplacement = async () => {
+    if (!postToAddFeatured || !selectedOldPostId) return
+    setIsReplacingFeatured(true)
+    const formData = new FormData()
+    formData.set("oldPostId", selectedOldPostId)
+    formData.set("newPostId", postToAddFeatured.id)
+    const res = await rest.replaceFeaturedPost(formData)
+    setIsReplacingFeatured(false)
+    setPostToAddFeatured(null)
+    if (res?.toast) {
+      showToastByKey(res.toast)
+    }
+  }
 
   const toggleSelectAll = () => {
     if (selectedIds.size === posts.length) {
@@ -312,7 +371,13 @@ export function PostsTable({ posts, ...rest }: PostsTableProps) {
 
                   {/* ── Column 5: Actions ── */}
                   <TableCell className="py-3">
-                    <PostActionsCell post={post} {...rest} />
+                    <PostActionsCell
+                      post={post}
+                      featuredPosts={featuredPosts}
+                      onSetFeatured={() => handleSetFeatured(post)}
+                      onRemoveFeatured={() => handleRemoveFeatured(post)}
+                      {...rest}
+                    />
                   </TableCell>
                 </TableRow>
               )
@@ -320,6 +385,77 @@ export function PostsTable({ posts, ...rest }: PostsTableProps) {
           </TableBody>
         </table>
       </div>
+
+      {/* Dialog for Replacing Featured Post */}
+      <Dialog
+        open={postToAddFeatured !== null}
+        onOpenChange={(open) => {
+          if (!open) setPostToAddFeatured(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-zinc-900">
+              Đạt giới hạn tin tiêu điểm (Tối đa 5 bài)
+            </DialogTitle>
+            <DialogDescription className="text-zinc-600">
+              Danh sách tin tiêu điểm đã đạt tối đa 5 bài viết. Vui lòng chọn một bài viết dưới đây để thay thế bằng bài viết mới <strong>"{postToAddFeatured?.title}"</strong>:
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <div className="space-y-3">
+              {featuredPosts.map((fp) => (
+                <label
+                  key={fp.id}
+                  className={cn(
+                    "flex items-start gap-3 rounded-lg border p-3 hover:bg-zinc-50 cursor-pointer transition",
+                    selectedOldPostId === fp.id
+                      ? "border-rose-500 bg-rose-50/40"
+                      : "border-zinc-200"
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="oldFeaturedPost"
+                    value={fp.id}
+                    checked={selectedOldPostId === fp.id}
+                    onChange={() => setSelectedOldPostId(fp.id)}
+                    className="mt-1 size-4 accent-rose-600 cursor-pointer"
+                  />
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-zinc-800 line-clamp-2">
+                      {fp.title}
+                    </p>
+                    {fp.publishedAt && (
+                      <p className="text-xs text-zinc-400">
+                        Đăng ngày: {new Date(fp.publishedAt).toLocaleDateString("vi-VN")}
+                      </p>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setPostToAddFeatured(null)}
+              disabled={isReplacingFeatured}
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-rose-600 text-white hover:bg-rose-700"
+              onClick={handleConfirmReplacement}
+              disabled={isReplacingFeatured || !selectedOldPostId}
+            >
+              {isReplacingFeatured ? "Đang xử lý..." : "Xác nhận thay thế"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

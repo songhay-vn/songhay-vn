@@ -595,6 +595,35 @@ export async function getTrendingPosts() {
   })
 }
 
+export async function getFeaturedPosts() {
+  "use cache"
+  cacheTag("featured-posts")
+  cacheLife("days")
+
+  return prisma.post.findMany({
+    where: {
+      isFeatured: true,
+      isPublished: true,
+      isDeleted: false,
+    },
+    select: {
+      id: true,
+      title: true,
+      thumbnailUrl: true,
+      views: true,
+      slug: true,
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+    orderBy: { publishedAt: "desc" },
+    take: 5,
+  })
+}
+
 async function getRecommendedPostsCached(
   categoryId?: string,
   limit = 4

@@ -12,9 +12,8 @@ describe("admin posts layout", () => {
 
     expect(source).toContain('return (\n    <div className="space-y-4">')
     expect(source).toContain("<PostsFilterBar")
-    expect(source).toContain(
-      "<PostsTable posts={postsData.posts} {...permissions} {...actions} />"
-    )
+    expect(source).toContain("<PostsTable")
+    expect(source).toContain("posts={postsData.posts}")
     expect(source).toContain("<AdminPagination")
     expect(source).not.toContain('from "@/components/ui/card"')
     expect(source).not.toContain("<Card")

@@ -3,6 +3,7 @@ import { SiteHeader } from "./site-header"
 import { SiteFooter } from "./site-footer"
 import { SiteMainContainer } from "./site-main-container"
 import { TrendingSidebar } from "./trending-sidebar"
+import { FeaturedSidebar } from "./featured-sidebar"
 import { ClientSideWidgets } from "./client-side-widgets"
 import { ZaloChatButton } from "./zalo-chat-button"
 import { CategoryArticleSections } from "./category-article-sections"
@@ -50,6 +51,15 @@ export function NewsLayout({
           {/* Main Content */}
           <main className="flex flex-col gap-6">
             {children}
+            <div className="lg:hidden">
+              <Suspense
+                fallback={
+                  <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />
+                }
+              >
+                <FeaturedSidebar />
+              </Suspense>
+            </div>
             {showDontMissSection ? (
               <>
                 <section className="space-y-3">
@@ -82,6 +92,15 @@ export function NewsLayout({
           {/* Sidebar */}
           {showSidebar && (
             <aside className="flex flex-col gap-4">
+              <div className="hidden lg:block">
+                <Suspense
+                  fallback={
+                    <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />
+                  }
+                >
+                  <FeaturedSidebar />
+                </Suspense>
+              </div>
               <Suspense
                 fallback={
                   <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />

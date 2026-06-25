@@ -42,6 +42,8 @@ export function PostsTab({
   returnPostToPendingReview,
   returnPostToPendingPublish,
   checkPostIndex,
+  togglePostFeatured,
+  replaceFeaturedPost,
 }: PostsTabProps) {
   const hasActiveFilters = Boolean(
     filters.query ||
@@ -75,6 +77,8 @@ export function PostsTab({
     returnPostToPendingReview,
     returnPostToPendingPublish,
     checkPostIndex,
+    togglePostFeatured,
+    replaceFeaturedPost,
   }
 
   return (
@@ -86,7 +90,12 @@ export function PostsTab({
         hasActiveFilters={hasActiveFilters}
       />
 
-      <PostsTable posts={postsData.posts} {...permissions} {...actions} />
+      <PostsTable
+        posts={postsData.posts}
+        featuredPosts={postsData.featuredPosts || []}
+        {...permissions}
+        {...actions}
+      />
 
       <AdminPagination
         currentPage={postsData.currentPage}

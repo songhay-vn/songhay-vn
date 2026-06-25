@@ -7,6 +7,8 @@ import {
   EyeOff,
   Globe,
   Pencil,
+  Pin,
+  PinOff,
   RotateCcw,
   Search,
   Send,
@@ -18,10 +20,13 @@ import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import { Button } from "@/components/ui/button"
 
 import { canEditPost } from "./types"
-import type { PostActions, PostPermissions, PostRow } from "./types"
+import type { PostActions, PostPermissions, PostRow, FeaturedPostRow } from "./types"
 
 type PostActionsCellProps = {
   post: PostRow
+  featuredPosts?: FeaturedPostRow[]
+  onSetFeatured?: () => void
+  onRemoveFeatured?: () => void
 } & PostPermissions &
   PostActions
 
@@ -46,6 +51,9 @@ export function PostActionsCell({
   returnPostToPendingPublish,
   movePostToTrash,
   checkPostIndex,
+  featuredPosts,
+  onSetFeatured,
+  onRemoveFeatured,
 }: PostActionsCellProps) {
   const editable = canEditPost(post, {
     canEditDraft,
@@ -272,6 +280,32 @@ export function PostActionsCell({
           </PendingSubmitButton>
         </ConfirmActionForm>
       ) : null}
+
+      {post.isPublished && (
+        post.isFeatured ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={`${btn} border-amber-300 text-amber-700 hover:bg-amber-50`}
+            onClick={onRemoveFeatured}
+          >
+            <PinOff className="mr-1.5 size-3" />
+            Bỏ tiêu điểm
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={`${btn} border-zinc-300 text-zinc-700 hover:bg-zinc-50`}
+            onClick={onSetFeatured}
+          >
+            <Pin className="mr-1.5 size-3" />
+            Tiêu điểm
+          </Button>
+        )
+      )}
 
       {/* ── Trash ── */}
       {(canDeletePost || (post.author?.id === currentUserId && post.editorialStatus !== "PUBLISHED" && post.editorialStatus !== "PENDING_PUBLISH")) && (

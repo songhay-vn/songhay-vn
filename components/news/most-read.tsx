@@ -16,12 +16,13 @@ type MostReadItem = {
 
 type MostReadProps = {
   posts: MostReadItem[]
+  title?: string
 }
 
-export function MostRead({ posts }: MostReadProps) {
+export function MostRead({ posts, title = "Đọc nhiều nhất" }: MostReadProps) {
   return (
     <section className="space-y-3 border-t border-zinc-200 bg-white p-4">
-      <h3 className="text-lg font-bold text-zinc-900">Đọc nhiều nhất</h3>
+      <h3 className="text-lg font-bold text-zinc-900">{title}</h3>
       <ul className="space-y-3">
         {posts.slice(0, 5).map((post) => (
           <li key={post.id} className="flex gap-3 border-b border-zinc-200 pb-3 last:border-b-0 last:pb-0">

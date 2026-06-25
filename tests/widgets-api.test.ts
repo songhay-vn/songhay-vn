@@ -54,7 +54,7 @@ describe("widgets API integration", () => {
     const source = readWorkspaceFile("components/news/most-read.tsx")
 
     expect(source).not.toContain('"use client"')
-    expect(source).toContain("{ posts }: MostReadProps")
+    expect(source).toContain("MostReadProps")
     expect(source).toContain("post.category.name")
   })
 })

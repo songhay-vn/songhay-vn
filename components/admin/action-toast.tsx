@@ -80,6 +80,26 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
     description: "Bài viết đã được chuyển sang trạng thái từ chối.",
     type: "success",
   },
+  post_featured_added: {
+    title: "Đã đặt tiêu điểm",
+    description: "Bài viết đã được ghim vào phần Tin tiêu điểm.",
+    type: "success",
+  },
+  post_featured_removed: {
+    title: "Đã bỏ tiêu điểm",
+    description: "Bài viết đã được gỡ khỏi phần Tin tiêu điểm.",
+    type: "success",
+  },
+  post_featured_replaced: {
+    title: "Đã thay thế tin tiêu điểm",
+    description: "Tin tiêu điểm đã được cập nhật thành công.",
+    type: "success",
+  },
+  featured_limit_exceeded: {
+    title: "Đạt giới hạn tiêu điểm",
+    description: "Danh sách tin tiêu điểm đã đạt tối đa 5 bài.",
+    type: "error",
+  },
   post_returned_review: {
     title: "Đã trả về chờ duyệt",
     description: "Bài viết đã được trả về kho chờ duyệt để biên tập lại.",
