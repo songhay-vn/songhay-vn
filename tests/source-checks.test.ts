@@ -142,7 +142,7 @@ describe("Source Verification: Shared public bottom sections", () => {
       source.indexOf("<CategoryArticleSections />")
     )
     expect(latestSectionSource).toContain("getLatestPublishedPosts")
-    expect(latestSectionSource).toContain('title="Tin mới nhất"')
+    expect(latestSectionSource).toContain('title="Bài viết mới nhất"')
     expect(source).toContain("<CategoryArticleSections />")
   })
 

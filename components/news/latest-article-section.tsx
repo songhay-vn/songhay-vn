@@ -21,10 +21,10 @@ export async function LatestArticleSection({
 
   return (
     <section
-      aria-label="Tin mới nhất"
+      aria-label="Bài viết mới nhất"
       className={cn("space-y-4 border-t border-zinc-200 pt-6", className)}
     >
-      <SectionHeading title="Tin mới nhất" />
+      <SectionHeading title="Bài viết mới nhất" />
       <PostCardList posts={posts} />
     </section>
   )
