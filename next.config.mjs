@@ -1,7 +1,7 @@
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "path"
+import { fileURLToPath } from "url"
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -20,7 +20,23 @@ const nextConfig = {
     root: __dirname,
   },
   async redirects() {
-    return []
+    return [
+      {
+        source: "/tuoi-sinh-hoc",
+        destination: "/tinh-tuoi-sinh-hoc",
+        permanent: true,
+      },
+    ]
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/tinh-tuoi-sinh-hoc-:age(\\d{1,3})",
+          destination: "/tinh-tuoi-sinh-hoc?age=:age",
+        },
+      ],
+    }
   },
   async headers() {
     return [

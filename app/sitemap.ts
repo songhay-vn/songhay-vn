@@ -29,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
     {
-      url: `${siteUrl}/tuoi-sinh-hoc`,
+      url: `${siteUrl}/tinh-tuoi-sinh-hoc`,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     },

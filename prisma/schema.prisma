@@ -46,6 +46,18 @@ enum SearchConsoleJobStatus {
   FAILED
 }
 
+enum BioAgeGender {
+  MALE
+  FEMALE
+}
+
+enum BioAgeResultKey {
+  YOUNGER
+  BALANCED
+  RECOVERY
+  FAST_AGING
+}
+
 model RolePermission {
   id        String   @id @default(cuid())
   role      UserRole
@@ -210,6 +222,25 @@ model SearchConsoleJob {
   @@index([status, runAfter])
   @@index([type, createdAt])
   @@index([postId])
+}
+
+model BioAgeSubmission {
+  id              String          @id @default(cuid())
+  sessionId       String          @unique
+  age             Int
+  gender          BioAgeGender
+  score           Int
+  resultKey       BioAgeResultKey
+  estimatedMinAge Int
+  estimatedMaxAge Int?
+  sourcePath      String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([createdAt])
+  @@index([age])
+  @@index([gender])
+  @@index([resultKey])
 }
 
 model MediaAsset {

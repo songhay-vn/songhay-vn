@@ -92,26 +92,50 @@ describe("Source Verification: Shared public bottom sections", () => {
   test("dont miss widget promotes biological age test only", () => {
     const source = readWorkspaceFile("components/news/dont-miss-widget.tsx")
 
-    expect(source).toContain("Xét nghiệm tuổi sinh học")
-    expect(source).toContain('href="/tuoi-sinh-hoc"')
+    expect(source).toContain("Cách tính tuổi sinh học")
+    expect(source).toContain('"/tinh-tuoi-sinh-hoc"')
+    expect(source).toContain("Tuổi của bạn")
+    expect(source).toContain("parseBannerAge")
+    expect(source).toContain("14 câu hỏi")
     expect(source).toContain("Làm trắc nghiệm")
     expect(source).not.toContain("GoodDayByAgeTool")
     expect(source).not.toContain("Tính BMI")
     expect(source).not.toContain("Đặt tên cho con")
   })
 
-  test("biological age page has static SEO content and FAQ structured data", () => {
-    const pageSource = readWorkspaceFile("app/tuoi-sinh-hoc/page.tsx")
+  test("biological age page has SEO content, CMS storage, and FAQ structured data", () => {
+    const pageSource = readWorkspaceFile("app/tinh-tuoi-sinh-hoc/page.tsx")
     const widgetSource = readWorkspaceFile("components/news/bio-age-widget.tsx")
     const sitemapSource = readWorkspaceFile("app/sitemap.ts")
+    const nextConfigSource = readWorkspaceFile("next.config.mjs")
+    const schemaSource = readWorkspaceFile("prisma/schema.prisma")
+    const apiSource = readWorkspaceFile("app/api/bio-age-submissions/route.ts")
+    const overviewSource = readWorkspaceFile(
+      "components/admin/overview-tab.tsx"
+    )
+    const loaderSource = readWorkspaceFile("app/admin/data-loaders/shared.ts")
 
-    expect(pageSource).toContain("Xét nghiệm tuổi sinh học")
+    expect(pageSource).toContain("Cách tính tuổi sinh học")
+    expect(pageSource).toContain('const canonicalPath = "/tinh-tuoi-sinh-hoc"')
     expect(pageSource).toContain("openGraph")
     expect(pageSource).toContain('"@type": "FAQPage"')
     expect(pageSource).toContain("<JsonLd data={[webPageJsonLd, faqJsonLd]}")
     expect(widgetSource).toContain("const QUESTIONS")
+    expect(widgetSource).toContain('id: "sitting"')
+    expect(widgetSource).toContain('id: "daylight"')
+    expect(widgetSource).toContain("bioAgeSessionId")
+    expect(widgetSource).toContain("Tuổi sinh học của bạn khoảng")
+    expect(widgetSource).toContain('"/api/bio-age-submissions"')
     expect(widgetSource).toContain("Kết quả chỉ dùng để tự quan sát lối sống")
-    expect(sitemapSource).toContain("${siteUrl}/tuoi-sinh-hoc")
+    expect(sitemapSource).toContain("${siteUrl}/tinh-tuoi-sinh-hoc")
+    expect(nextConfigSource).toContain('source: "/tuoi-sinh-hoc"')
+    expect(nextConfigSource).toContain("tinh-tuoi-sinh-hoc-:age")
+    expect(schemaSource).toContain("model BioAgeSubmission")
+    expect(schemaSource).toContain("enum BioAgeGender")
+    expect(apiSource).toContain("prisma.bioAgeSubmission.upsert")
+    expect(apiSource).toContain("skipped")
+    expect(loaderSource).toContain("getBioAgeInsights")
+    expect(overviewSource).toContain("Độc giả tuổi sinh học")
   })
 
   test("homepage data exposes non-overlapping hero and latest sets", () => {

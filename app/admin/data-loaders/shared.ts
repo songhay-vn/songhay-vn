@@ -5,6 +5,7 @@ import {
   fetchSearchConsoleQuerySignals,
 } from "@/lib/google-seo-signals"
 import { fetchGoogleTrendKeywords } from "@/lib/google-trends"
+import { getAgeGroup, type BioAgeGenderValue } from "@/lib/bio-age"
 import { attachMediaUsage } from "@/lib/media-usage"
 import { prisma } from "@/lib/prisma"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
@@ -16,6 +17,52 @@ const ADMIN_CACHE_TTL_SECONDS = 20
 const OVERVIEW_SIGNALS_CACHE_TTL_SECONDS = 5 * 60
 type OverviewRange = "30d"
 const OVERVIEW_ANALYTICS_DAYS = 30
+const BIO_AGE_GROUPS = [
+  "1-17",
+  "18-24",
+  "25-34",
+  "35-44",
+  "45-54",
+  "55-64",
+  "65+",
+] as const
+const BIO_AGE_GENDERS: Array<{ key: BioAgeGenderValue; label: string }> = [
+  { key: "MALE", label: "Nam" },
+  { key: "FEMALE", label: "Nữ" },
+]
+const BIO_AGE_RESULTS = [
+  { key: "YOUNGER", label: "Trẻ hơn" },
+  { key: "BALANCED", label: "Cân bằng" },
+  { key: "RECOVERY", label: "Cần phục hồi" },
+  { key: "FAST_AGING", label: "Lão hóa nhanh" },
+] as const
+
+export type BioAgeInsights = {
+  totalCount: number
+  averageAge: number | null
+  ageGroups: Array<{ label: string; count: number }>
+  genders: Array<{ key: BioAgeGenderValue; label: string; count: number }>
+  results: Array<{ key: string; label: string; count: number }>
+  latest: Array<{
+    id: string
+    age: number
+    gender: BioAgeGenderValue
+    score: number
+    resultKey: string
+    estimatedMinAge: number
+    estimatedMaxAge: number | null
+    updatedAt: Date
+  }>
+}
+
+const EMPTY_BIO_AGE_INSIGHTS: BioAgeInsights = {
+  totalCount: 0,
+  averageAge: null,
+  ageGroups: BIO_AGE_GROUPS.map((label) => ({ label, count: 0 })),
+  genders: BIO_AGE_GENDERS.map((item) => ({ ...item, count: 0 })),
+  results: BIO_AGE_RESULTS.map((item) => ({ ...item, count: 0 })),
+  latest: [],
+}
 
 export async function getMediaLibraryData(activeTab: AdminTab) {
   if (activeTab !== "media-library" && activeTab !== "write") {
@@ -223,6 +270,100 @@ export async function getOverviewAnalytics(
       }))
 
       return { daily, range: overviewRange }
+    }
+  )
+}
+
+export async function getBioAgeInsights(activeTab: AdminTab) {
+  if (activeTab !== "overview") {
+    return EMPTY_BIO_AGE_INSIGHTS
+  }
+
+  return memoizeWithTtl(
+    "admin:overview:bio-age-insights",
+    ADMIN_CACHE_TTL_SECONDS,
+    async () => {
+      try {
+        const [totalCount, ageAggregate, ages, genders, results, latest] =
+          await Promise.all([
+            prisma.bioAgeSubmission.count(),
+            prisma.bioAgeSubmission.aggregate({
+              _avg: { age: true },
+            }),
+            prisma.bioAgeSubmission.groupBy({
+              by: ["age"],
+              _count: { _all: true },
+            }),
+            prisma.bioAgeSubmission.groupBy({
+              by: ["gender"],
+              _count: { _all: true },
+            }),
+            prisma.bioAgeSubmission.groupBy({
+              by: ["resultKey"],
+              _count: { _all: true },
+            }),
+            prisma.bioAgeSubmission.findMany({
+              orderBy: { updatedAt: "desc" },
+              take: 5,
+              select: {
+                id: true,
+                age: true,
+                gender: true,
+                score: true,
+                resultKey: true,
+                estimatedMinAge: true,
+                estimatedMaxAge: true,
+                updatedAt: true,
+              },
+            }),
+          ])
+
+        const ageGroupCounts = new Map<string, number>()
+        for (const item of ages) {
+          const key = getAgeGroup(item.age)
+          ageGroupCounts.set(
+            key,
+            (ageGroupCounts.get(key) || 0) + item._count._all
+          )
+        }
+
+        const genderCounts = new Map(
+          genders.map((item) => [item.gender, item._count._all])
+        )
+        const resultCounts = new Map(
+          results.map((item) => [item.resultKey, item._count._all])
+        )
+
+        return {
+          totalCount,
+          averageAge:
+            typeof ageAggregate._avg.age === "number"
+              ? Math.round(ageAggregate._avg.age * 10) / 10
+              : null,
+          ageGroups: BIO_AGE_GROUPS.map((label) => ({
+            label,
+            count: ageGroupCounts.get(label) || 0,
+          })),
+          genders: BIO_AGE_GENDERS.map((item) => ({
+            ...item,
+            count: genderCounts.get(item.key) || 0,
+          })),
+          results: BIO_AGE_RESULTS.map((item) => ({
+            ...item,
+            count: resultCounts.get(item.key) || 0,
+          })),
+          latest: latest.map((item) => ({
+            ...item,
+            gender: item.gender as BioAgeGenderValue,
+          })),
+        } satisfies BioAgeInsights
+      } catch (error) {
+        if (isPrismaSchemaMismatchError(error)) {
+          return EMPTY_BIO_AGE_INSIGHTS
+        }
+
+        throw error
+      }
     }
   )
 }

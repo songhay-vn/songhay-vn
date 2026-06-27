@@ -15,6 +15,7 @@ import {
   getRolePermissionsData,
   getPenNameOptions,
   getPenNamesSettingsData,
+  getBioAgeInsights,
 } from "@/app/admin/data-loaders/index"
 import { buildPaginationItems } from "@/app/admin/data-helpers"
 import type { GetAdminPageDataInput } from "@/app/admin/data-types"
@@ -67,6 +68,24 @@ export async function getAdminPageData({
     daily: [],
     range: overviewRange,
   }
+  let bioAgeInsights: Awaited<ReturnType<typeof getBioAgeInsights>> = {
+    totalCount: 0,
+    averageAge: null,
+    ageGroups: ["1-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"].map(
+      (label) => ({ label, count: 0 })
+    ),
+    genders: [
+      { key: "MALE", label: "Nam", count: 0 },
+      { key: "FEMALE", label: "Nữ", count: 0 },
+    ],
+    results: [
+      { key: "YOUNGER", label: "Trẻ hơn", count: 0 },
+      { key: "BALANCED", label: "Cân bằng", count: 0 },
+      { key: "RECOVERY", label: "Cần phục hồi", count: 0 },
+      { key: "FAST_AGING", label: "Lão hóa nhanh", count: 0 },
+    ],
+    latest: [],
+  }
   let moderationSettings: Awaited<
     ReturnType<typeof getModerationSettingsData>
   > = {
@@ -89,7 +108,10 @@ export async function getAdminPageData({
   const activeTabDataPromise = (async () => {
     switch (activeTab) {
       case "overview":
-        overviewAnalytics = await getOverviewAnalytics(activeTab, overviewRange)
+        ;[overviewAnalytics, bioAgeInsights] = await Promise.all([
+          getOverviewAnalytics(activeTab, overviewRange),
+          getBioAgeInsights(activeTab),
+        ])
         break
       case "write":
         ;[
@@ -97,13 +119,12 @@ export async function getAdminPageData({
           seoKeywordOptions,
           mediaLibraryData,
           penNameOptions,
-        ] =
-          await Promise.all([
-            getCategoriesForWrite(activeTab),
-            getSeoKeywordOptions(activeTab),
-            getMediaLibraryData(activeTab),
-            getPenNameOptions(activeTab),
-          ])
+        ] = await Promise.all([
+          getCategoriesForWrite(activeTab),
+          getSeoKeywordOptions(activeTab),
+          getMediaLibraryData(activeTab),
+          getPenNameOptions(activeTab),
+        ])
         break
       case "media-library":
         mediaLibraryData = await getMediaLibraryData(activeTab)
@@ -212,6 +233,7 @@ export async function getAdminPageData({
     trashFilters,
     pendingComments,
     overviewAnalytics,
+    bioAgeInsights,
     moderationSettings,
     usersData,
     historyLogs,

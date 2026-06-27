@@ -1,8 +1,16 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { CheckCircle2, RotateCcw } from "lucide-react"
 
+import {
+  BIO_AGE_MAX_AGE,
+  BIO_AGE_MIN_AGE,
+  calculateEstimatedBioAge,
+  getBioAgeResult,
+  type BioAgeGenderValue,
+} from "@/lib/bio-age"
 import { Button } from "@/components/ui/button"
 
 type QuizOption = {
@@ -15,6 +23,11 @@ type QuizQuestion = {
   title: string
   options: QuizOption[]
 }
+
+type GenderInput = BioAgeGenderValue | ""
+
+const BIO_AGE_SESSION_STORAGE_KEY = "bioAgeSessionId"
+const DEMOGRAPHIC_QUESTION_COUNT = 2
 
 const QUESTIONS: QuizQuestion[] = [
   {
@@ -78,6 +91,30 @@ const QUESTIONS: QuizQuestion[] = [
     ],
   },
   {
+    id: "sitting",
+    title: "Trong ngày, bạn có ngồi lâu hoặc ít đổi tư thế không?",
+    options: [
+      { label: "Ít khi ngồi quá lâu, thường xuyên đứng dậy", value: 0 },
+      { label: "Có ngồi lâu nhưng vẫn nghỉ xen kẽ", value: 1 },
+      { label: "Thường ngồi liền nhiều giờ", value: 2 },
+      { label: "Hầu như cả ngày ít vận động, ít đổi tư thế", value: 3 },
+    ],
+  },
+  {
+    id: "daylight",
+    title:
+      "Bạn có ra ngoài, tiếp xúc ánh sáng tự nhiên hoặc vận động nhẹ ban ngày?",
+    options: [
+      { label: "Có gần như mỗi ngày", value: 0 },
+      { label: "Có vài ngày mỗi tuần", value: 1 },
+      { label: "Rất ít, chủ yếu ở trong nhà", value: 2 },
+      {
+        label: "Gần như không có ánh sáng tự nhiên hoặc vận động nhẹ",
+        value: 3,
+      },
+    ],
+  },
+  {
     id: "social",
     title: "Bạn có kết nối xã hội hoặc hoạt động khiến mình thấy có ý nghĩa?",
     options: [
@@ -119,67 +156,142 @@ const QUESTIONS: QuizQuestion[] = [
   },
 ]
 
-function getResult(score: number) {
-  if (score <= 7) {
-    return {
-      label: "Nhịp sinh học trẻ hơn",
-      accent: "text-emerald-700",
-      surface: "bg-emerald-50 border-emerald-200",
-      delta: "-2 đến -5",
-      copy: "Các thói quen nền tảng đang hỗ trợ phục hồi tốt. Tiếp tục giữ nhịp ngủ, vận động và bữa ăn ổn định.",
-    }
+function parseValidAge(value: string) {
+  const parsed = Number.parseInt(value, 10)
+
+  if (
+    !Number.isFinite(parsed) ||
+    String(parsed) !== value.trim() ||
+    parsed < BIO_AGE_MIN_AGE ||
+    parsed > BIO_AGE_MAX_AGE
+  ) {
+    return null
   }
 
-  if (score <= 15) {
-    return {
-      label: "Đang cân bằng",
-      accent: "text-sky-700",
-      surface: "bg-sky-50 border-sky-200",
-      delta: "-1 đến +2",
-      copy: "Cơ thể có nền tảng khá ổn nhưng vẫn còn vài điểm kéo tuổi sinh học lên. Chọn một thói quen dễ nhất để cải thiện trước.",
-    }
+  return parsed
+}
+
+function getAgeFromPathname(pathname: string | null) {
+  const match = pathname?.match(/^\/tinh-tuoi-sinh-hoc-(\d{1,3})$/)
+
+  if (!match) {
+    return ""
   }
 
-  if (score <= 22) {
-    return {
-      label: "Cần phục hồi",
-      accent: "text-amber-700",
-      surface: "bg-amber-50 border-amber-200",
-      delta: "+3 đến +6",
-      copy: "Dấu hiệu thiếu ngủ, stress hoặc ít vận động có thể đang tích lũy. Ưu tiên ngủ, đi bộ và giảm đồ ngọt trong 2 tuần tới.",
-    }
+  const age = parseValidAge(match[1])
+  return age ? String(age) : ""
+}
+
+function createSessionId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID()
   }
 
-  return {
-    label: "Tín hiệu lão hóa nhanh",
-    accent: "text-rose-700",
-    surface: "bg-rose-50 border-rose-200",
-    delta: "+7 trở lên",
-    copy: "Nhiều yếu tố lối sống đang tạo áp lực lên cơ thể. Nếu mệt mỏi kéo dài, hãy cân nhắc gặp chuyên gia y tế để được đánh giá kỹ hơn.",
+  return `bio-age-${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
+function getBioAgeSessionId() {
+  try {
+    const existing = window.localStorage.getItem(BIO_AGE_SESSION_STORAGE_KEY)
+
+    if (existing) {
+      return existing
+    }
+
+    const nextSessionId = createSessionId()
+    window.localStorage.setItem(BIO_AGE_SESSION_STORAGE_KEY, nextSessionId)
+    return nextSessionId
+  } catch {
+    return createSessionId()
   }
 }
 
 export function BioAgeWidget() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const ageFromPathname = getAgeFromPathname(pathname)
+  const [manualAge, setManualAge] = useState<string | null>(null)
+  const [gender, setGender] = useState<GenderInput>("")
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [submitted, setSubmitted] = useState(false)
 
-  const answeredCount = Object.keys(answers).length
-  const isComplete = answeredCount === QUESTIONS.length
+  const age = manualAge ?? ageFromPathname
+  const validAge = parseValidAge(age)
+  const answeredLifestyleCount = Object.keys(answers).length
+  const answeredProfileCount = (validAge ? 1 : 0) + (gender ? 1 : 0)
+  const answeredCount = answeredLifestyleCount + answeredProfileCount
+  const totalQuestionCount = QUESTIONS.length + DEMOGRAPHIC_QUESTION_COUNT
+  const isComplete = answeredCount === totalQuestionCount
   const score = useMemo(
     () => Object.values(answers).reduce((total, value) => total + value, 0),
     [answers]
   )
-  const result = getResult(score)
+  const result = getBioAgeResult(score)
+  const estimatedBioAge = validAge
+    ? calculateEstimatedBioAge(validAge, result)
+    : null
 
   function selectAnswer(questionId: string, value: number) {
     setAnswers((current) => ({ ...current, [questionId]: value }))
     setSubmitted(false)
   }
 
+  function selectGender(value: BioAgeGenderValue) {
+    setGender(value)
+    setSubmitted(false)
+  }
+
+  function updateAge(value: string) {
+    const sanitizedValue = value.replace(/[^\d]/g, "").slice(0, 3)
+    setManualAge(sanitizedValue)
+    setSubmitted(false)
+
+    const nextAge = parseValidAge(sanitizedValue)
+
+    if (nextAge) {
+      router.replace(`/tinh-tuoi-sinh-hoc-${nextAge}`, { scroll: false })
+    }
+  }
+
   function resetQuiz() {
+    setManualAge("")
+    setGender("")
     setAnswers({})
     setSubmitted(false)
+    router.replace("/tinh-tuoi-sinh-hoc", { scroll: false })
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  async function persistSubmission() {
+    if (!validAge || !gender) {
+      return
+    }
+
+    try {
+      await fetch("/api/bio-age-submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId: getBioAgeSessionId(),
+          age: validAge,
+          gender,
+          score,
+          sourcePath: window.location.pathname,
+        }),
+      })
+    } catch {
+      // The result should stay usable even if analytics storage is unavailable.
+    }
+  }
+
+  function handleSubmit() {
+    setSubmitted(true)
+
+    if (isComplete) {
+      void persistSubmission()
+    }
   }
 
   return (
@@ -193,18 +305,82 @@ export function BioAgeWidget() {
             Bộ câu hỏi tuổi sinh học
           </h2>
           <p className="mt-1 text-sm leading-6 text-zinc-600">
-            {answeredCount}/{QUESTIONS.length} câu đã trả lời
+            {answeredCount}/{totalQuestionCount} câu đã trả lời
           </p>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100 sm:w-56">
           <div
             className="h-full bg-rose-600 transition-all"
-            style={{ width: `${(answeredCount / QUESTIONS.length) * 100}%` }}
+            style={{
+              width: `${(answeredCount / totalQuestionCount) * 100}%`,
+            }}
           />
         </div>
       </div>
 
       <div className="grid gap-4">
+        <fieldset className="border border-zinc-200 bg-white p-4 md:p-5">
+          <legend className="mb-4 flex gap-3 text-base leading-6 font-bold text-zinc-950">
+            <span className="inline-flex size-7 flex-shrink-0 items-center justify-center rounded-md bg-zinc-950 text-xs font-black text-white">
+              1
+            </span>
+            Bạn bao nhiêu tuổi?
+          </legend>
+          <label className="block max-w-xs text-sm font-semibold text-zinc-700">
+            Tuổi
+            <input
+              value={age}
+              onChange={(event) => updateAge(event.target.value)}
+              type="number"
+              inputMode="numeric"
+              min={BIO_AGE_MIN_AGE}
+              max={BIO_AGE_MAX_AGE}
+              className="mt-2 h-11 w-full rounded-md border border-zinc-300 px-3 text-base font-bold text-zinc-950 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-100"
+              placeholder="Ví dụ: 50"
+            />
+          </label>
+          <p className="mt-2 text-xs leading-5 text-zinc-500">
+            Nhập từ {BIO_AGE_MIN_AGE} đến {BIO_AGE_MAX_AGE} tuổi.
+          </p>
+        </fieldset>
+
+        <fieldset className="border border-zinc-200 bg-white p-4 md:p-5">
+          <legend className="mb-4 flex gap-3 text-base leading-6 font-bold text-zinc-950">
+            <span className="inline-flex size-7 flex-shrink-0 items-center justify-center rounded-md bg-zinc-950 text-xs font-black text-white">
+              2
+            </span>
+            Giới tính của bạn?
+          </legend>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[
+              { label: "Nam", value: "MALE" as const },
+              { label: "Nữ", value: "FEMALE" as const },
+            ].map((option) => {
+              const selected = gender === option.value
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => selectGender(option.value)}
+                  className={`flex min-h-12 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left text-sm font-semibold transition ${
+                    selected
+                      ? "border-rose-500 bg-rose-50 text-rose-800"
+                      : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
+                  }`}
+                  aria-pressed={selected}
+                >
+                  <span>{option.label}</span>
+                  {selected ? (
+                    <CheckCircle2 className="size-4 flex-shrink-0" />
+                  ) : null}
+                </button>
+              )
+            })}
+          </div>
+        </fieldset>
+
         {QUESTIONS.map((question, index) => (
           <fieldset
             key={question.id}
@@ -212,7 +388,7 @@ export function BioAgeWidget() {
           >
             <legend className="mb-4 flex gap-3 text-base leading-6 font-bold text-zinc-950">
               <span className="inline-flex size-7 flex-shrink-0 items-center justify-center rounded-md bg-zinc-950 text-xs font-black text-white">
-                {index + 1}
+                {index + DEMOGRAPHIC_QUESTION_COUNT + 1}
               </span>
               {question.title}
             </legend>
@@ -249,7 +425,7 @@ export function BioAgeWidget() {
         <Button
           type="button"
           className="h-11 rounded-md bg-rose-600 px-5 text-white hover:bg-rose-700"
-          onClick={() => setSubmitted(true)}
+          onClick={handleSubmit}
         >
           Xem kết quả
         </Button>
@@ -268,13 +444,13 @@ export function BioAgeWidget() {
         <div
           className={`border p-5 ${isComplete ? result.surface : "border-zinc-200 bg-zinc-50"}`}
         >
-          {isComplete ? (
+          {isComplete && estimatedBioAge ? (
             <div className="space-y-3">
               <p className={`text-sm font-black uppercase ${result.accent}`}>
                 {result.label}
               </p>
               <p className="text-3xl font-black text-zinc-950">
-                Tuổi sinh học tham khảo: {result.delta} tuổi
+                Tuổi sinh học của bạn khoảng {estimatedBioAge.label}
               </p>
               <p className="text-sm leading-6 text-zinc-700">{result.copy}</p>
               <p className="text-xs leading-5 text-zinc-500">
@@ -284,7 +460,8 @@ export function BioAgeWidget() {
             </div>
           ) : (
             <p className="text-sm font-semibold text-zinc-700">
-              Bạn cần trả lời đủ {QUESTIONS.length} câu để xem kết quả.
+              Bạn cần trả lời đủ {totalQuestionCount} câu và nhập tuổi hợp lệ để
+              xem kết quả.
             </p>
           )}
         </div>

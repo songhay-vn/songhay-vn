@@ -46,7 +46,10 @@ import { MediaLibraryTab } from "@/components/admin/media-library-tab"
 import { OverviewTab } from "@/components/admin/overview-tab"
 import { PersonalArchiveTab } from "@/components/admin/personal-archive-tab"
 import { PostsTab } from "@/components/admin/posts-tab"
-import type { PostActions, PostPermissions } from "@/components/admin/posts-tab/types"
+import type {
+  PostActions,
+  PostPermissions,
+} from "@/components/admin/posts-tab/types"
 import { SettingsModerationTab } from "@/components/admin/settings-moderation-tab"
 import { SettingsPasswordTab } from "@/components/admin/settings-password-tab"
 import { SettingsPenNamesTab } from "@/components/admin/settings-pen-names-tab"
@@ -75,8 +78,6 @@ import {
   Search,
 } from "lucide-react"
 import AdminLoading from "./loading"
-
-
 
 type ResolvedSearchParams = {
   tab?: string
@@ -118,7 +119,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   )
 }
 
-async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearchParams }) {
+async function AdminPageContent({
+  searchParams,
+}: {
+  searchParams?: ResolvedSearchParams
+}) {
   const currentUser = await requireCmsUser()
   const canSeeAllPosts = canViewAllPosts(currentUser.role)
   const canManageSettings = can(currentUser.role, "create-category")
@@ -167,6 +172,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
     trashedPosts,
     pendingComments,
     overviewAnalytics,
+    bioAgeInsights,
     moderationSettings,
     usersData,
     historyLogs,
@@ -262,7 +268,10 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
       value: todayInspectionUsage,
       note: "Lượt URL Inspection đã gọi hôm nay",
       icon: Activity,
-      tone: todayInspectionUsage >= inspectionSoftLimit ? "text-amber-600" : "text-sky-600",
+      tone:
+        todayInspectionUsage >= inspectionSoftLimit
+          ? "text-amber-600"
+          : "text-sky-600",
     },
   ]
 
@@ -300,6 +309,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
         <OverviewTab
           overviewStats={overviewStats}
           overviewAnalytics={overviewAnalytics}
+          bioAgeInsights={bioAgeInsights}
         />
       ) : null}
       {activeTab === "categories" ? (
@@ -316,9 +326,7 @@ async function AdminPageContent({ searchParams }: { searchParams?: ResolvedSearc
       {activeTab === "write" ? (
         <WriteTab
           canPublishNow={canPublishNow(currentUser.role)}
-          canSubmitPendingPublish={canSubmitPendingPublish(
-            currentUser.role
-          )}
+          canSubmitPendingPublish={canSubmitPendingPublish(currentUser.role)}
           categoriesForWrite={categoriesForWrite}
           seoKeywordOptions={seoKeywordOptions}
           penNameOptions={penNameOptions}

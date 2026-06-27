@@ -12,10 +12,10 @@ import {
   toAbsoluteUrl,
 } from "@/lib/seo"
 
-const pageTitle = "Xét nghiệm tuổi sinh học"
+const pageTitle = "Cách tính tuổi sinh học"
 const pageDescription =
-  "Làm trắc nghiệm tuổi sinh học miễn phí để tự đánh giá giấc ngủ, vận động, dinh dưỡng và stress qua 10 câu hỏi lối sống."
-const canonicalPath = "/tuoi-sinh-hoc"
+  "Làm bài test tuổi sinh học miễn phí để ước tính tuổi sinh học theo tuổi thật, giới tính, giấc ngủ, vận động, dinh dưỡng và stress."
+const canonicalPath = "/tinh-tuoi-sinh-hoc"
 const siteUrl = getSiteUrl()
 const canonicalUrl = `${siteUrl}${canonicalPath}`
 
@@ -56,14 +56,14 @@ export default async function BioAgePage() {
   const faqItems = [
     {
       question:
-        "Xét nghiệm tuổi sinh học trên Songhay.vn có phải xét nghiệm y khoa không?",
+        "Cách tính tuổi sinh học trên Songhay.vn có phải xét nghiệm y khoa không?",
       answer:
-        "Không. Đây là bài trắc nghiệm tham khảo dựa trên thói quen lối sống, không thay thế xét nghiệm sinh học, chẩn đoán hoặc tư vấn từ bác sĩ.",
+        "Không. Đây là bài trắc nghiệm tham khảo dựa trên tuổi thật, giới tính và thói quen lối sống, không thay thế xét nghiệm sinh học, chẩn đoán hoặc tư vấn từ bác sĩ.",
     },
     {
-      question: "Bài trắc nghiệm tuổi sinh học đánh giá những yếu tố nào?",
+      question: "Bài test tuổi sinh học đánh giá những yếu tố nào?",
       answer:
-        "Bài trắc nghiệm hỏi về giấc ngủ, vận động, dinh dưỡng, stress, năng lượng, phục hồi, kết nối xã hội và thói quen theo dõi sức khỏe.",
+        "Bài test hỏi về tuổi, giới tính, giấc ngủ, vận động, dinh dưỡng, stress, năng lượng, phục hồi, kết nối xã hội và thói quen theo dõi sức khỏe.",
     },
     {
       question: "Làm sao để cải thiện tuổi sinh học tham khảo?",
@@ -111,12 +111,13 @@ export default async function BioAgePage() {
               </div>
               <div className="space-y-3">
                 <h1 className="max-w-3xl text-4xl leading-tight font-black text-zinc-950 md:text-5xl">
-                  Xét nghiệm tuổi sinh học
+                  Cách tính tuổi sinh học
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-zinc-600 md:text-lg">
-                  Tự soi lại nhịp phục hồi của cơ thể qua 10 câu hỏi về giấc
-                  ngủ, vận động, dinh dưỡng và stress. Kết quả giúp bạn chọn một
-                  thói quen nhỏ để bắt đầu chăm sóc mình tốt hơn.
+                  Nhập tuổi thật, giới tính và tự soi lại nhịp phục hồi của cơ
+                  thể qua các câu hỏi về giấc ngủ, vận động, dinh dưỡng và
+                  stress. Kết quả giúp bạn nhìn nhanh tuổi sinh học tham khảo và
+                  chọn một thói quen nhỏ để chăm sóc mình tốt hơn.
                 </p>
               </div>
             </div>
@@ -124,9 +125,9 @@ export default async function BioAgePage() {
             <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
               <div className="border border-zinc-200 bg-zinc-50 p-3">
                 <Activity className="mb-2 size-5 text-emerald-600" />
-                <p className="text-sm font-bold text-zinc-950">10 câu hỏi</p>
+                <p className="text-sm font-bold text-zinc-950">14 câu hỏi</p>
                 <p className="text-xs leading-5 text-zinc-600">
-                  Không cần nhập dữ liệu cá nhân.
+                  Có tuổi, giới tính và thói quen lối sống.
                 </p>
               </div>
               <div className="border border-zinc-200 bg-zinc-50 p-3">
@@ -135,7 +136,7 @@ export default async function BioAgePage() {
                   4 nhóm kết quả
                 </p>
                 <p className="text-xs leading-5 text-zinc-600">
-                  Từ cân bằng đến cần phục hồi.
+                  Hiển thị thành tuổi sinh học cụ thể.
                 </p>
               </div>
               <div className="border border-zinc-200 bg-zinc-50 p-3">

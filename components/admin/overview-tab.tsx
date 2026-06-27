@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import Link from "next/link"
 
 import { OverviewActivityChart } from "@/components/admin/overview-activity-chart"
 import {
@@ -31,20 +30,72 @@ type OverviewAnalytics = {
   range: "30d"
 }
 
+type BioAgeInsights = {
+  totalCount: number
+  averageAge: number | null
+  ageGroups: Array<{ label: string; count: number }>
+  genders: Array<{ key: string; label: string; count: number }>
+  results: Array<{ key: string; label: string; count: number }>
+  latest: Array<{
+    id: string
+    age: number
+    gender: string
+    score: number
+    resultKey: string
+    estimatedMinAge: number
+    estimatedMaxAge: number | null
+    updatedAt: Date
+  }>
+}
+
 type OverviewTabProps = {
   overviewStats: OverviewStat[]
   overviewAnalytics: OverviewAnalytics
+  bioAgeInsights: BioAgeInsights
 }
 
 function formatNumber(value: number) {
   return value.toLocaleString("vi-VN")
 }
 
+function formatCompactNumber(value: number | null) {
+  if (value === null) {
+    return "-"
+  }
+
+  return value.toLocaleString("vi-VN")
+}
+
+function formatEstimatedAge(minAge: number, maxAge: number | null) {
+  if (maxAge === null) {
+    return `từ ${minAge} tuổi`
+  }
+
+  if (minAge === maxAge) {
+    return `${minAge} tuổi`
+  }
+
+  return `${minAge}-${maxAge} tuổi`
+}
+
+function formatUpdatedAt(value: Date) {
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value))
+}
+
 export function OverviewTab({
   overviewStats,
   overviewAnalytics,
+  bioAgeInsights,
 }: OverviewTabProps) {
   const rangeLabel = "30 ngày"
+  const resultLabelByKey = new Map(
+    bioAgeInsights.results.map((item) => [item.key, item.label])
+  )
 
   return (
     <div className="space-y-4">
@@ -90,6 +141,139 @@ export function OverviewTab({
           <OverviewGa4ContentSection />
         </Suspense>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
+          <CardTitle>Độc giả tuổi sinh học</CardTitle>
+          <span className="text-xs text-muted-foreground">
+            dữ liệu bài test
+          </span>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-px overflow-hidden rounded-md border bg-zinc-200 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-white p-4">
+              <p className="text-xs font-medium text-muted-foreground">
+                Lượt làm bài
+              </p>
+              <p className="mt-2 text-3xl font-black text-zinc-950">
+                {formatNumber(bioAgeInsights.totalCount)}
+              </p>
+            </div>
+            <div className="bg-white p-4">
+              <p className="text-xs font-medium text-muted-foreground">
+                Tuổi trung bình
+              </p>
+              <p className="mt-2 text-3xl font-black text-rose-600">
+                {formatCompactNumber(bioAgeInsights.averageAge)}
+              </p>
+            </div>
+            <div className="bg-white p-4">
+              <p className="text-xs font-medium text-muted-foreground">Nam</p>
+              <p className="mt-2 text-3xl font-black text-sky-600">
+                {formatNumber(
+                  bioAgeInsights.genders.find((item) => item.key === "MALE")
+                    ?.count || 0
+                )}
+              </p>
+            </div>
+            <div className="bg-white p-4">
+              <p className="text-xs font-medium text-muted-foreground">Nữ</p>
+              <p className="mt-2 text-3xl font-black text-fuchsia-600">
+                {formatNumber(
+                  bioAgeInsights.genders.find((item) => item.key === "FEMALE")
+                    ?.count || 0
+                )}
+              </p>
+            </div>
+          </div>
+
+          {bioAgeInsights.totalCount === 0 ? (
+            <p className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-600">
+              Chưa có dữ liệu từ bài test tuổi sinh học.
+            </p>
+          ) : (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  { title: "Nhóm tuổi", items: bioAgeInsights.ageGroups },
+                  { title: "Giới tính", items: bioAgeInsights.genders },
+                  { title: "Kết quả", items: bioAgeInsights.results },
+                ].map((section) => (
+                  <div
+                    key={section.title}
+                    className="rounded-md border border-zinc-200 bg-white p-4"
+                  >
+                    <h3 className="text-sm font-bold text-zinc-950">
+                      {section.title}
+                    </h3>
+                    <div className="mt-3 space-y-3">
+                      {section.items.map((item) => {
+                        const percent =
+                          bioAgeInsights.totalCount > 0
+                            ? Math.round(
+                                (item.count / bioAgeInsights.totalCount) * 100
+                              )
+                            : 0
+
+                        return (
+                          <div key={item.label} className="space-y-1">
+                            <div className="flex items-center justify-between gap-3 text-xs">
+                              <span className="font-semibold text-zinc-700">
+                                {item.label}
+                              </span>
+                              <span className="text-muted-foreground">
+                                {formatNumber(item.count)} · {percent}%
+                              </span>
+                            </div>
+                            <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+                              <div
+                                className="h-full rounded-full bg-rose-600"
+                                style={{ width: `${percent}%` }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-md border border-zinc-200 bg-white p-4">
+                <h3 className="text-sm font-bold text-zinc-950">
+                  Lượt mới nhất
+                </h3>
+                <div className="mt-3 divide-y divide-zinc-100">
+                  {bioAgeInsights.latest.map((item) => (
+                    <div
+                      key={item.id}
+                      className="grid gap-1 py-3 text-sm first:pt-0 last:pb-0"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-bold text-zinc-950">
+                          {item.gender === "MALE" ? "Nam" : "Nữ"} · {item.age}{" "}
+                          tuổi
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          {formatUpdatedAt(item.updatedAt)}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-5 text-zinc-600">
+                        {resultLabelByKey.get(item.resultKey) || item.resultKey}{" "}
+                        · score {item.score} · sinh học{" "}
+                        {formatEstimatedAge(
+                          item.estimatedMinAge,
+                          item.estimatedMaxAge
+                        )}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* SEO signals: Trends VN, Search Console, Organic — stream in via Suspense */}
       <Suspense fallback={<OverviewSeoSignalsSkeleton />}>
