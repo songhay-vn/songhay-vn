@@ -334,21 +334,23 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                   </TableCell>
 
                   {/* ── Column 3: Views ── */}
-                  <TableCell className="py-3 text-right align-top">
+                  <TableCell className="pt-8 pb-3 text-right align-top whitespace-nowrap">
                     {post.editorialStatus === "PUBLISHED" ? (
-                      <span
-                        className={cn(
-                          "block text-sm font-semibold tabular-nums",
-                          typeof post.views === "number"
-                            ? "text-zinc-900"
-                            : "text-zinc-400"
-                        )}
-                        title="GA4 screenPageViews trong 30 ngày"
-                      >
-                        {typeof post.views === "number"
-                          ? formatViews(post.views)
-                          : "Chưa có dữ liệu"}
-                      </span>
+                      typeof post.views === "number" ? (
+                        <span
+                          className="text-[11px] leading-5 font-medium tabular-nums text-zinc-700"
+                          title="GA4 screenPageViews trong 30 ngày"
+                        >
+                          {formatViews(post.views)}
+                        </span>
+                      ) : (
+                        <span
+                          className="text-xs text-zinc-400"
+                          title="Chưa có dữ liệu GA4 trong 30 ngày"
+                        >
+                          —
+                        </span>
+                      )
                     ) : (
                       <span className="text-xs text-zinc-400">—</span>
                     )}
