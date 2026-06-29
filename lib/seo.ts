@@ -1,7 +1,7 @@
 const DEFAULT_SITE_URL = "https://songhay.vn"
 
 export const SITE_NAME = "Songhay.vn"
-export const DEFAULT_OG_IMAGE_PATH = "/og-image.png"
+export const DEFAULT_OG_IMAGE_PATH = "/songhay-share.png"
 
 export function getSiteUrl() {
   const value = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL

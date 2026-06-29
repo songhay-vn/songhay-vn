@@ -19,6 +19,7 @@ import { NewsLayout } from "@/components/news/news-layout"
 const siteUrl = getSiteUrl()
 const canonicalUrl = siteUrl
 const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
+const defaultOgImageAlt = `${SITE_NAME} - Sống khỏe thuận tự nhiên`
 const homeDescription =
   "Tin tức và tiện ích mỗi ngày: sống khỏe, mẹo hay, đời sống, góc stress, tử vi, video."
 
@@ -33,7 +34,14 @@ export const metadata: Metadata = {
     description: homeDescription,
     type: "website",
     url: canonicalUrl,
-    images: [defaultOgImage],
+    images: [
+      {
+        url: defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: defaultOgImageAlt,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
