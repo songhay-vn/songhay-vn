@@ -13,7 +13,6 @@ export async function FeaturedSidebar() {
         id: post.id,
         title: post.title,
         thumbnailUrl: post.thumbnailUrl,
-        views: post.views,
         slug: post.slug,
         categorySlug: post.category.slug,
         category: {

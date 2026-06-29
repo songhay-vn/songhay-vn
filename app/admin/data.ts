@@ -67,6 +67,7 @@ export async function getAdminPageData({
   let overviewAnalytics: Awaited<ReturnType<typeof getOverviewAnalytics>> = {
     daily: [],
     range: overviewRange,
+    error: null,
   }
   let bioAgeInsights: Awaited<ReturnType<typeof getBioAgeInsights>> = {
     totalCount: 0,

@@ -3,6 +3,7 @@ import { describe, expect, mock, test } from "bun:test"
 mock.module("server-only", () => ({}))
 
 const {
+  mapAnalyticsDailyRows,
   mapAnalyticsContentRows,
   mapAnalyticsContentSummary,
   mapAnalyticsRows,
@@ -135,5 +136,21 @@ describe("Google SEO signal helpers", () => {
       engagementRate: 0.68,
       averageSessionDuration: 96.2,
     })
+  })
+
+  test("maps GA4 daily view rows", () => {
+    expect(
+      mapAnalyticsDailyRows([
+        {
+          dimensionValues: [{ value: "20260629" }],
+          metricValues: [{ value: "24" }],
+        },
+      ])
+    ).toEqual([
+      {
+        date: "2026-06-29",
+        screenPageViews: 24,
+      },
+    ])
   })
 })

@@ -2,7 +2,10 @@ import { cacheTag, cacheLife } from "next/cache"
 import type { Prisma } from "@prisma/client"
 
 import { NAV_CATEGORIES } from "./categories"
-import { fetchAnalyticsContentSignals } from "@/lib/google-seo-signals"
+import {
+  fetchAnalyticsContentSignals,
+  fetchAnalyticsPageViewCount,
+} from "@/lib/google-seo-signals"
 import { prisma } from "@/lib/prisma"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
 import { publishedPostWhere, selectApprovedCommentsCount } from "./query-utils"
@@ -32,6 +35,7 @@ const POPULAR_POSTS_ANALYTICS_DAYS = 7
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MULTIPLIER = 8
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MIN = 30
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MAX = 100
+const POST_VIEW_COUNT_ANALYTICS_DAYS = 30
 
 const postCardSelect = {
   id: true,
@@ -47,11 +51,6 @@ const postCardSelect = {
     },
   },
   _count: selectApprovedCommentsCount,
-} satisfies Prisma.PostSelect
-
-const postCardWithViewsSelect = {
-  ...postCardSelect,
-  views: true,
 } satisfies Prisma.PostSelect
 
 const postCardWithRootCategorySelect = {
@@ -72,11 +71,9 @@ const postCardWithRootCategorySelect = {
   _count: selectApprovedCommentsCount,
 } satisfies Prisma.PostSelect
 
-type PostCardWithViews = Prisma.PostGetPayload<{
-  select: typeof postCardWithViewsSelect
-}>
-
-type PopularFallbackOrder = "trending" | "views"
+type PostCardWithAnalyticsViews = Prisma.PostGetPayload<{
+  select: typeof postCardSelect
+}> & { views: number }
 
 type AnalyticsArticlePath = {
   categorySlug: string
@@ -143,7 +140,7 @@ async function getAnalyticsPopularPosts({
 }: {
   limit: number
   categorySlug: string
-}): Promise<PostCardWithViews[]> {
+}): Promise<PostCardWithAnalyticsViews[]> {
   const analyticsLimit = Math.min(
     Math.max(
       limit * POPULAR_POSTS_ANALYTICS_CANDIDATE_MULTIPLIER,
@@ -195,7 +192,7 @@ async function getAnalyticsPopularPosts({
         category: { slug: categorySlug },
       })),
     },
-    select: postCardWithViewsSelect,
+    select: postCardSelect,
     take: rankedPaths.length,
   })
   const postsByPath = new Map(
@@ -213,69 +210,24 @@ async function getAnalyticsPopularPosts({
 
       return post ? { ...post, views: articlePath.views } : null
     })
-    .filter((post): post is PostCardWithViews => Boolean(post))
+    .filter((post): post is PostCardWithAnalyticsViews => Boolean(post))
     .slice(0, limit)
-}
-
-async function getFallbackPopularPosts({
-  limit,
-  categorySlug,
-  excludeIds,
-  order,
-}: {
-  limit: number
-  categorySlug: string
-  excludeIds: Set<string>
-  order: PopularFallbackOrder
-}) {
-  if (limit <= 0) {
-    return []
-  }
-
-  return prisma.post.findMany({
-    where: {
-      ...publishedPostWhere(),
-      isDraft: false,
-      ...(categorySlug ? { category: { slug: categorySlug } } : {}),
-      ...(excludeIds.size > 0 ? { id: { notIn: [...excludeIds] } } : {}),
-    },
-    select: postCardWithViewsSelect,
-    orderBy:
-      order === "trending"
-        ? [{ isTrending: "desc" }, { views: "desc" }, { publishedAt: "desc" }]
-        : [{ views: "desc" }, { publishedAt: "desc" }],
-    take: limit,
-  })
 }
 
 async function getPopularPosts({
   limit,
   categorySlug,
-  fallbackOrder,
 }: {
   limit: number
   categorySlug?: string
-  fallbackOrder: PopularFallbackOrder
 }) {
   const safeLimit = clampPositiveInt(limit, 5, 20)
   const safeCategorySlug = (categorySlug || "").trim()
-  const analyticsPosts = await getAnalyticsPopularPosts({
+
+  return getAnalyticsPopularPosts({
     limit: safeLimit,
     categorySlug: safeCategorySlug,
   })
-
-  if (analyticsPosts.length >= safeLimit) {
-    return analyticsPosts
-  }
-
-  const fallbackPosts = await getFallbackPopularPosts({
-    limit: safeLimit - analyticsPosts.length,
-    categorySlug: safeCategorySlug,
-    excludeIds: new Set(analyticsPosts.map((post) => post.id)),
-    order: fallbackOrder,
-  })
-
-  return [...analyticsPosts, ...fallbackPosts].slice(0, safeLimit)
 }
 
 function normalizeSearchQuery(query: string) {
@@ -306,7 +258,6 @@ async function getMostReadPostsHome() {
 
   return getPopularPosts({
     limit: 5,
-    fallbackOrder: "views",
   })
 }
 
@@ -327,7 +278,6 @@ export async function getMostReadPosts({
   return getPopularPosts({
     limit,
     categorySlug,
-    fallbackOrder: "views",
   })
 }
 
@@ -584,6 +534,22 @@ export async function getPostByCategoryAndSlug(
   }
 }
 
+export async function getPostViewCountFromAnalytics(
+  categorySlug: string,
+  slug: string
+) {
+  "use cache"
+  cacheTag("ga4-post-views", `ga4-post-views:${categorySlug}:${slug}`)
+  cacheLife({ stale: 60 * 60, revalidate: 6 * 60 * 60, expire: 24 * 60 * 60 })
+
+  const result = await fetchAnalyticsPageViewCount({
+    path: `/${categorySlug}/${slug}`,
+    days: POST_VIEW_COUNT_ANALYTICS_DAYS,
+  })
+
+  return result.error ? null : result.screenPageViews
+}
+
 export async function getTrendingPosts() {
   "use cache"
   cacheTag("trending-posts")
@@ -591,7 +557,6 @@ export async function getTrendingPosts() {
 
   return getPopularPosts({
     limit: 5,
-    fallbackOrder: "trending",
   })
 }
 
@@ -610,7 +575,6 @@ export async function getFeaturedPosts() {
       id: true,
       title: true,
       thumbnailUrl: true,
-      views: true,
       slug: true,
       category: {
         select: {

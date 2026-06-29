@@ -13,7 +13,9 @@ const ANALYTICS_READONLY_SCOPE =
 const SEARCH_CONSOLE_API_BASE = "https://www.googleapis.com/webmasters/v3/sites"
 const GA_DATA_API_BASE = "https://analyticsdata.googleapis.com/v1beta"
 const GOOGLE_API_REVALIDATE_SECONDS = 30 * 60
+const GOOGLE_ANALYTICS_PAGE_VIEW_REVALIDATE_SECONDS = 6 * 60 * 60
 const SEARCH_CONSOLE_DATA_LAG_DAYS = 3
+const INTERNAL_ANALYTICS_PATH_PATTERN = "^/(admin|login)($|[/?].*)"
 
 type SearchConsoleRow = {
   keys?: string[]
@@ -38,6 +40,22 @@ type GoogleAnalyticsRunReportResponse = {
 
 type GoogleAnalyticsBatchRunReportsResponse = {
   reports?: GoogleAnalyticsRunReportResponse[]
+}
+
+type GoogleAnalyticsStringFilterMatchType = "EXACT" | "FULL_REGEXP"
+
+type GoogleAnalyticsFilterExpression = {
+  andGroup?: {
+    expressions: GoogleAnalyticsFilterExpression[]
+  }
+  notExpression?: GoogleAnalyticsFilterExpression
+  filter?: {
+    fieldName: string
+    stringFilter: {
+      matchType: GoogleAnalyticsStringFilterMatchType
+      value: string
+    }
+  }
 }
 
 export type SearchConsoleQuerySignal = {
@@ -99,6 +117,24 @@ export type AnalyticsContentSignalResult = {
   pages: AnalyticsContentPageSignal[]
 }
 
+export type AnalyticsDailyPageView = {
+  date: string
+  screenPageViews: number
+}
+
+export type AnalyticsDailyPageViewResult = {
+  propertyId: string | null
+  error: string | null
+  days: AnalyticsDailyPageView[]
+}
+
+export type AnalyticsPageViewCountResult = {
+  propertyId: string | null
+  path: string
+  error: string | null
+  screenPageViews: number
+}
+
 const emptyAnalyticsContentSummary: AnalyticsContentSummary = {
   screenPageViews: 0,
   sessions: 0,
@@ -109,6 +145,30 @@ const emptyAnalyticsContentSummary: AnalyticsContentSummary = {
 
 function toDateInput(date: Date) {
   return date.toISOString().slice(0, 10)
+}
+
+function toAnalyticsDateKey(value: string | undefined) {
+  const raw = value?.trim() || ""
+  if (/^\d{8}$/.test(raw)) {
+    return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`
+  }
+
+  return raw
+}
+
+function normalizeAnalyticsPath(path: string) {
+  const trimmedPath = path.trim()
+  if (!trimmedPath) {
+    return ""
+  }
+
+  try {
+    const url = new URL(trimmedPath, "https://songhay.vn")
+    return url.pathname.replace(/\/+$/, "") || "/"
+  } catch {
+    const [pathname = ""] = trimmedPath.split(/[?#]/)
+    return pathname.replace(/\/+$/, "") || "/"
+  }
 }
 
 export function getSearchConsoleDateRange(days = 30) {
@@ -127,6 +187,64 @@ function getErrorMessage(error: unknown) {
   const message =
     error instanceof Error ? error.message : "Unknown Google API error"
   return message.slice(0, 500)
+}
+
+function googleAnalyticsStringFilter(
+  fieldName: string,
+  matchType: GoogleAnalyticsStringFilterMatchType,
+  value: string
+): GoogleAnalyticsFilterExpression {
+  return {
+    filter: {
+      fieldName,
+      stringFilter: {
+        matchType,
+        value,
+      },
+    },
+  }
+}
+
+function publicAnalyticsPathFilter(
+  fieldName: string
+): GoogleAnalyticsFilterExpression {
+  return {
+    notExpression: googleAnalyticsStringFilter(
+      fieldName,
+      "FULL_REGEXP",
+      INTERNAL_ANALYTICS_PATH_PATTERN
+    ),
+  }
+}
+
+function escapeAnalyticsRegex(value: string) {
+  return value.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
+}
+
+function analyticsPagePathFilter(path: string): GoogleAnalyticsFilterExpression {
+  return googleAnalyticsStringFilter(
+    "pagePathPlusQueryString",
+    "FULL_REGEXP",
+    `^${escapeAnalyticsRegex(path)}(\\?.*)?$`
+  )
+}
+
+function organicSearchFilter(): GoogleAnalyticsFilterExpression {
+  return googleAnalyticsStringFilter(
+    "sessionDefaultChannelGroup",
+    "EXACT",
+    "Organic Search"
+  )
+}
+
+function combineAnalyticsFilters(
+  ...expressions: GoogleAnalyticsFilterExpression[]
+): GoogleAnalyticsFilterExpression {
+  return {
+    andGroup: {
+      expressions,
+    },
+  }
 }
 
 async function parseJsonSafely(response: Response) {
@@ -267,6 +385,24 @@ export function mapAnalyticsContentSummary(
   }
 }
 
+export function mapAnalyticsDailyRows(
+  rows: GoogleAnalyticsRunReportRow[] | undefined
+) {
+  return (rows || [])
+    .map((row) => {
+      const date = toAnalyticsDateKey(row.dimensionValues?.[0]?.value)
+      if (!date) {
+        return null
+      }
+
+      return {
+        date,
+        screenPageViews: Math.round(toNumber(row.metricValues?.[0]?.value)),
+      }
+    })
+    .filter((item): item is AnalyticsDailyPageView => Boolean(item))
+}
+
 export async function fetchSearchConsoleQuerySignals({
   days = 30,
   limit = 5,
@@ -381,15 +517,10 @@ export async function fetchAnalyticsLandingPageSignals({
             { name: "screenPageViews" },
             { name: "engagementRate" },
           ],
-          dimensionFilter: {
-            filter: {
-              fieldName: "sessionDefaultChannelGroup",
-              stringFilter: {
-                matchType: "EXACT",
-                value: "Organic Search",
-              },
-            },
-          },
+          dimensionFilter: combineAnalyticsFilters(
+            organicSearchFilter(),
+            publicAnalyticsPathFilter("landingPagePlusQueryString")
+          ),
           limit: String(limit),
           orderBys: [
             {
@@ -459,6 +590,7 @@ export async function fetchAnalyticsContentSignals({
       { name: "averageSessionDuration" },
     ]
     const dateRanges = [{ startDate: `${days}daysAgo`, endDate: "yesterday" }]
+    const pathFilter = publicAnalyticsPathFilter("pagePathPlusQueryString")
     const response = await fetch(
       `${GA_DATA_API_BASE}/properties/${propertyId}:batchRunReports`,
       {
@@ -476,6 +608,7 @@ export async function fetchAnalyticsContentSignals({
                 { name: "pageTitle" },
               ],
               metrics,
+              dimensionFilter: pathFilter,
               limit: String(limit),
               orderBys: [
                 {
@@ -487,6 +620,7 @@ export async function fetchAnalyticsContentSignals({
             {
               dateRanges,
               metrics,
+              dimensionFilter: pathFilter,
             },
           ],
         }),
@@ -512,6 +646,159 @@ export async function fetchAnalyticsContentSignals({
       error: getErrorMessage(error),
       summary: emptyAnalyticsContentSummary,
       pages: [],
+    }
+  }
+}
+
+export async function fetchAnalyticsPageViewCount({
+  path,
+  days = 365,
+}: {
+  path: string
+  days?: number
+}): Promise<AnalyticsPageViewCountResult> {
+  const propertyId = getGoogleAnalyticsPropertyId()
+  const normalizedPath = normalizeAnalyticsPath(path)
+
+  if (!normalizedPath) {
+    return {
+      propertyId,
+      path: normalizedPath,
+      error: "Missing analytics page path",
+      screenPageViews: 0,
+    }
+  }
+
+  if (!propertyId) {
+    return {
+      propertyId: null,
+      path: normalizedPath,
+      error: "Missing GA_PROPERTY_ID",
+      screenPageViews: 0,
+    }
+  }
+
+  if (!isGoogleServiceAccountConfigured()) {
+    return {
+      propertyId,
+      path: normalizedPath,
+      error: "Missing GOOGLE_SERVICE_ACCOUNT_KEY_JSON_BASE64",
+      screenPageViews: 0,
+    }
+  }
+
+  try {
+    const accessToken = await getGoogleServiceAccountAccessToken([
+      ANALYTICS_READONLY_SCOPE,
+    ])
+    const response = await fetch(
+      `${GA_DATA_API_BASE}/properties/${propertyId}:runReport`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate: `${days}daysAgo`, endDate: "yesterday" }],
+          metrics: [{ name: "screenPageViews" }],
+          dimensionFilter: combineAnalyticsFilters(
+            publicAnalyticsPathFilter("pagePathPlusQueryString"),
+            analyticsPagePathFilter(normalizedPath)
+          ),
+        }),
+        signal: AbortSignal.timeout(10_000),
+        next: { revalidate: GOOGLE_ANALYTICS_PAGE_VIEW_REVALIDATE_SECONDS },
+      }
+    )
+
+    const body =
+      await readGoogleApiResponse<GoogleAnalyticsRunReportResponse>(response)
+
+    return {
+      propertyId,
+      path: normalizedPath,
+      error: null,
+      screenPageViews: Math.round(
+        toNumber(body.rows?.[0]?.metricValues?.[0]?.value)
+      ),
+    }
+  } catch (error) {
+    return {
+      propertyId,
+      path: normalizedPath,
+      error: getErrorMessage(error),
+      screenPageViews: 0,
+    }
+  }
+}
+
+export async function fetchAnalyticsDailyPageViews({
+  days = 30,
+}: {
+  days?: number
+} = {}): Promise<AnalyticsDailyPageViewResult> {
+  const propertyId = getGoogleAnalyticsPropertyId()
+
+  if (!propertyId) {
+    return {
+      propertyId: null,
+      error: "Missing GA_PROPERTY_ID",
+      days: [],
+    }
+  }
+
+  if (!isGoogleServiceAccountConfigured()) {
+    return {
+      propertyId,
+      error: "Missing GOOGLE_SERVICE_ACCOUNT_KEY_JSON_BASE64",
+      days: [],
+    }
+  }
+
+  try {
+    const accessToken = await getGoogleServiceAccountAccessToken([
+      ANALYTICS_READONLY_SCOPE,
+    ])
+    const response = await fetch(
+      `${GA_DATA_API_BASE}/properties/${propertyId}:runReport`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate: `${days}daysAgo`, endDate: "yesterday" }],
+          dimensions: [{ name: "date" }],
+          metrics: [{ name: "screenPageViews" }],
+          dimensionFilter: publicAnalyticsPathFilter("pagePathPlusQueryString"),
+          orderBys: [
+            {
+              dimension: { dimensionName: "date" },
+              desc: false,
+            },
+          ],
+          limit: String(days + 2),
+        }),
+        signal: AbortSignal.timeout(30_000),
+        next: { revalidate: GOOGLE_API_REVALIDATE_SECONDS },
+      }
+    )
+
+    const body =
+      await readGoogleApiResponse<GoogleAnalyticsRunReportResponse>(response)
+
+    return {
+      propertyId,
+      error: null,
+      days: mapAnalyticsDailyRows(body.rows),
+    }
+  } catch (error) {
+    return {
+      propertyId,
+      error: getErrorMessage(error),
+      days: [],
     }
   }
 }

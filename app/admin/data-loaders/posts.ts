@@ -139,7 +139,6 @@ export async function getPostsData(
         id: true,
         title: true,
         slug: true,
-        views: true,
         penName: true,
         excerpt: true,
         seoTitle: true,

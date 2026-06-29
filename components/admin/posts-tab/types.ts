@@ -26,7 +26,6 @@ export type PostRow = {
   seoDescription: string | null
   seoKeywords: string | null
   slug: string
-  views: number
   thumbnailUrl: string | null
   createdAt: Date
   updatedAt: Date

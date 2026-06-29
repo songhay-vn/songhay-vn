@@ -58,7 +58,6 @@ export async function getPersonalPostsData(activeTab: AdminTab, personalArchiveF
       id: true,
       title: true,
       slug: true,
-      views: true,
       penName: true,
       excerpt: true,
       seoTitle: true,

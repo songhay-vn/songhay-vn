@@ -224,9 +224,9 @@ async function AdminPageContent({
     },
     {
       key: "views",
-      label: "Tổng lượt xem",
+      label: "GA4 views",
       value: totalPostViews,
-      note: "Tổng view của các bài đã publish",
+      note: "screenPageViews trong 30 ngày",
       icon: Activity,
       tone: "text-emerald-600",
     },

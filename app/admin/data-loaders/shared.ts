@@ -1,6 +1,7 @@
 import { memoizeWithTtl } from "@/lib/data-cache"
 import {
   fetchAnalyticsContentSignals,
+  fetchAnalyticsDailyPageViews,
   fetchAnalyticsLandingPageSignals,
   fetchSearchConsoleQuerySignals,
 } from "@/lib/google-seo-signals"
@@ -169,11 +170,6 @@ export async function getPendingComments(activeTab: AdminTab) {
   )
 }
 
-/**
- * Fast path: only queries the DB for the activity chart data (posts + comments
- * bucketed by day). This runs eagerly on every overview page load and renders
- * immediately while the slow signals section streams in via Suspense.
- */
 export async function getOverviewAnalytics(
   activeTab: AdminTab,
   overviewRange: OverviewRange
@@ -183,10 +179,9 @@ export async function getOverviewAnalytics(
       daily: [] as Array<{
         label: string
         views: number
-        comments: number
-        posts: number
       }>,
       range: "30d" as OverviewRange,
+      error: null as string | null,
     }
   }
 
@@ -194,82 +189,44 @@ export async function getOverviewAnalytics(
     `admin:overview:analytics:${overviewRange}`,
     ADMIN_CACHE_TTL_SECONDS,
     async () => {
-      const todayStart = startOfDay(new Date())
       const totalDays = OVERVIEW_ANALYTICS_DAYS
+      const chartEnd = startOfDay(new Date())
+      chartEnd.setDate(chartEnd.getDate() - 1)
 
-      const chartStart = new Date(todayStart)
-      chartStart.setDate(chartStart.getDate() - (totalDays - 1))
+      const chartStart = new Date(chartEnd)
+      chartStart.setDate(chartEnd.getDate() - (totalDays - 1))
 
-      const [recentPosts, recentComments] = await Promise.all([
-        prisma.post.findMany({
-          where: {
-            isDeleted: false,
-            isPublished: true,
-            publishedAt: { gte: chartStart },
-          },
-          select: {
-            views: true,
-            publishedAt: true,
-          },
-        }),
-        prisma.comment.findMany({
-          where: {
-            createdAt: { gte: chartStart },
-          },
-          select: {
-            createdAt: true,
-          },
-        }),
-      ])
+      const analyticsDaily = await fetchAnalyticsDailyPageViews({
+        days: totalDays,
+      })
+      const viewsByDate = new Map(
+        analyticsDaily.days.map((item) => [item.date, item.screenPageViews])
+      )
 
       const dailyMap = new Map<
         string,
         {
           date: Date
           views: number
-          comments: number
-          posts: number
         }
       >()
 
       for (let index = 0; index < totalDays; index += 1) {
         const currentDate = new Date(chartStart)
         currentDate.setDate(chartStart.getDate() + index)
-        dailyMap.set(toDayKey(currentDate), {
+        const key = toDayKey(currentDate)
+        dailyMap.set(key, {
           date: currentDate,
-          views: 0,
-          comments: 0,
-          posts: 0,
+          views: viewsByDate.get(key) || 0,
         })
-      }
-
-      for (const post of recentPosts) {
-        const key = toDayKey(post.publishedAt)
-        const bucket = dailyMap.get(key)
-        if (!bucket) {
-          continue
-        }
-        bucket.posts += 1
-        bucket.views += post.views
-      }
-
-      for (const comment of recentComments) {
-        const key = toDayKey(comment.createdAt)
-        const bucket = dailyMap.get(key)
-        if (!bucket) {
-          continue
-        }
-        bucket.comments += 1
       }
 
       const daily = [...dailyMap.values()].map((item) => ({
         label: toDayLabel(item.date),
         views: item.views,
-        comments: item.comments,
-        posts: item.posts,
       }))
 
-      return { daily, range: overviewRange }
+      return { daily, range: overviewRange, error: analyticsDaily.error }
     }
   )
 }

@@ -15,8 +15,12 @@ describe("widgets API integration", () => {
     expect(source).toContain("categorySlug")
     expect(queriesSource).toContain("fetchAnalyticsContentSignals")
     expect(queriesSource).toContain("screenPageViews")
-    expect(queriesSource).toContain('fallbackOrder: "views"')
+    expect(queriesSource).not.toContain("getFallbackPopularPosts")
+    expect(queriesSource).not.toContain("views(sort: Desc)")
     expect(queriesSource).toContain("isDraft: false")
+    expect(source).toContain("memoizeWithTtl")
+    expect(source).toContain("MOST_READ_API_CACHE_SECONDS")
+    expect(source).toContain("Cache-Control")
     expect(source).toContain("return NextResponse.json")
   })
 

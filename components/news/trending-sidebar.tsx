@@ -2,8 +2,7 @@ import { getTrendingPosts } from "@/lib/queries"
 import { MostRead } from "./most-read"
 
 /**
- * Cached sidebar. getTrendingPosts() uses a tagged Cache Components entry
- * so public page views do not hit Neon on every request.
+ * Cached sidebar. getTrendingPosts() uses GA4-backed Cache Components data.
  */
 export async function TrendingSidebar() {
   const posts = await getTrendingPosts()
@@ -16,7 +15,6 @@ export async function TrendingSidebar() {
         id: post.id,
         title: post.title,
         thumbnailUrl: post.thumbnailUrl,
-        views: post.views,
         slug: post.slug,
         categorySlug: post.category.slug,
         category: {

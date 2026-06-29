@@ -35,6 +35,7 @@ type ArticlePageShellProps = {
   articleHtml: string
   fullUrl: string
   dateValue: Date | string | null
+  viewCount?: number | null
   topBanner?: ReactNode
   mainBanner?: ReactNode
   metadataNodes?: ReactNode
@@ -89,12 +90,17 @@ function renderCommentForm(
   return null
 }
 
+function formatViewCount(viewCount: number) {
+  return new Intl.NumberFormat("vi-VN").format(Math.max(0, Math.round(viewCount)))
+}
+
 export function ArticlePageShell({
   navCategories,
   article,
   articleHtml,
   fullUrl,
   dateValue,
+  viewCount,
   topBanner,
   mainBanner,
   metadataNodes,
@@ -103,6 +109,8 @@ export function ArticlePageShell({
 }: ArticlePageShellProps) {
   const displayPenName = article.penNameProfile?.name || article.penName
   const displayPenNameAvatarUrl = article.penNameProfile?.avatarUrl || null
+  const hasViewCount =
+    typeof viewCount === "number" && Number.isFinite(viewCount)
 
   return (
     <NewsLayout
@@ -146,9 +154,20 @@ export function ArticlePageShell({
             <p className="text-xl leading-relaxed font-bold text-zinc-950">
               {article.excerpt.trim()}
             </p>
-            <p className="text-sm text-black">
-              <FormattedDate value={dateValue} />
-            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-black">
+              <span>
+                <FormattedDate value={dateValue} />
+              </span>
+              {hasViewCount ? (
+                <>
+                  <span
+                    className="size-1 rounded-full bg-zinc-400"
+                    aria-hidden="true"
+                  />
+                  <span>{formatViewCount(viewCount)} lượt xem</span>
+                </>
+              ) : null}
+            </div>
           </header>
 
           <Image

@@ -24,10 +24,9 @@ type OverviewAnalytics = {
   daily: Array<{
     label: string
     views: number
-    comments: number
-    posts: number
   }>
   range: "30d"
+  error: string | null
 }
 
 type BioAgeInsights = {
@@ -129,10 +128,15 @@ export function OverviewTab({
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
             <CardTitle>Traffic</CardTitle>
             <span className="text-xs text-muted-foreground">
-              view · comment · bài
+              GA4 screenPageViews
             </span>
           </CardHeader>
           <CardContent>
+            {overviewAnalytics.error ? (
+              <p className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                GA4: {overviewAnalytics.error}
+              </p>
+            ) : null}
             <OverviewActivityChart data={overviewAnalytics.daily} />
           </CardContent>
         </Card>

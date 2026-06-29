@@ -1,4 +1,5 @@
 import { memoizeWithTtl } from "@/lib/data-cache"
+import { fetchAnalyticsContentSignals } from "@/lib/google-seo-signals"
 import { prisma } from "@/lib/prisma"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
 import { ensureSeoKeywordStoreSeeded } from "@/lib/seo-keyword-store"
@@ -86,7 +87,7 @@ export async function getAdminSnapshot() {
         throw error
       })
 
-    const [postCount, categoryCount, pendingCommentCount, trashedPostCount, draftPostCount, pendingReviewPostCount, pendingPublishPostCount, publishedPostCount, rejectedPostCount, postViewAggregate, searchConsoleMetrics] = await Promise.all([
+    const [postCount, categoryCount, pendingCommentCount, trashedPostCount, draftPostCount, pendingReviewPostCount, pendingPublishPostCount, publishedPostCount, rejectedPostCount, analyticsContentSignals, searchConsoleMetrics] = await Promise.all([
       prisma.post.count({ where: { isDeleted: false } }),
       prisma.category.count(),
       pendingCommentCountPromise,
@@ -96,10 +97,7 @@ export async function getAdminSnapshot() {
       prisma.post.count({ where: { isDeleted: false, editorialStatus: "PENDING_PUBLISH" } }),
       prisma.post.count({ where: { isDeleted: false, editorialStatus: "PUBLISHED" } }),
       prisma.post.count({ where: { isDeleted: false, editorialStatus: "REJECTED" } }),
-      prisma.post.aggregate({
-        where: { isDeleted: false },
-        _sum: { views: true },
-      }),
+      fetchAnalyticsContentSignals({ days: 30, limit: 1 }),
       getSearchConsoleSnapshotMetrics(),
     ])
 
@@ -113,7 +111,9 @@ export async function getAdminSnapshot() {
       pendingPublishPostCount,
       publishedPostCount,
       rejectedPostCount,
-      totalPostViews: postViewAggregate._sum.views || 0,
+      totalPostViews: analyticsContentSignals.error
+        ? 0
+        : analyticsContentSignals.summary.screenPageViews,
       ...searchConsoleMetrics,
     }
   })

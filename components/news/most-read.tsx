@@ -5,7 +5,6 @@ type MostReadItem = {
   id: string
   title: string
   thumbnailUrl?: string | null
-  views: number
   slug: string
   categorySlug: string
   category: {

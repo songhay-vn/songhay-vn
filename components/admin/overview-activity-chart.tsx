@@ -20,8 +20,6 @@ import {
 type OverviewDailyPoint = {
   label: string
   views: number
-  comments: number
-  posts: number
 }
 
 type OverviewActivityChartProps = {
@@ -32,10 +30,6 @@ const overviewChartConfig = {
   views: {
     label: "Views",
     color: "#2563eb",
-  },
-  comments: {
-    label: "Comments",
-    color: "#60a5fa",
   },
 } satisfies ChartConfig
 
@@ -64,13 +58,6 @@ export function OverviewActivityChart({ data }: OverviewActivityChartProps) {
           dataKey="views"
           type="monotone"
           stroke="var(--color-views)"
-          strokeWidth={2.5}
-          dot={false}
-        />
-        <Line
-          dataKey="comments"
-          type="monotone"
-          stroke="var(--color-comments)"
           strokeWidth={2.5}
           dot={false}
         />

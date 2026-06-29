@@ -192,9 +192,6 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
               <TableHead className="w-[20%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Nhân sự & Lịch sử
               </TableHead>
-              <TableHead className="w-[8%] py-2.5 text-right text-xs font-semibold tracking-wide text-zinc-500 uppercase">
-                Views
-              </TableHead>
               <TableHead className="py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Thao tác
               </TableHead>
@@ -363,12 +360,7 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                     </div>
                   </TableCell>
 
-                  {/* ── Column 4: Views ── */}
-                  <TableCell className="py-3 text-right text-xs font-medium text-zinc-700 tabular-nums">
-                    {post.views.toLocaleString("vi-VN")}
-                  </TableCell>
-
-                  {/* ── Column 5: Actions ── */}
+                  {/* ── Column 4: Actions ── */}
                   <TableCell className="py-3">
                     <PostActionsCell
                       post={post}

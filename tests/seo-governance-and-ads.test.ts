@@ -59,13 +59,22 @@ describe("seo governance and moderation", () => {
     expect(analyticsSource).toContain("gtag('config'")
   })
 
-  test("Google Analytics excludes admin routes", () => {
+  test("Google Analytics excludes internal routes from tracking and reports", () => {
     const source = readWorkspaceFile("components/seo/google-analytics.tsx")
+    const signalsSource = readWorkspaceFile("lib/google-seo-signals.ts")
 
     expect(source).toContain("usePathname")
     expect(source).toContain('pathname === "/admin"')
     expect(source).toContain('startsWith("/admin/")')
     expect(source).toContain("ga-disable-")
+    expect(signalsSource).toContain("INTERNAL_ANALYTICS_PATH_PATTERN")
+    expect(signalsSource).toContain("^/(admin|login)($|[/?].*)")
+    expect(signalsSource).toContain(
+      'publicAnalyticsPathFilter("pagePathPlusQueryString")'
+    )
+    expect(signalsSource).toContain(
+      'publicAnalyticsPathFilter("landingPagePlusQueryString")'
+    )
   })
 
   test("preview flow does not upsert new seo keywords before submit", () => {

@@ -136,7 +136,6 @@ model Post {
   isDeleted             Boolean                  @default(false)
   deletedAt             DateTime?
   approvedAt            DateTime?
-  views                 Int                      @default(0)
   publishedAt           DateTime                 @default(now())
   scheduledPublishAt    DateTime?
   canonicalUrl          String?
@@ -167,7 +166,6 @@ model Post {
   @@index([isPublished, publishedAt(sort: Desc)])
   @@index([editorialStatus])
   @@index([isDeleted, isPublished, isDraft, publishedAt(sort: Desc)])
-  @@index([isDeleted, isPublished, views(sort: Desc), publishedAt(sort: Desc)])
   @@index([categoryId, isDeleted, isPublished, publishedAt(sort: Desc)])
   @@index([editorialStatus, isDeleted, publishedAt(sort: Desc)])
   @@index([authorId, editorialStatus])
