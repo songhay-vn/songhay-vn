@@ -36,10 +36,17 @@ describe("admin posts layout", () => {
     const typesSource = readWorkspaceFile("components/admin/posts-tab/types.ts")
 
     expect(typesSource).toContain("views?: number | null")
-    expect(source).toContain("Eye className")
+    expect(source).toContain("Column 3: Views")
     expect(source).toContain("post.views")
-    expect(source).toContain("lượt xem")
+    expect(source).toContain("Lượt xem")
+    expect(source).toContain("formatViews(post.views)")
+    expect(source).toContain("Chưa có dữ liệu")
+    expect(source).toContain("text-right align-top")
+    expect(source).toContain("tabular-nums")
     expect(source).toContain("GA4 screenPageViews trong 30 ngày")
+    expect(source).not.toContain("border-blue-100 bg-blue-50")
+    expect(source).not.toContain("lượt xem")
+    expect(source).not.toContain(">GA4:<")
   })
 
   test("admin content tabs keep key management surfaces cardless", () => {

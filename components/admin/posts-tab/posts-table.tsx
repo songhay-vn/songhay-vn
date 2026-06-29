@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { BookOpen, Clock, Eye, Trash } from "lucide-react"
+import { BookOpen, Clock, Trash } from "lucide-react"
 
 import { PostThumbnail } from "@/components/admin/post-thumbnail"
 import { Badge } from "@/components/ui/badge"
@@ -190,10 +190,13 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
               <TableHead className="w-[10%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Ảnh
               </TableHead>
-              <TableHead className="w-[45%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[37%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Bài viết
               </TableHead>
-              <TableHead className="w-[20%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[12%] py-2.5 text-right text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+                Lượt xem
+              </TableHead>
+              <TableHead className="w-[18%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Nhân sự & Lịch sử
               </TableHead>
               <TableHead className="py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
@@ -291,19 +294,7 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                             {indexState.label}
                           </Badge>
                         )}
-                        {post.editorialStatus === "PUBLISHED" &&
-                        typeof post.views === "number" ? (
-                          <Badge
-                            variant="outline"
-                            title="GA4 screenPageViews trong 30 ngày"
-                            className="h-4 gap-1 border-blue-200 bg-blue-50 px-1 py-0 text-[10px] text-blue-700"
-                          >
-                            <Eye className="size-2.5" />
-                            {formatViews(post.views)} lượt xem
-                          </Badge>
-                        ) : null}
                       </div>
-
                       {/* Excerpt */}
                       {post.excerpt && (
                         <p className="line-clamp-2 text-[12px] text-zinc-600">
@@ -342,7 +333,28 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                     </div>
                   </TableCell>
 
-                  {/* ── Column 3: Personnel & History stack ── */}
+                  {/* ── Column 3: Views ── */}
+                  <TableCell className="py-3 text-right align-top">
+                    {post.editorialStatus === "PUBLISHED" ? (
+                      <span
+                        className={cn(
+                          "block text-sm font-semibold tabular-nums",
+                          typeof post.views === "number"
+                            ? "text-zinc-900"
+                            : "text-zinc-400"
+                        )}
+                        title="GA4 screenPageViews trong 30 ngày"
+                      >
+                        {typeof post.views === "number"
+                          ? formatViews(post.views)
+                          : "Chưa có dữ liệu"}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-zinc-400">—</span>
+                    )}
+                  </TableCell>
+
+                  {/* ── Column 4: Personnel & History stack ── */}
                   <TableCell className="py-3">
                     <div className="space-y-2 text-xs">
                       <div className="flex items-start justify-between">
@@ -375,7 +387,7 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                     </div>
                   </TableCell>
 
-                  {/* ── Column 4: Actions ── */}
+                  {/* ── Column 5: Actions ── */}
                   <TableCell className="py-3">
                     <PostActionsCell
                       post={post}
