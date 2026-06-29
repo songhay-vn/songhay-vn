@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { BookOpen, Clock, Trash } from "lucide-react"
+import { BookOpen, Clock, Eye, Trash } from "lucide-react"
 
 import { PostThumbnail } from "@/components/admin/post-thumbnail"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +35,10 @@ type PostsTableProps = {
   featuredPosts?: FeaturedPostRow[]
 } & PostPermissions &
   PostActions
+
+function formatViews(value: number) {
+  return new Intl.NumberFormat("vi-VN").format(Math.max(0, Math.round(value)))
+}
 
 export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -287,6 +291,17 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                             {indexState.label}
                           </Badge>
                         )}
+                        {post.editorialStatus === "PUBLISHED" &&
+                        typeof post.views === "number" ? (
+                          <Badge
+                            variant="outline"
+                            title="GA4 screenPageViews trong 30 ngày"
+                            className="h-4 gap-1 border-blue-200 bg-blue-50 px-1 py-0 text-[10px] text-blue-700"
+                          >
+                            <Eye className="size-2.5" />
+                            {formatViews(post.views)} lượt xem
+                          </Badge>
+                        ) : null}
                       </div>
 
                       {/* Excerpt */}

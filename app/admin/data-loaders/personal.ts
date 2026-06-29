@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client"
 
 import { prisma } from "@/lib/prisma"
 import { buildPaginationItems, endOfDay, parseDateInput, startOfDay } from "@/app/admin/data-helpers"
+import { attachAnalyticsViewsToPostRows } from "@/app/admin/data-loaders/post-analytics"
 import type { AdminCurrentUser, AdminTab, PersonalArchiveFilters } from "@/app/admin/data-types"
 
 const PERSONAL_ARCHIVE_PAGE_SIZE = 10
@@ -106,9 +107,10 @@ export async function getPersonalPostsData(activeTab: AdminTab, personalArchiveF
     skip: (currentPage - 1) * PERSONAL_ARCHIVE_PAGE_SIZE,
     take: PERSONAL_ARCHIVE_PAGE_SIZE,
   })
+  const rowsWithViews = await attachAnalyticsViewsToPostRows(rows)
 
   return {
-    rows,
+    rows: rowsWithViews,
     totalCount,
     totalPages,
     currentPage,

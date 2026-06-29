@@ -48,6 +48,9 @@ type GoogleAnalyticsFilterExpression = {
   andGroup?: {
     expressions: GoogleAnalyticsFilterExpression[]
   }
+  orGroup?: {
+    expressions: GoogleAnalyticsFilterExpression[]
+  }
   notExpression?: GoogleAnalyticsFilterExpression
   filter?: {
     fieldName: string
@@ -133,6 +136,15 @@ export type AnalyticsPageViewCountResult = {
   path: string
   error: string | null
   screenPageViews: number
+}
+
+export type AnalyticsPageViewCountsResult = {
+  propertyId: string | null
+  error: string | null
+  counts: Array<{
+    path: string
+    screenPageViews: number
+  }>
 }
 
 const emptyAnalyticsContentSummary: AnalyticsContentSummary = {
@@ -245,6 +257,18 @@ function combineAnalyticsFilters(
       expressions,
     },
   }
+}
+
+function combineAnyAnalyticsFilters(
+  expressions: GoogleAnalyticsFilterExpression[]
+): GoogleAnalyticsFilterExpression {
+  return expressions.length === 1
+    ? expressions[0]
+    : {
+        orGroup: {
+          expressions,
+        },
+      }
 }
 
 async function parseJsonSafely(response: Response) {
@@ -652,38 +676,56 @@ export async function fetchAnalyticsContentSignals({
 
 export async function fetchAnalyticsPageViewCount({
   path,
-  days = 365,
+  days = 30,
 }: {
   path: string
   days?: number
 }): Promise<AnalyticsPageViewCountResult> {
-  const propertyId = getGoogleAnalyticsPropertyId()
+  const result = await fetchAnalyticsPageViewCounts({ paths: [path], days })
   const normalizedPath = normalizeAnalyticsPath(path)
+  const count = result.counts.find((item) => item.path === normalizedPath)
 
-  if (!normalizedPath) {
+  return {
+    propertyId: result.propertyId,
+    path: normalizedPath,
+    error: result.error,
+    screenPageViews: count?.screenPageViews || 0,
+  }
+}
+
+export async function fetchAnalyticsPageViewCounts({
+  paths,
+  days = 30,
+}: {
+  paths: string[]
+  days?: number
+}): Promise<AnalyticsPageViewCountsResult> {
+  const propertyId = getGoogleAnalyticsPropertyId()
+  const normalizedPaths = [
+    ...new Set(paths.map(normalizeAnalyticsPath).filter(Boolean)),
+  ]
+
+  if (normalizedPaths.length === 0) {
     return {
       propertyId,
-      path: normalizedPath,
       error: "Missing analytics page path",
-      screenPageViews: 0,
+      counts: [],
     }
   }
 
   if (!propertyId) {
     return {
       propertyId: null,
-      path: normalizedPath,
       error: "Missing GA_PROPERTY_ID",
-      screenPageViews: 0,
+      counts: normalizedPaths.map((path) => ({ path, screenPageViews: 0 })),
     }
   }
 
   if (!isGoogleServiceAccountConfigured()) {
     return {
       propertyId,
-      path: normalizedPath,
       error: "Missing GOOGLE_SERVICE_ACCOUNT_KEY_JSON_BASE64",
-      screenPageViews: 0,
+      counts: normalizedPaths.map((path) => ({ path, screenPageViews: 0 })),
     }
   }
 
@@ -701,11 +743,15 @@ export async function fetchAnalyticsPageViewCount({
         },
         body: JSON.stringify({
           dateRanges: [{ startDate: `${days}daysAgo`, endDate: "yesterday" }],
+          dimensions: [{ name: "pagePathPlusQueryString" }],
           metrics: [{ name: "screenPageViews" }],
           dimensionFilter: combineAnalyticsFilters(
             publicAnalyticsPathFilter("pagePathPlusQueryString"),
-            analyticsPagePathFilter(normalizedPath)
+            combineAnyAnalyticsFilters(
+              normalizedPaths.map((path) => analyticsPagePathFilter(path))
+            )
           ),
+          limit: String(Math.max(normalizedPaths.length * 5, normalizedPaths.length)),
         }),
         signal: AbortSignal.timeout(10_000),
         next: { revalidate: GOOGLE_ANALYTICS_PAGE_VIEW_REVALIDATE_SECONDS },
@@ -714,21 +760,34 @@ export async function fetchAnalyticsPageViewCount({
 
     const body =
       await readGoogleApiResponse<GoogleAnalyticsRunReportResponse>(response)
+    const viewsByPath = new Map(normalizedPaths.map((path) => [path, 0]))
+
+    for (const row of body.rows || []) {
+      const rowPath = normalizeAnalyticsPath(row.dimensionValues?.[0]?.value || "")
+      if (!viewsByPath.has(rowPath)) {
+        continue
+      }
+
+      viewsByPath.set(
+        rowPath,
+        (viewsByPath.get(rowPath) || 0) +
+          Math.round(toNumber(row.metricValues?.[0]?.value))
+      )
+    }
 
     return {
       propertyId,
-      path: normalizedPath,
       error: null,
-      screenPageViews: Math.round(
-        toNumber(body.rows?.[0]?.metricValues?.[0]?.value)
-      ),
+      counts: normalizedPaths.map((path) => ({
+        path,
+        screenPageViews: viewsByPath.get(path) || 0,
+      })),
     }
   } catch (error) {
     return {
       propertyId,
-      path: normalizedPath,
       error: getErrorMessage(error),
-      screenPageViews: 0,
+      counts: normalizedPaths.map((path) => ({ path, screenPageViews: 0 })),
     }
   }
 }

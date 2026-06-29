@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client"
 import { canViewAllPosts } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { endOfDay, parseDateInput, startOfDay } from "@/app/admin/data-helpers"
+import { attachAnalyticsViewsToPostRows } from "@/app/admin/data-loaders/post-analytics"
 import type {
   AdminCurrentUser,
   AdminTab,
@@ -232,9 +233,10 @@ export async function getPostsData(
     orderBy: { publishedAt: "desc" },
     take: 5,
   })
+  const postsWithViews = await attachAnalyticsViewsToPostRows(posts)
 
   return {
-    posts,
+    posts: postsWithViews,
     totalCount,
     totalPages,
     currentPage,

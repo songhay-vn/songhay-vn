@@ -37,6 +37,7 @@ export type PostRow = {
   isPublished: boolean
   isDraft: boolean
   editorialStatus: EditorialStatus
+  views?: number | null
   author: { id: string; name: string; email: string } | null
   approver: { id: string; name: string; email: string } | null
   lastEditor: { id: string; name: string; email: string } | null

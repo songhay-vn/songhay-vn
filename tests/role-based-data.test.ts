@@ -27,6 +27,21 @@ describe("role-based data scoping", () => {
     expect(source).not.toContain("canViewAllPosts(currentUser.role)")
   })
 
+  test("published admin post rows attach cached GA4 views", () => {
+    const postsSource = readWorkspaceFile("app/admin/data-loaders/posts.ts")
+    const personalSource = readWorkspaceFile("app/admin/data-loaders/personal.ts")
+    const analyticsSource = readWorkspaceFile(
+      "app/admin/data-loaders/post-analytics.ts"
+    )
+
+    expect(postsSource).toContain("attachAnalyticsViewsToPostRows(posts)")
+    expect(personalSource).toContain("attachAnalyticsViewsToPostRows(rows)")
+    expect(analyticsSource).toContain("fetchAnalyticsPageViewCounts")
+    expect(analyticsSource).toContain("memoizeWithTtl")
+    expect(analyticsSource).toContain("ADMIN_POST_VIEW_ANALYTICS_DAYS = 30")
+    expect(analyticsSource).toContain('editorialStatus === "PUBLISHED"')
+  })
+
   test("trash query scopes by canViewAllPosts capability", () => {
     const source = readWorkspaceFile("app/admin/data-loaders/trash.ts")
 

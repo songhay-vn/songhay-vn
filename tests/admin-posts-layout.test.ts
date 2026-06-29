@@ -29,6 +29,19 @@ describe("admin posts layout", () => {
     expect(source).toContain("<PostThumbnail")
   })
 
+  test("posts table shows GA4 view counts for published rows", () => {
+    const source = readWorkspaceFile(
+      "components/admin/posts-tab/posts-table.tsx"
+    )
+    const typesSource = readWorkspaceFile("components/admin/posts-tab/types.ts")
+
+    expect(typesSource).toContain("views?: number | null")
+    expect(source).toContain("Eye className")
+    expect(source).toContain("post.views")
+    expect(source).toContain("lượt xem")
+    expect(source).toContain("GA4 screenPageViews trong 30 ngày")
+  })
+
   test("admin content tabs keep key management surfaces cardless", () => {
     const categoriesSource = readWorkspaceFile(
       "components/admin/categories-tab/index.tsx"
