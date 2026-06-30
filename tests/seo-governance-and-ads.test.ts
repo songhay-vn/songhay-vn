@@ -98,6 +98,22 @@ describe("ads and indexing", () => {
     expect(cssSource).not.toContain("ad-slot-wrapper")
   })
 
+  test("article structured data renders outside streamed article shell", () => {
+    const articleSource = readWorkspaceFile("app/[category]/[slug]/page.tsx")
+    const shellSource = readWorkspaceFile("components/news/article-page-shell.tsx")
+    const breadcrumbSource = readWorkspaceFile("components/seo/BreadcrumbJsonLd.tsx")
+
+    expect(articleSource).toContain("<JsonLd data={[articleJsonLd]} />")
+    expect(articleSource).toContain("<BreadcrumbJsonLd items={breadcrumbItems} />")
+    expect(articleSource.indexOf("<JsonLd data={[articleJsonLd]} />")).toBeLessThan(
+      articleSource.indexOf("<ArticlePageShell")
+    )
+    expect(shellSource).not.toContain("metadataNodes")
+    expect(breadcrumbSource).not.toContain('from "next/script"')
+    expect(breadcrumbSource).toContain("serializeJsonLd")
+    expect(breadcrumbSource).toContain("application/ld+json")
+  })
+
   test("disclaimer page is noindexed", () => {
     const source = readWorkspaceFile("app/mien-tru-trach-nhiem/page.tsx")
 

@@ -165,31 +165,29 @@ export default async function PostPage({ params }: PostPageProps) {
   ]
 
   return (
-    <ArticlePageShell
-      navCategories={navCategories}
-      article={article}
-      articleHtml={articleHtml}
-      fullUrl={fullUrl}
-      dateValue={article.publishedAt}
-      viewCount={articleViewCount}
-      showSocialShare
-      commentFormMode="live"
-      mainBanner={
-        <Image
-          src="/banner.png"
-          alt="Banner"
-          width={1100}
-          height={200}
-          priority
-          className="h-auto w-full object-cover"
-        />
-      }
-      metadataNodes={
-        <>
-          <JsonLd data={[articleJsonLd]} />
-          <BreadcrumbJsonLd items={breadcrumbItems} />
-        </>
-      }
-    />
+    <>
+      <JsonLd data={[articleJsonLd]} />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <ArticlePageShell
+        navCategories={navCategories}
+        article={article}
+        articleHtml={articleHtml}
+        fullUrl={fullUrl}
+        dateValue={article.publishedAt}
+        viewCount={articleViewCount}
+        showSocialShare
+        commentFormMode="live"
+        mainBanner={
+          <Image
+            src="/banner.png"
+            alt="Banner"
+            width={1100}
+            height={200}
+            priority
+            className="h-auto w-full object-cover"
+          />
+        }
+      />
+    </>
   )
 }

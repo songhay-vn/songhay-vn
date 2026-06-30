@@ -1,5 +1,3 @@
-import Script from "next/script"
-
 export interface BreadcrumbItem {
   name: string
   url: string
@@ -7,6 +5,10 @@ export interface BreadcrumbItem {
 
 interface BreadcrumbJsonLdProps {
   items: BreadcrumbItem[]
+}
+
+function serializeJsonLd(data: Record<string, unknown>) {
+  return JSON.stringify(data).replace(/</g, "\\u003c")
 }
 
 export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
@@ -22,10 +24,10 @@ export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
   }
 
   return (
-    <Script
+    <script
       id="breadcrumb-jsonld"
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
     />
   )
 }

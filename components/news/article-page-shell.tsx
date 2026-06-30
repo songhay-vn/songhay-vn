@@ -38,7 +38,6 @@ type ArticlePageShellProps = {
   viewCount?: number | null
   topBanner?: ReactNode
   mainBanner?: ReactNode
-  metadataNodes?: ReactNode
   showSocialShare?: boolean
   commentFormMode?: "live" | "preview" | "hidden"
 }
@@ -103,7 +102,6 @@ export function ArticlePageShell({
   viewCount,
   topBanner,
   mainBanner,
-  metadataNodes,
   showSocialShare = true,
   commentFormMode = "live",
 }: ArticlePageShellProps) {
@@ -134,7 +132,6 @@ export function ArticlePageShell({
         ) : null}
 
         <article className="mx-auto flex w-full max-w-xl flex-col gap-6 overflow-hidden font-serif break-words">
-          {metadataNodes}
           <header className="flex flex-col gap-3">
             <Link
               href={`/${article.category.slug}`}
