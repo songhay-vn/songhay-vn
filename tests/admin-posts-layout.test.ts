@@ -29,6 +29,19 @@ describe("admin posts layout", () => {
     expect(source).toContain("<PostThumbnail")
   })
 
+  test("posts table gives article content more space and readable text", () => {
+    const source = readWorkspaceFile(
+      "components/admin/posts-tab/posts-table.tsx"
+    )
+
+    expect(source).toContain('className="w-[49%] py-2.5 text-xs font-semibold')
+    expect(source).toContain('className="w-[6%] py-2.5 text-right text-xs')
+    expect(source).toContain('className="w-[17%] py-2.5 text-xs font-semibold')
+    expect(source).toContain("text-[15px] leading-snug font-semibold")
+    expect(source).toContain("line-clamp-2 text-[13px] leading-5")
+    expect(source).toContain("min-w-0 flex-1 space-y-2")
+  })
+
   test("posts table shows GA4 view counts for published rows", () => {
     const source = readWorkspaceFile(
       "components/admin/posts-tab/posts-table.tsx"
@@ -50,6 +63,37 @@ describe("admin posts layout", () => {
     expect(source).not.toContain("block text-sm font-semibold")
     expect(source).not.toContain("<span>lượt xem</span>")
     expect(source).not.toContain(">GA4:<")
+  })
+
+  test("published posts tab hides SEO descriptions and keeps keywords last", () => {
+    const postsTabSource = readWorkspaceFile(
+      "components/admin/posts-tab/index.tsx"
+    )
+    const postsTableSource = readWorkspaceFile(
+      "components/admin/posts-tab/posts-table.tsx"
+    )
+    const personalArchiveSource = readWorkspaceFile(
+      "components/admin/personal-archive-tab.tsx"
+    )
+
+    expect(postsTabSource).toContain(
+      'hideSeoDescription={filters.status === "published"}'
+    )
+    expect(postsTableSource).toContain("hideSeoDescription = false")
+    expect(postsTableSource).toContain("{post.excerpt && (")
+    expect(postsTableSource).toContain(
+      "{!hideSeoDescription && post.seoDescription && ("
+    )
+
+    const seoDescIndex = postsTableSource.indexOf("SEO desc:")
+    const keywordIndex = postsTableSource.indexOf("TAG:")
+
+    expect(seoDescIndex).toBeGreaterThan(-1)
+    expect(keywordIndex).toBeGreaterThan(seoDescIndex)
+    expect(personalArchiveSource).toContain(
+      "<PostsTable posts={data.rows} {...actionsAndPermissions} />"
+    )
+    expect(personalArchiveSource).not.toContain("hideSeoDescription")
   })
 
   test("admin content tabs keep key management surfaces cardless", () => {

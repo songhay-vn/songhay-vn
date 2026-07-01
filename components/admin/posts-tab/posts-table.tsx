@@ -36,6 +36,7 @@ type PostsTableProps = {
   posts: PostRow[]
   featuredPosts?: FeaturedPostRow[]
   featuredSlotFillers?: FeaturedPostRow[]
+  hideSeoDescription?: boolean
 } & PostPermissions &
   PostActions
 
@@ -66,6 +67,7 @@ export function PostsTable({
   posts,
   featuredPosts = [],
   featuredSlotFillers = [],
+  hideSeoDescription = false,
   ...rest
 }: PostsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -240,19 +242,19 @@ export function PostsTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[10%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[8%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Ảnh
               </TableHead>
-              <TableHead className="w-[37%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[49%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Bài viết
               </TableHead>
-              <TableHead className="w-[12%] py-2.5 text-right text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[6%] py-2.5 text-right text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Lượt xem
               </TableHead>
-              <TableHead className="w-[18%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[16%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Nhân sự & Lịch sử
               </TableHead>
-              <TableHead className="py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+              <TableHead className="w-[17%] py-2.5 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
                 Thao tác
               </TableHead>
             </TableRow>
@@ -285,9 +287,9 @@ export function PostsTable({
                     />
                   </TableCell>
 
-                  {/* ── Column 2: Post info (Badge, Title, Category, Excerpt, Tags) ── */}
+                  {/* ── Column 2: Post info (Badge, Title, Category, Excerpt, SEO, Tags) ── */}
                   <TableCell className="py-3">
-                    <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="min-w-0 flex-1 space-y-2">
                       {/* Title + PenName badge */}
                       <div className="flex flex-wrap items-start gap-1.5">
                         {post.penName && (
@@ -295,22 +297,22 @@ export function PostsTable({
                             {post.penName}
                           </span>
                         )}
-                        <p className="text-sm leading-snug font-semibold text-zinc-900">
+                        <p className="text-[15px] leading-snug font-semibold text-zinc-900">
                           {post.title}
                         </p>
                       </div>
 
                       {/* Category & Status */}
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-zinc-500">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-zinc-500">
                         <span className="font-medium text-zinc-700 uppercase">
-                          Trong mục:{" "}
+                          Mục:{" "}
                           <span className="text-rose-600">
                             {post.category.name}
                           </span>
                         </span>
                         <span
                           className={cn(
-                            "inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                            "inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] font-medium",
                             cfg.badgeClass
                           )}
                         >
@@ -322,7 +324,7 @@ export function PostsTable({
                         {post.isFeatured && (
                           <Badge
                             variant="outline"
-                            className="h-4 border-amber-300 px-1 py-0 text-[10px] text-amber-600"
+                            className="h-5 border-amber-300 px-1 py-0 text-[11px] text-amber-600"
                           >
                             {post.featuredPosition ? `Tiêu điểm #${post.featuredPosition}` : "Nổi bật"}
                           </Badge>
@@ -330,7 +332,7 @@ export function PostsTable({
                         {post.isTrending && (
                           <Badge
                             variant="outline"
-                            className="h-4 border-rose-300 px-1 py-0 text-[10px] text-rose-600"
+                            className="h-5 border-rose-300 px-1 py-0 text-[11px] text-rose-600"
                           >
                             Xu hướng
                           </Badge>
@@ -340,7 +342,7 @@ export function PostsTable({
                             variant="outline"
                             title={indexState.title}
                             className={cn(
-                              "h-4 px-1 py-0 text-[10px]",
+                              "h-5 px-1 py-0 text-[11px]",
                               indexState.className
                             )}
                           >
@@ -350,37 +352,37 @@ export function PostsTable({
                       </div>
                       {/* Excerpt */}
                       {post.excerpt && (
-                        <p className="line-clamp-2 text-[12px] text-zinc-600">
+                        <p className="line-clamp-2 text-[13px] leading-5 text-zinc-600">
                           {post.excerpt}
                         </p>
                       )}
 
+                      {/* SEO title */}
+                      {post.seoTitle && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="text-xs font-medium text-zinc-700">SEO title:</span>
+                          <span className="text-xs text-zinc-500">{post.seoTitle}</span>
+                        </div>
+                      )}
+                      {/* SEO description */}
+                      {!hideSeoDescription && post.seoDescription && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="text-xs font-medium text-zinc-700">SEO desc:</span>
+                          <span className="line-clamp-2 text-xs text-zinc-500">{post.seoDescription}</span>
+                        </div>
+                      )}
                       {/* Tags */}
                       {post.seoKeywords && (
                         <div className="flex flex-wrap items-center gap-1">
-                          <span className="text-[11px] font-medium text-zinc-700">
-                            Từ khóa:
+                          <span className="text-xs font-medium text-zinc-700">
+                            TAG:
                           </span>
-                          <span className="text-[11px] text-zinc-500">
+                          <span className="text-xs text-zinc-500">
                             {post.seoKeywords
                               .split(",")
                               .map((k) => k.trim())
                               .join(", ")}
                           </span>
-                        </div>
-                      )}
-                      {/* SEO title */}
-                      {post.seoTitle && (
-                        <div className="flex flex-wrap items-center gap-1">
-                          <span className="text-[11px] font-medium text-zinc-700">SEO title:</span>
-                          <span className="text-[11px] text-zinc-500">{post.seoTitle}</span>
-                        </div>
-                      )}
-                      {/* SEO description */}
-                      {post.seoDescription && (
-                        <div className="flex flex-wrap items-center gap-1">
-                          <span className="text-[11px] font-medium text-zinc-700">SEO desc:</span>
-                          <span className="line-clamp-2 text-[11px] text-zinc-500">{post.seoDescription}</span>
                         </div>
                       )}
                     </div>

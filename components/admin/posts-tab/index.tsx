@@ -94,6 +94,7 @@ export function PostsTab({
         posts={postsData.posts}
         featuredPosts={postsData.featuredPosts || []}
         featuredSlotFillers={postsData.featuredSlotFillers || []}
+        hideSeoDescription={filters.status === "published"}
         {...permissions}
         {...actions}
       />
