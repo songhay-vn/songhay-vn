@@ -35,6 +35,8 @@ import {
   revalidatePostTagsOnly,
 } from "@/app/admin/actions-helpers"
 
+const FEATURED_SLOT_COUNT = 6
+
 export async function createPost(formData: FormData) {
   const currentUser = await requireCmsUser()
   ensurePermission(
@@ -417,6 +419,7 @@ export async function updatePostFlags(formData: FormData) {
     where: { id: postId },
     data: {
       isFeatured,
+      ...(isFeatured ? {} : { featuredPosition: null }),
       isTrending,
       isPublished,
       seoTitle,
@@ -486,6 +489,7 @@ export async function movePostToTrash(formData: FormData) {
       deletedAt: new Date(),
       isPublished: false,
       isFeatured: false,
+      featuredPosition: null,
       isTrending: false,
     },
   })
@@ -652,6 +656,7 @@ export async function bulkTrashPosts(formData: FormData) {
       deletedAt: new Date(),
       isPublished: false,
       isFeatured: false,
+      featuredPosition: null,
       isTrending: false,
     },
   })
@@ -761,7 +766,7 @@ export async function checkPostIndex(formData: FormData) {
   return { toast: "search_console_check_queued" }
 }
 
-export async function togglePostFeatured(formData: FormData) {
+export async function assignFeaturedSlot(formData: FormData) {
   const currentUser = await requireCmsUser()
   ensurePermission(
     canPublishNow(currentUser.role),
@@ -769,9 +774,17 @@ export async function togglePostFeatured(formData: FormData) {
   )
 
   const postId = String(formData.get("postId") || "")
-  const featured = formData.get("featured") === "true"
+  const featuredPosition = Number.parseInt(
+    String(formData.get("featuredPosition") || ""),
+    10
+  )
 
-  if (!postId) {
+  if (
+    !postId ||
+    !Number.isInteger(featuredPosition) ||
+    featuredPosition < 1 ||
+    featuredPosition > FEATURED_SLOT_COUNT
+  ) {
     return { toast: "post_action_failed" }
   }
 
@@ -781,6 +794,7 @@ export async function togglePostFeatured(formData: FormData) {
       isPublished: true,
       isDeleted: true,
       slug: true,
+      featuredPosition: true,
       category: { select: { slug: true } },
     },
   })
@@ -793,119 +807,115 @@ export async function togglePostFeatured(formData: FormData) {
     return { toast: "post_not_published" }
   }
 
-  if (featured) {
-    // Check if count of featured is already 5
-    const count = await prisma.post.count({
-      where: {
-        isFeatured: true,
-        isPublished: true,
-        isDeleted: false,
-      },
-    })
-    if (count >= 5) {
-      return { toast: "featured_limit_exceeded" }
-    }
-  }
-
-  const updated = await prisma.post.update({
-    where: { id: postId },
-    data: { isFeatured: featured },
-    include: { category: true },
+  const replacedPost = await prisma.post.findFirst({
+    where: {
+      featuredPosition,
+      id: { not: postId },
+    },
+    select: {
+      id: true,
+      slug: true,
+      category: { select: { slug: true } },
+    },
   })
+
+  const [, updated] = await prisma.$transaction([
+    prisma.post.updateMany({
+      where: {
+        featuredPosition,
+        id: { not: postId },
+      },
+      data: {
+        isFeatured: false,
+        featuredPosition: null,
+      },
+    }),
+    prisma.post.update({
+      where: { id: postId },
+      data: {
+        isFeatured: true,
+        featuredPosition,
+      },
+      include: { category: true },
+    }),
+  ])
 
   await logPostHistory({
     postId,
     actorId: currentUser.id,
     actionType: "UPDATED",
-    snapshotTitle: `Set featured flag to ${featured}`,
+    snapshotTitle: `Assigned featured slot ${featuredPosition}`,
   })
 
-  await revalidatePost(updated.slug, updated.category?.slug, {
-    isFeaturedChange: true,
-  })
+  if (replacedPost) {
+    await logPostHistory({
+      postId: replacedPost.id,
+      actorId: currentUser.id,
+      actionType: "UPDATED",
+      snapshotTitle: `Removed featured slot ${featuredPosition} by replacement`,
+    })
+  }
+
+  await Promise.all([
+    revalidatePost(updated.slug, updated.category?.slug, {
+      isFeaturedChange: true,
+    }),
+    replacedPost
+      ? revalidatePost(replacedPost.slug, replacedPost.category?.slug, {
+          isFeaturedChange: true,
+        })
+      : Promise.resolve(),
+  ])
   clearDataCache()
 
-  return {
-    toast: featured ? "post_featured_added" : "post_featured_removed",
-  }
+  return { toast: replacedPost ? "post_featured_replaced" : "post_featured_added" }
 }
 
-export async function replaceFeaturedPost(formData: FormData) {
+export async function clearFeaturedSlot(formData: FormData) {
   const currentUser = await requireCmsUser()
   ensurePermission(
     canPublishNow(currentUser.role),
     "/admin?tab=posts&toast=post_action_forbidden"
   )
 
-  const oldPostId = String(formData.get("oldPostId") || "")
-  const newPostId = String(formData.get("newPostId") || "")
+  const postId = String(formData.get("postId") || "")
 
-  if (!oldPostId || !newPostId) {
+  if (!postId) {
     return { toast: "post_action_failed" }
   }
 
-  const [oldPost, newPost] = await Promise.all([
-    prisma.post.findUnique({
-      where: { id: oldPostId },
-      select: {
-        slug: true,
-        isDeleted: true,
-        category: { select: { slug: true } },
-      },
-    }),
-    prisma.post.findUnique({
-      where: { id: newPostId },
-      select: {
-        slug: true,
-        isPublished: true,
-        isDeleted: true,
-        category: { select: { slug: true } },
-      },
-    }),
-  ])
+  const existingPost = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      slug: true,
+      isDeleted: true,
+      category: { select: { slug: true } },
+    },
+  })
 
-  if (!oldPost || oldPost.isDeleted || !newPost || newPost.isDeleted) {
+  if (!existingPost || existingPost.isDeleted) {
     return { toast: "post_not_found" }
   }
 
-  if (!newPost.isPublished) {
-    return { toast: "post_not_published" }
-  }
-
-  await prisma.$transaction([
-    prisma.post.update({
-      where: { id: oldPostId },
-      data: { isFeatured: false },
-    }),
-    prisma.post.update({
-      where: { id: newPostId },
-      data: { isFeatured: true },
-    }),
-  ])
-
-  await logPostHistory({
-    postId: newPostId,
-    actorId: currentUser.id,
-    actionType: "UPDATED",
-    snapshotTitle: `Replaced featured post ${oldPostId} with ${newPostId}`,
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      isFeatured: false,
+      featuredPosition: null,
+    },
   })
 
   await logPostHistory({
-    postId: oldPostId,
+    postId,
     actorId: currentUser.id,
     actionType: "UPDATED",
-    snapshotTitle: `Removed featured flag by replacement`,
+    snapshotTitle: "Cleared featured slot",
   })
 
-  await Promise.all([
-    revalidatePost(oldPost.slug, oldPost.category?.slug, {
-      isFeaturedChange: true,
-    }),
-    revalidatePost(newPost.slug, newPost.category?.slug, {
-      isFeaturedChange: true,
-    }),
-  ])
+  await revalidatePost(existingPost.slug, existingPost.category?.slug, {
+    isFeaturedChange: true,
+  })
   clearDataCache()
 
-  return { toast: "post_featured_replaced" }
+  return { toast: "post_featured_removed" }
 }

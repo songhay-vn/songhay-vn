@@ -130,6 +130,7 @@ model Post {
   isSensitive           Boolean                  @default(false)
   isDraft               Boolean                  @default(true)
   isFeatured            Boolean                  @default(false)
+  featuredPosition      Int?                     @unique
   isTrending            Boolean                  @default(false)
   isPublished           Boolean                  @default(false)
   editorialStatus       EditorialStatus          @default(DRAFT)

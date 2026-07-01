@@ -2,6 +2,7 @@ import Image from "next/image"
 import type { Metadata } from "next"
 
 import { PostCard } from "@/components/news/post-card"
+import { SectionHeading } from "@/components/news/section-heading"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
   getHomepageData,
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [{ heroSlots = [] }, navCategories] = await Promise.all([
+  const [{ heroSlots = [], latestRest = [] }, navCategories] = await Promise.all([
     getHomepageData(),
     getNavCategories(),
   ])
@@ -86,9 +87,10 @@ export default async function HomePage() {
             className="h-auto w-full object-cover"
           />
         }
+        latestPosts={latestRest}
       >
-        {/* ── MAGAZINE HERO SECTION ─────────────────────────────────── */}
-        <section className="space-y-6">
+        <section className="flex flex-col gap-6" aria-label="Tin tiêu điểm">
+          <SectionHeading title="Tin tiêu điểm" />
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Main Featured (2/3 width) */}
             <div className="lg:col-span-2">

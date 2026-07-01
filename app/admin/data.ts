@@ -45,6 +45,7 @@ export async function getAdminPageData({
     totalPages: 1,
     currentPage: 1,
     featuredPosts: [],
+    featuredSlotFillers: [],
     filterOptions: { authors: [], categories: [] },
   }
   let personalPostsData: Awaited<ReturnType<typeof getPersonalPostsData>> = {

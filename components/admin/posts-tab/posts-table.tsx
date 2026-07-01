@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useTransition } from "react"
 import { BookOpen, Clock, Trash } from "lucide-react"
 
@@ -7,6 +8,7 @@ import { PostThumbnail } from "@/components/admin/post-thumbnail"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Dialog,
   DialogContent,
@@ -33,63 +35,114 @@ import type { PostActions, PostPermissions, PostRow, FeaturedPostRow } from "./t
 type PostsTableProps = {
   posts: PostRow[]
   featuredPosts?: FeaturedPostRow[]
+  featuredSlotFillers?: FeaturedPostRow[]
 } & PostPermissions &
   PostActions
+
+const FEATURED_POSITIONS = [1, 2, 3, 4, 5, 6] as const
 
 function formatViews(value: number) {
   return new Intl.NumberFormat("vi-VN").format(Math.max(0, Math.round(value)))
 }
 
-export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTableProps) {
+function getDefaultFeaturedPosition(post: PostRow, featuredPosts: FeaturedPostRow[]) {
+  if (
+    typeof post.featuredPosition === "number" &&
+    FEATURED_POSITIONS.includes(post.featuredPosition as (typeof FEATURED_POSITIONS)[number])
+  ) {
+    return String(post.featuredPosition)
+  }
+
+  const usedPositions = new Set(
+    featuredPosts
+      .map((item) => item.featuredPosition)
+      .filter((value): value is number => typeof value === "number")
+  )
+  const firstEmpty = FEATURED_POSITIONS.find((position) => !usedPositions.has(position))
+  return String(firstEmpty ?? 1)
+}
+
+export function PostsTable({
+  posts,
+  featuredPosts = [],
+  featuredSlotFillers = [],
+  ...rest
+}: PostsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isPending, startTransition] = useTransition()
 
-  const [postToAddFeatured, setPostToAddFeatured] = useState<PostRow | null>(null)
-  const [selectedOldPostId, setSelectedOldPostId] = useState<string>("")
+  const [postToAssignFeatured, setPostToAssignFeatured] = useState<PostRow | null>(null)
+  const [selectedFeaturedPosition, setSelectedFeaturedPosition] = useState<string>("1")
 
   const handleSetFeatured = (post: PostRow) => {
-    const featuredCount = featuredPosts?.length || 0
-    if (featuredCount < 5) {
-      startTransition(async () => {
-        const formData = new FormData()
-        formData.set("postId", post.id)
-        formData.set("featured", "true")
-        const res = await rest.togglePostFeatured(formData)
-        if (res?.toast) {
-          showToastByKey(res.toast)
-        }
-      })
-    } else {
-      setSelectedOldPostId(featuredPosts[0]?.id || "")
-      setPostToAddFeatured(post)
-    }
+    setSelectedFeaturedPosition(getDefaultFeaturedPosition(post, featuredPosts))
+    setPostToAssignFeatured(post)
   }
 
   const handleRemoveFeatured = (post: PostRow) => {
     startTransition(async () => {
       const formData = new FormData()
       formData.set("postId", post.id)
-      formData.set("featured", "false")
-      const res = await rest.togglePostFeatured(formData)
+      const res = await rest.clearFeaturedSlot(formData)
       if (res?.toast) {
         showToastByKey(res.toast)
       }
     })
   }
 
-  const handleConfirmReplacement = () => {
-    if (!postToAddFeatured || !selectedOldPostId) return
+  const handleConfirmFeaturedSlot = () => {
+    if (!postToAssignFeatured || !selectedFeaturedPosition) return
     startTransition(async () => {
       const formData = new FormData()
-      formData.set("oldPostId", selectedOldPostId)
-      formData.set("newPostId", postToAddFeatured.id)
-      const res = await rest.replaceFeaturedPost(formData)
-      setPostToAddFeatured(null)
+      formData.set("postId", postToAssignFeatured.id)
+      formData.set("featuredPosition", selectedFeaturedPosition)
+      const res = await rest.assignFeaturedSlot(formData)
+      setPostToAssignFeatured(null)
       if (res?.toast) {
         showToastByKey(res.toast)
       }
     })
   }
+
+  const featuredByPosition = new Map(
+    featuredPosts
+      .filter((post) => typeof post.featuredPosition === "number")
+      .map((post) => [post.featuredPosition as number, post])
+  )
+  const previewUsedIds = new Set(featuredPosts.map((post) => post.id))
+  if (postToAssignFeatured) {
+    previewUsedIds.add(postToAssignFeatured.id)
+  }
+  let fillerIndex = 0
+  const featuredSlotPreviews = FEATURED_POSITIONS.map((position) => {
+    const isSelected = selectedFeaturedPosition === String(position)
+    const assignedPost = featuredByPosition.get(position)
+    let previewPost: FeaturedPostRow | PostRow | null =
+      isSelected && postToAssignFeatured ? postToAssignFeatured : assignedPost ?? null
+    let source: "selected" | "assigned" | "fallback" | "empty" = isSelected
+      ? "selected"
+      : assignedPost
+        ? "assigned"
+        : "empty"
+
+    if (!previewPost) {
+      while (
+        fillerIndex < featuredSlotFillers.length &&
+        previewUsedIds.has(featuredSlotFillers[fillerIndex].id)
+      ) {
+        fillerIndex += 1
+      }
+
+      previewPost = featuredSlotFillers[fillerIndex] ?? null
+      if (previewPost) {
+        previewUsedIds.add(previewPost.id)
+        fillerIndex += 1
+        source = "fallback"
+      }
+    }
+
+    return { position, previewPost, source }
+  })
 
   const toggleSelectAll = () => {
     if (selectedIds.size === posts.length) {
@@ -271,7 +324,7 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                             variant="outline"
                             className="h-4 border-amber-300 px-1 py-0 text-[10px] text-amber-600"
                           >
-                            Nổi bật
+                            {post.featuredPosition ? `Tiêu điểm #${post.featuredPosition}` : "Nổi bật"}
                           </Badge>
                         )}
                         {post.isTrending && (
@@ -393,7 +446,6 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
                   <TableCell className="py-3">
                     <PostActionsCell
                       post={post}
-                      featuredPosts={featuredPosts}
                       onSetFeatured={() => handleSetFeatured(post)}
                       onRemoveFeatured={() => handleRemoveFeatured(post)}
                       {...rest}
@@ -406,72 +458,122 @@ export function PostsTable({ posts, featuredPosts = [], ...rest }: PostsTablePro
         </table>
       </div>
 
-      {/* Dialog for Replacing Featured Post */}
+      {/* Dialog for assigning a featured slot */}
       <Dialog
-        open={postToAddFeatured !== null}
+        open={postToAssignFeatured !== null}
         onOpenChange={(open) => {
-          if (!open) setPostToAddFeatured(null)
+          if (!open) setPostToAssignFeatured(null)
         }}
       >
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[760px]">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-zinc-900">
-              Đạt giới hạn tin tiêu điểm (Tối đa 5 bài)
+              Chọn vị trí Tin tiêu điểm
             </DialogTitle>
             <DialogDescription className="text-zinc-600">
-              Danh sách tin tiêu điểm đã đạt tối đa 5 bài viết. Vui lòng chọn một bài viết dưới đây để thay thế bằng bài viết mới <strong>"{postToAddFeatured?.title}"</strong>:
+              Slot 1 là tin lớn nhất trên trang chính. Slot trống đang xem trước bằng các tin mới nhất và sẽ không được ghim tự động.
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-4">
-            <div className="space-y-3">
-              {featuredPosts.map((fp) => (
+            <p className="mb-3 text-sm font-semibold text-zinc-900">
+              Ghim: {postToAssignFeatured?.title}
+            </p>
+            <RadioGroup
+              value={selectedFeaturedPosition}
+              onValueChange={setSelectedFeaturedPosition}
+              className="grid gap-3 md:grid-cols-2"
+            >
+              {featuredSlotPreviews.map(({ position, previewPost, source }) => (
                 <label
-                  key={fp.id}
+                  key={position}
+                  htmlFor={`featured-slot-${position}`}
                   className={cn(
-                    "flex items-start gap-3 rounded-lg border p-3 hover:bg-zinc-50 cursor-pointer transition",
-                    selectedOldPostId === fp.id
+                    "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition hover:bg-zinc-50",
+                    selectedFeaturedPosition === String(position)
                       ? "border-rose-500 bg-rose-50/40"
                       : "border-zinc-200"
                   )}
                 >
-                  <input
-                    type="radio"
-                    name="oldFeaturedPost"
-                    value={fp.id}
-                    checked={selectedOldPostId === fp.id}
-                    onChange={() => setSelectedOldPostId(fp.id)}
-                    className="mt-1 size-4 accent-rose-600 cursor-pointer"
+                  <RadioGroupItem
+                    id={`featured-slot-${position}`}
+                    value={String(position)}
+                    className="mt-1"
                   />
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-zinc-800 line-clamp-2">
-                      {fp.title}
-                    </p>
-                    {fp.publishedAt && (
-                      <p className="text-xs text-zinc-400">
-                        Đăng ngày: {new Date(fp.publishedAt).toLocaleDateString("vi-VN")}
-                      </p>
+                  <div
+                    className={cn(
+                      "relative shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100",
+                      position === 1 ? "h-20 w-28" : "h-16 w-24"
                     )}
+                  >
+                    {previewPost?.thumbnailUrl ? (
+                      <Image
+                        src={previewPost.thumbnailUrl}
+                        alt={previewPost.title}
+                        fill
+                        loading="lazy"
+                        sizes="112px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-[10px] font-medium text-zinc-400">
+                        No img
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wide text-zinc-900">
+                        Slot {position}
+                      </span>
+                      {position === 1 ? (
+                        <Badge variant="secondary" className="h-5 text-[10px]">
+                          Tin lớn
+                        </Badge>
+                      ) : null}
+                      {source === "selected" ? (
+                        <Badge variant="outline" className="h-5 text-[10px]">
+                          Sẽ ghim
+                        </Badge>
+                      ) : source === "fallback" ? (
+                        <Badge variant="outline" className="h-5 text-[10px]">
+                          Tự fill
+                        </Badge>
+                      ) : source === "assigned" ? (
+                        <Badge variant="outline" className="h-5 text-[10px]">
+                          Đang ghim
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <p className="line-clamp-2 text-sm font-semibold text-zinc-800">
+                      {previewPost?.title || "Chưa có tin để hiển thị"}
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      {previewPost?.category?.name || "Slot trống"}
+                      {previewPost?.publishedAt
+                        ? ` · ${new Date(previewPost.publishedAt).toLocaleDateString("vi-VN")}`
+                        : ""}
+                    </p>
                   </div>
                 </label>
               ))}
-            </div>
+            </RadioGroup>
           </div>
 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setPostToAddFeatured(null)}
+              onClick={() => setPostToAssignFeatured(null)}
               disabled={isPending}
             >
               Hủy
             </Button>
             <Button
               className="bg-rose-600 text-white hover:bg-rose-700"
-              onClick={handleConfirmReplacement}
-              disabled={isPending || !selectedOldPostId}
+              onClick={handleConfirmFeaturedSlot}
+              disabled={isPending || !selectedFeaturedPosition}
             >
-              {isPending ? "Đang xử lý..." : "Xác nhận thay thế"}
+              {isPending ? "Đang xử lý..." : "Ghim vào slot"}
             </Button>
           </DialogFooter>
         </DialogContent>

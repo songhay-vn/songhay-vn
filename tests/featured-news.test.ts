@@ -13,15 +13,18 @@ describe("featured news verification", () => {
     expect(source).toContain('cacheTag("featured-posts")')
     expect(source).toContain('cacheLife("days")')
     expect(source).toContain("isFeatured: true")
-    expect(source).toContain("take: 5")
+    expect(source).toContain("featuredPosition: { not: null }")
+    expect(source).toContain("take: FEATURED_HOMEPAGE_SLOT_COUNT")
   })
 
-  test("app/admin/actions/posts.ts contains togglePostFeatured and replaceFeaturedPost actions", () => {
+  test("app/admin/actions/posts.ts contains featured slot assign and clear actions", () => {
     const source = readWorkspaceFile("app/admin/actions/posts.ts")
-    expect(source).toContain("export async function togglePostFeatured(formData: FormData)")
-    expect(source).toContain("export async function replaceFeaturedPost(formData: FormData)")
-    expect(source).toContain("isFeatured: featured")
-    expect(source).toContain('toast: "featured_limit_exceeded"')
+    expect(source).toContain("const FEATURED_SLOT_COUNT = 6")
+    expect(source).toContain("export async function assignFeaturedSlot(formData: FormData)")
+    expect(source).toContain("export async function clearFeaturedSlot(formData: FormData)")
+    expect(source).toContain("formData.get(\"featuredPosition\")")
+    expect(source).toContain("featuredPosition > FEATURED_SLOT_COUNT")
+    expect(source).toContain("featuredPosition: null")
     expect(source).toContain("isFeaturedChange: true")
   })
 
@@ -30,25 +33,30 @@ describe("featured news verification", () => {
     const cellSource = readWorkspaceFile("components/admin/posts-tab/post-actions-cell.tsx")
 
     expect(tableSource).toContain("featuredPosts")
-    expect(tableSource).toContain("postToAddFeatured")
-    expect(tableSource).toContain("selectedOldPostId")
-    expect(tableSource).toContain("handleConfirmReplacement")
-    expect(tableSource).toContain("replaceFeaturedPost")
-    expect(tableSource).toContain("togglePostFeatured")
+    expect(tableSource).toContain("featuredSlotFillers")
+    expect(tableSource).toContain("postToAssignFeatured")
+    expect(tableSource).toContain("selectedFeaturedPosition")
+    expect(tableSource).toContain("handleConfirmFeaturedSlot")
+    expect(tableSource).toContain("assignFeaturedSlot")
+    expect(tableSource).toContain("clearFeaturedSlot")
+    expect(tableSource).toContain("RadioGroup")
+    expect(tableSource).toContain('loading="lazy"')
+    expect(tableSource).toContain('sizes="112px"')
+    expect(tableSource).toContain("Slot {position}")
 
     expect(cellSource).toContain("post.isFeatured ? (")
     expect(cellSource).toContain("Bỏ tiêu điểm")
-    expect(cellSource).toContain("Tiêu điểm")
+    expect(cellSource).toContain("Ghim tin")
     expect(cellSource).toContain("onSetFeatured")
     expect(cellSource).toContain("onRemoveFeatured")
   })
 
-  test("components/news/news-layout.tsx places FeaturedSidebar on both mobile and desktop views", () => {
+  test("components/news/news-layout.tsx removes FeaturedSidebar from mobile and desktop sidebars", () => {
     const source = readWorkspaceFile("components/news/news-layout.tsx")
-    expect(source).toContain('import { FeaturedSidebar } from "./featured-sidebar"')
-    expect(source).toContain('className="lg:hidden"')
-    expect(source).toContain('className="hidden lg:block"')
-    expect(source).toContain("<FeaturedSidebar />")
+    expect(source).not.toContain('import { FeaturedSidebar } from "./featured-sidebar"')
+    expect(source).not.toContain("<FeaturedSidebar />")
+    expect(source).toContain("latestPosts?: PostListItem[]")
+    expect(source).toContain("<LatestArticleSection posts={latestPosts} />")
   })
 
   test("components/news/most-read.tsx accepts an optional title prop", () => {

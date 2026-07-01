@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getSiteUrl, toAbsoluteUrl } from "@/lib/seo"
 
 export const revalidate = 21600
+const staticContentLastModified = "2026-06-30T00:00:00.000Z"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl()
@@ -94,7 +95,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   sitemapData.push({
     url: siteUrl,
-    lastModified: new Date(0).toISOString(),
+    lastModified: staticContentLastModified,
     changeFrequency: "hourly",
     priority: 1,
   })
@@ -102,7 +103,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   staticPages.forEach((item) => {
     sitemapData.push({
       url: item.url,
-      lastModified: new Date(0).toISOString(),
+      lastModified: staticContentLastModified,
       changeFrequency: item.changeFrequency,
       priority: item.priority,
     })

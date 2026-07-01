@@ -42,8 +42,8 @@ export function PostsTab({
   returnPostToPendingReview,
   returnPostToPendingPublish,
   checkPostIndex,
-  togglePostFeatured,
-  replaceFeaturedPost,
+  assignFeaturedSlot,
+  clearFeaturedSlot,
 }: PostsTabProps) {
   const hasActiveFilters = Boolean(
     filters.query ||
@@ -77,8 +77,8 @@ export function PostsTab({
     returnPostToPendingReview,
     returnPostToPendingPublish,
     checkPostIndex,
-    togglePostFeatured,
-    replaceFeaturedPost,
+    assignFeaturedSlot,
+    clearFeaturedSlot,
   }
 
   return (
@@ -93,6 +93,7 @@ export function PostsTab({
       <PostsTable
         posts={postsData.posts}
         featuredPosts={postsData.featuredPosts || []}
+        featuredSlotFillers={postsData.featuredSlotFillers || []}
         {...permissions}
         {...actions}
       />

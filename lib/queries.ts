@@ -36,6 +36,7 @@ const POPULAR_POSTS_ANALYTICS_CANDIDATE_MULTIPLIER = 8
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MIN = 30
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MAX = 100
 const POST_VIEW_COUNT_ANALYTICS_DAYS = 30
+const FEATURED_HOMEPAGE_SLOT_COUNT = 6
 
 const postCardSelect = {
   id: true,
@@ -51,6 +52,11 @@ const postCardSelect = {
     },
   },
   _count: selectApprovedCommentsCount,
+} satisfies Prisma.PostSelect
+
+const featuredPostCardSelect = {
+  ...postCardSelect,
+  featuredPosition: true,
 } satisfies Prisma.PostSelect
 
 const postCardWithRootCategorySelect = {
@@ -289,18 +295,67 @@ async function getLatestPostsHome() {
     where: publishedPostWhere(),
     select: postCardSelect,
     orderBy: { publishedAt: "desc" },
-    take: 30,
+    take: 36,
+  })
+}
+
+async function getFeaturedPostsHome() {
+  "use cache"
+  cacheTag("featured-posts")
+  cacheLife("days")
+
+  return prisma.post.findMany({
+    where: {
+      ...publishedPostWhere(),
+      isFeatured: true,
+      featuredPosition: { not: null },
+    },
+    select: featuredPostCardSelect,
+    orderBy: [{ featuredPosition: "asc" }, { publishedAt: "desc" }],
+    take: FEATURED_HOMEPAGE_SLOT_COUNT,
   })
 }
 
 export async function getHomepageData() {
-  const [mostRead, latest] = await Promise.all([
+  const [mostRead, featured, latest] = await Promise.all([
     getMostReadPostsHome(),
+    getFeaturedPostsHome(),
     getLatestPostsHome(),
   ])
 
-  const heroSlots = latest.slice(0, 7)
-  const latestRest = latest.slice(7)
+  const featuredByPosition = new Map<number, (typeof featured)[number]>()
+  for (const post of featured) {
+    if (
+      typeof post.featuredPosition === "number" &&
+      post.featuredPosition >= 1 &&
+      post.featuredPosition <= FEATURED_HOMEPAGE_SLOT_COUNT
+    ) {
+      featuredByPosition.set(post.featuredPosition, post)
+    }
+  }
+
+  const blockedIds = new Set(featured.map((post) => post.id))
+  const heroIds = new Set<string>()
+  const heroSlots: PostListItem[] = []
+
+  for (let position = 1; position <= FEATURED_HOMEPAGE_SLOT_COUNT; position += 1) {
+    const featuredPost = featuredByPosition.get(position)
+    if (featuredPost) {
+      heroSlots.push(featuredPost)
+      heroIds.add(featuredPost.id)
+      continue
+    }
+
+    const fallback = latest.find(
+      (post) => !blockedIds.has(post.id) && !heroIds.has(post.id)
+    )
+    if (fallback) {
+      heroSlots.push(fallback)
+      heroIds.add(fallback.id)
+    }
+  }
+
+  const latestRest = latest.filter((post) => !heroIds.has(post.id))
   return { heroSlots, latestRest, mostRead }
 }
 
@@ -567,15 +622,16 @@ export async function getFeaturedPosts() {
 
   return prisma.post.findMany({
     where: {
+      ...publishedPostWhere(),
       isFeatured: true,
-      isPublished: true,
-      isDeleted: false,
+      featuredPosition: { not: null },
     },
     select: {
       id: true,
       title: true,
       thumbnailUrl: true,
       slug: true,
+      featuredPosition: true,
       category: {
         select: {
           name: true,
@@ -583,8 +639,8 @@ export async function getFeaturedPosts() {
         },
       },
     },
-    orderBy: { publishedAt: "desc" },
-    take: 5,
+    orderBy: [{ featuredPosition: "asc" }, { publishedAt: "desc" }],
+    take: FEATURED_HOMEPAGE_SLOT_COUNT,
   })
 }
 

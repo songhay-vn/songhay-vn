@@ -3,7 +3,6 @@ import { SiteHeader } from "./site-header"
 import { SiteFooter } from "./site-footer"
 import { SiteMainContainer } from "./site-main-container"
 import { TrendingSidebar } from "./trending-sidebar"
-import { FeaturedSidebar } from "./featured-sidebar"
 import { ClientSideWidgets } from "./client-side-widgets"
 import { ZaloChatButton } from "./zalo-chat-button"
 import { CategoryArticleSections } from "./category-article-sections"
@@ -11,7 +10,7 @@ import { LatestArticleSection } from "./latest-article-section"
 import { DontMissWidget } from "./dont-miss-widget"
 import { InstituteProductsSection } from "./institute-products-section"
 import { SectionHeading } from "./section-heading"
-import type { CategoryWithChildren } from "@/lib/queries"
+import type { CategoryWithChildren, PostListItem } from "@/lib/queries"
 
 type NewsLayoutProps = {
   children: ReactNode
@@ -25,6 +24,7 @@ type NewsLayoutProps = {
   showZalo?: boolean
   showDontMissSection?: boolean
   showBottomCategorySections?: boolean
+  latestPosts?: PostListItem[]
 }
 
 export function NewsLayout({
@@ -39,6 +39,7 @@ export function NewsLayout({
   showZalo = true,
   showDontMissSection = true,
   showBottomCategorySections = false,
+  latestPosts,
 }: NewsLayoutProps) {
   return (
     <div className={`min-h-screen bg-zinc-50 text-zinc-900 ${className || ""}`}>
@@ -51,15 +52,6 @@ export function NewsLayout({
           {/* Main Content */}
           <main className="flex flex-col gap-6">
             {children}
-            <div className="lg:hidden">
-              <Suspense
-                fallback={
-                  <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />
-                }
-              >
-                <FeaturedSidebar />
-              </Suspense>
-            </div>
             {showDontMissSection ? (
               <>
                 <section className="space-y-3">
@@ -76,7 +68,7 @@ export function NewsLayout({
                     <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
                   }
                 >
-                  <LatestArticleSection />
+                  <LatestArticleSection posts={latestPosts} />
                 </Suspense>
                 <Suspense
                   fallback={
@@ -92,15 +84,6 @@ export function NewsLayout({
           {/* Sidebar */}
           {showSidebar && (
             <aside className="flex flex-col gap-4">
-              <div className="hidden lg:block">
-                <Suspense
-                  fallback={
-                    <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />
-                  }
-                >
-                  <FeaturedSidebar />
-                </Suspense>
-              </div>
               <Suspense
                 fallback={
                   <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />

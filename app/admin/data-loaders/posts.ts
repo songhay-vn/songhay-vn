@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client"
 
 import { canViewAllPosts } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
+import { publishedPostWhere } from "@/lib/query-utils"
 import { endOfDay, parseDateInput, startOfDay } from "@/app/admin/data-helpers"
 import { attachAnalyticsViewsToPostRows } from "@/app/admin/data-loaders/post-analytics"
 import type {
@@ -23,7 +24,26 @@ export async function getPostsData(
       totalCount: 0,
       totalPages: 1,
       currentPage: 1,
-      featuredPosts: [] as Array<{ id: string; title: string; slug: string; publishedAt: Date | null }>,
+      featuredPosts: [] as Array<{
+        id: string
+        title: string
+        slug: string
+        excerpt: string | null
+        thumbnailUrl: string | null
+        publishedAt: Date | null
+        featuredPosition: number | null
+        category: { name: string; slug: string }
+      }>,
+      featuredSlotFillers: [] as Array<{
+        id: string
+        title: string
+        slug: string
+        excerpt: string | null
+        thumbnailUrl: string | null
+        publishedAt: Date | null
+        featuredPosition: number | null
+        category: { name: string; slug: string }
+      }>,
       filterOptions: {
         authors: [] as Array<{ id: string; name: string; email: string }>,
         categories: [] as Array<{ id: string; name: string; slug: string }>,
@@ -149,6 +169,7 @@ export async function getPostsData(
         createdAt: true,
         updatedAt: true,
         publishedAt: true,
+        featuredPosition: true,
         approvedAt: true,
         scheduledPublishAt: true,
         isFeatured: true,
@@ -220,18 +241,50 @@ export async function getPostsData(
 
   const featuredPosts = await prisma.post.findMany({
     where: {
+      ...publishedPostWhere(),
       isFeatured: true,
-      isPublished: true,
-      isDeleted: false,
+      featuredPosition: { not: null },
     },
     select: {
       id: true,
       title: true,
       slug: true,
+      excerpt: true,
+      thumbnailUrl: true,
       publishedAt: true,
+      featuredPosition: true,
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+    orderBy: [{ featuredPosition: "asc" }, { publishedAt: "desc" }],
+    take: 6,
+  })
+  const featuredSlotFillers = await prisma.post.findMany({
+    where: {
+      ...publishedPostWhere(),
+      id: { notIn: featuredPosts.map((post) => post.id) },
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      thumbnailUrl: true,
+      publishedAt: true,
+      featuredPosition: true,
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
     },
     orderBy: { publishedAt: "desc" },
-    take: 5,
+    take: 6,
   })
   const postsWithViews = await attachAnalyticsViewsToPostRows(posts)
 
@@ -241,6 +294,7 @@ export async function getPostsData(
     totalPages,
     currentPage,
     featuredPosts,
+    featuredSlotFillers,
     filterOptions: {
       authors: authorOptions,
       categories: categoryOptions,

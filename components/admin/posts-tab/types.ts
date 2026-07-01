@@ -30,6 +30,7 @@ export type PostRow = {
   createdAt: Date
   updatedAt: Date
   publishedAt: Date | null
+  featuredPosition: number | null
   approvedAt: Date | null
   scheduledPublishAt: Date | null
   isFeatured: boolean
@@ -60,7 +61,11 @@ export type FeaturedPostRow = {
   id: string
   title: string
   slug: string
+  excerpt?: string | null
+  thumbnailUrl: string | null
   publishedAt: Date | null
+  featuredPosition: number | null
+  category: { name: string; slug: string }
 }
 
 export type PostsData = {
@@ -69,6 +74,7 @@ export type PostsData = {
   totalPages: number
   currentPage: number
   featuredPosts?: FeaturedPostRow[]
+  featuredSlotFillers?: FeaturedPostRow[]
   filterOptions: {
     authors: Array<{ id: string; name: string; email: string }>
     categories: Array<{ id: string; name: string; slug: string }>
@@ -85,8 +91,8 @@ export type PostActions = {
   returnPostToPendingReview: (formData: FormData) => Promise<{ toast: string } | void | undefined>
   returnPostToPendingPublish: (formData: FormData) => Promise<{ toast: string } | void | undefined>
   checkPostIndex: (formData: FormData) => Promise<{ toast: string } | void | undefined>
-  togglePostFeatured: (formData: FormData) => Promise<{ toast: string } | void | undefined>
-  replaceFeaturedPost: (formData: FormData) => Promise<{ toast: string } | void | undefined>
+  assignFeaturedSlot: (formData: FormData) => Promise<{ toast: string } | void | undefined>
+  clearFeaturedSlot: (formData: FormData) => Promise<{ toast: string } | void | undefined>
 }
 
 export type PostPermissions = {

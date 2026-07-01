@@ -31,8 +31,8 @@ import {
   updatePenName,
   updateUserRole,
   deleteUser,
-  togglePostFeatured,
-  replaceFeaturedPost,
+  assignFeaturedSlot,
+  clearFeaturedSlot,
 } from "@/app/admin/actions"
 import { type AdminTab, getAdminPageData } from "@/app/admin/data"
 import {
@@ -299,8 +299,8 @@ async function AdminPageContent({
     returnPostToPendingReview,
     returnPostToPendingPublish,
     checkPostIndex,
-    togglePostFeatured,
-    replaceFeaturedPost,
+    assignFeaturedSlot,
+    clearFeaturedSlot,
   }
 
   return (

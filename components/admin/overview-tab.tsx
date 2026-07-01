@@ -127,9 +127,6 @@ export function OverviewTab({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
             <CardTitle>Traffic</CardTitle>
-            <span className="text-xs text-muted-foreground">
-              GA4 screenPageViews
-            </span>
           </CardHeader>
           <CardContent>
             {overviewAnalytics.error ? (

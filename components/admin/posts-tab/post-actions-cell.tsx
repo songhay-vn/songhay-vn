@@ -20,11 +20,10 @@ import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import { Button } from "@/components/ui/button"
 
 import { canEditPost } from "./types"
-import type { PostActions, PostPermissions, PostRow, FeaturedPostRow } from "./types"
+import type { PostActions, PostPermissions, PostRow } from "./types"
 
 type PostActionsCellProps = {
   post: PostRow
-  featuredPosts?: FeaturedPostRow[]
   onSetFeatured?: () => void
   onRemoveFeatured?: () => void
 } & PostPermissions &
@@ -51,7 +50,6 @@ export function PostActionsCell({
   returnPostToPendingPublish,
   movePostToTrash,
   checkPostIndex,
-  featuredPosts,
   onSetFeatured,
   onRemoveFeatured,
 }: PostActionsCellProps) {
@@ -291,7 +289,7 @@ export function PostActionsCell({
               className={`${btn} border-amber-300 text-amber-700 hover:bg-amber-50`}
               onClick={onRemoveFeatured}
             >
-              <PinOff className="mr-1.5 size-3" />
+              <PinOff data-icon="inline-start" />
               Bỏ tiêu điểm
             </Button>
           ) : (
@@ -302,8 +300,8 @@ export function PostActionsCell({
               className={`${btn} border-zinc-300 text-zinc-700 hover:bg-zinc-50`}
               onClick={onSetFeatured}
             >
-              <Pin className="mr-1.5 size-3" />
-              Tiêu điểm
+              <Pin data-icon="inline-start" />
+              Ghim tin
             </Button>
           )
         )}

@@ -69,6 +69,7 @@ export async function getPersonalPostsData(activeTab: AdminTab, personalArchiveF
       isPublished: true,
       isDraft: true,
       isFeatured: true,
+      featuredPosition: true,
       isTrending: true,
       createdAt: true,
       publishedAt: true,

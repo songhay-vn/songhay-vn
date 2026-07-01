@@ -149,6 +149,8 @@ describe("Source Verification: Shared public bottom sections", () => {
     expect(widgetSource).toContain('"/api/bio-age-submissions"')
     expect(widgetSource).toContain("Kết quả chỉ dùng để tự quan sát lối sống")
     expect(sitemapSource).toContain("${siteUrl}/tinh-tuoi-sinh-hoc")
+    expect(sitemapSource).toContain("const staticContentLastModified")
+    expect(sitemapSource).not.toContain("new Date(0).toISOString()")
     expect(nextConfigSource).toContain('source: "/tuoi-sinh-hoc"')
     expect(nextConfigSource).toContain("tinh-tuoi-sinh-hoc-:age")
     expect(schemaSource).toContain("model BioAgeSubmission")
@@ -163,9 +165,13 @@ describe("Source Verification: Shared public bottom sections", () => {
     const source = readWorkspaceFile("lib/queries.ts")
     const notFoundSource = readWorkspaceFile("app/not-found.tsx")
 
-    expect(source).toContain("const heroSlots = latest.slice(0, 7)")
-    expect(source).toContain("const latestRest = latest.slice(7)")
+    expect(source).toContain("const FEATURED_HOMEPAGE_SLOT_COUNT = 6")
+    expect(source).toContain("async function getFeaturedPostsHome()")
+    expect(source).toContain("const heroSlots: PostListItem[] = []")
+    expect(source).toContain("const latestRest = latest.filter((post) => !heroIds.has(post.id))")
     expect(source).toContain("return { heroSlots, latestRest, mostRead }")
+    expect(source).not.toContain("const heroSlots = latest.slice(0, 7)")
+    expect(source).not.toContain("const latestRest = latest.slice(7)")
     expect(source).not.toContain("return { heroSlots, mostRead, latest }")
     expect(notFoundSource).toContain("latestRest.slice(0, 4)")
   })
@@ -183,7 +189,9 @@ describe("Source Verification: Shared public bottom sections", () => {
       'import { LatestArticleSection } from "./latest-article-section"'
     )
     expect(source).toContain("showBottomCategorySections")
-    expect(source.indexOf("<LatestArticleSection />")).toBeLessThan(
+    expect(source).toContain("latestPosts?: PostListItem[]")
+    expect(source).toContain("<LatestArticleSection posts={latestPosts} />")
+    expect(source.indexOf("<LatestArticleSection posts={latestPosts} />")).toBeLessThan(
       source.indexOf("<CategoryArticleSections />")
     )
     expect(latestSectionSource).toContain("getLatestPublishedPosts")
