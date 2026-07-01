@@ -89,8 +89,7 @@ export default async function HomePage() {
         }
         latestPosts={latestRest}
       >
-        <section className="flex flex-col gap-6" aria-label="Tin tiêu điểm">
-          <SectionHeading title="Tin tiêu điểm" />
+        <section className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Main Featured (2/3 width) */}
             <div className="lg:col-span-2">
