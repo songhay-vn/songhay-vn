@@ -22,7 +22,7 @@ const canonicalUrl = siteUrl
 const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
 const defaultOgImageAlt = `${SITE_NAME} - Sống khỏe thuận tự nhiên`
 const homeDescription =
-  "Tin tức và tiện ích mỗi ngày: sống khỏe, mẹo hay, đời sống, góc stress, tử vi, video."
+  "Kiến thức sức khỏe, thảo mộc, y học cổ truyền và lối sống xanh mỗi ngày."
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | Sống khỏe thuận tự nhiên`,

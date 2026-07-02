@@ -35,7 +35,7 @@ const siteUrl = getSiteUrl()
 const googleAnalyticsMeasurementId =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-C1ZX5NG9PC"
 const defaultDescription =
-  "Songhay.vn - cổng thông tin phong cách sống Việt Nam với tin tức song hay, sống khỏe, mẹo hay, đời sống, góc stress, tử vi và video."
+  "Songhay.vn - cổng thông tin sống khỏe thuận tự nhiên với kiến thức sức khỏe, thảo mộc, y học cổ truyền, xoa bóp trị liệu và lối sống xanh mỗi ngày."
 const defaultOgImage = toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)
 
 export const metadata: Metadata = {
@@ -50,12 +50,12 @@ export const metadata: Metadata = {
   },
   keywords: [
     "Songhay",
-    "tin tuc",
-    "song khoe",
-    "meo hay",
-    "doi song",
-    "tu vi",
-    "video",
+    "suc khoe",
+    "cay thuoc quanh ta",
+    "y hoc co truyen",
+    "xoa bop tri lieu",
+    "loi song xanh",
+    "cua hang song khoe",
   ],
   authors: [{ name: SITE_NAME }],
   robots: {
