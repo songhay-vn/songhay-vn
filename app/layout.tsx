@@ -4,7 +4,6 @@ import Script from "next/script"
 import { Suspense } from "react"
 
 import "./globals.css"
-import { AdsenseHydrator } from "@/components/news/adsense-hydrator"
 import { FloatingGiftButton } from "@/components/news/floating-gift-button"
 import { GoogleAnalytics } from "@/components/seo/google-analytics"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -146,9 +145,6 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
-        <Suspense fallback={null}>
-          <AdsenseHydrator />
-        </Suspense>
         <TooltipProvider>
           <Suspense fallback={null}>
             <ScrollToTopOnRouteChange />
