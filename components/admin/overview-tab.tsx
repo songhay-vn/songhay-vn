@@ -145,7 +145,7 @@ export function OverviewTab({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
-          <CardTitle>Độc giả tuổi sinh học</CardTitle>
+          <CardTitle>Tuổi sinh học độc giả sinh học</CardTitle>
           <span className="text-xs text-muted-foreground">
             dữ liệu bài test
           </span>
@@ -212,8 +212,8 @@ export function OverviewTab({
                         const percent =
                           bioAgeInsights.totalCount > 0
                             ? Math.round(
-                                (item.count / bioAgeInsights.totalCount) * 100
-                              )
+                              (item.count / bioAgeInsights.totalCount) * 100
+                            )
                             : 0
 
                         return (
