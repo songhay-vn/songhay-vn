@@ -8,12 +8,12 @@ describe("Unit: Rate Limiter", () => {
         "x-forwarded-for": "192.168.1.1, 10.0.0.1"
       }
     })
-    expect(getIP(req as any)).toBe("192.168.1.1")
+    expect(getIP(req as unknown as Request)).toBe("192.168.1.1")
   })
 
   test("getIP defaults to 127.0.0.1 when header is missing", () => {
     const req = new Request("http://localhost/api/test")
-    expect(getIP(req as any)).toBe("127.0.0.1")
+    expect(getIP(req as unknown as Request)).toBe("127.0.0.1")
   })
 
   test("rateLimit allows requests within limit", () => {

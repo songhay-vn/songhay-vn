@@ -142,7 +142,7 @@ class PastePlainTextPlugin extends Plugin {
             const viewFragment = editor.data.processor.toView(cleanHtml)
             const modelFragment = editor.data.toModel(viewFragment)
 
-            editor.model.change((writer) => {
+            editor.model.change(() => {
               editor.model.insertContent(modelFragment)
             })
             return
@@ -168,7 +168,7 @@ class PastePlainTextPlugin extends Plugin {
 
             const viewFragment = editor.data.processor.toView(paragraphsHTML || escapeHtml(text))
             const modelFragment = editor.data.toModel(viewFragment)
-            editor.model.change((writer) => {
+            editor.model.change(() => {
               editor.model.insertContent(modelFragment)
             })
           }
@@ -187,7 +187,7 @@ type CKEditorWrapperProps = {
   data: string
   onChange: (data: string) => void
   placeholder?: string
-  onReady?: (editor: any) => void
+  onReady?: (editor: unknown) => void
 }
 
 export function CKEditorWrapper({ data, onChange, placeholder, onReady }: CKEditorWrapperProps) {

@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import {
-  ALL_PERMISSION_ACTIONS,
   ALL_EDITABLE_ROLES,
   ACTION_LABELS_VI,
   ROLE_LABELS_VI,

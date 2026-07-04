@@ -1,4 +1,3 @@
-import type { EditorialStatus, UserRole } from "@prisma/client"
 
 import {
   getPlainTextFromHtml,

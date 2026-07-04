@@ -231,7 +231,6 @@ export async function OverviewGa4ContentSection() {
 export async function OverviewSeoSignalsSection() {
   const signals = await getOverviewSignals()
   const searchQueries = signals.googleSeoSignals.searchConsole.queries
-  const organicLandingPages = signals.googleSeoSignals.analytics.landingPages
   const searchConsoleRangeLabel = formatDateRange(
     signals.googleSeoSignals.searchConsole.startDate,
     signals.googleSeoSignals.searchConsole.endDate

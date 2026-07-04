@@ -18,7 +18,7 @@ describe("Unit: Cloudinary Utilities", () => {
   test("deleteCloudinaryAsset does not throw on success", async () => {
     const fetchSpy = spyOn(globalThis, "fetch").mockImplementation((() =>
       Promise.resolve(new Response(JSON.stringify({ result: "ok" }), { status: 200 }))
-    ) as any)
+    ) as unknown as typeof fetch)
     const consoleSpy = spyOn(console, "error")
 
     await deleteCloudinaryAsset("test-public-id")
@@ -35,7 +35,7 @@ describe("Unit: Cloudinary Utilities", () => {
   test("deleteCloudinaryAsset logs error on failed response", async () => {
     const fetchSpy = spyOn(globalThis, "fetch").mockImplementation((() =>
       Promise.resolve(new Response(JSON.stringify({ error: { message: "Not found" } }), { status: 404 }))
-    ) as any)
+    ) as unknown as typeof fetch)
     const consoleSpy = spyOn(console, "error").mockImplementation(() => {})
 
     await deleteCloudinaryAsset("test-public-id")

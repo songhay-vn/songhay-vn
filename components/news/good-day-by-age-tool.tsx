@@ -46,9 +46,12 @@ export function GoodDayByAgeTool({ showUtilityLinks = false }: GoodDayByAgeToolP
   const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    setTargetDate(toInputDate(tomorrow))
+    const timer = setTimeout(() => {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      setTargetDate(toInputDate(tomorrow))
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   const result = useMemo(() => {

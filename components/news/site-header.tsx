@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { getNavCategories, type CategoryWithChildren } from "@/lib/queries"
+import { getNavCategories } from "@/lib/queries"
 import { HeaderUserStatus } from "./header-user-status"
 
 type SiteHeaderProps = {

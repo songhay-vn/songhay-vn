@@ -8,7 +8,7 @@ import type { CategoryActions, CategoryManageRow } from "./types"
 
 type CategoryGroupProps = {
   parent: CategoryManageRow
-  children: CategoryManageRow[]
+  childCategories: CategoryManageRow[]
   allCategories: CategoryManageRow[]
   rootCategories: CategoryManageRow[]
   parentIndex: number
@@ -19,7 +19,7 @@ type CategoryGroupProps = {
 
 export function CategoryGroup({
   parent,
-  children,
+  childCategories,
   allCategories,
   rootCategories,
   parentIndex,
@@ -71,9 +71,9 @@ export function CategoryGroup({
       </div>
 
       {/* Children */}
-      {!collapsed && children.length > 0 && (
+      {!collapsed && hasChildren && (
         <div className="space-y-2 pl-8">
-          {children.map((child, ci) => (
+          {childCategories.map((child, ci) => (
             <CategoryRow
               key={child.id}
               category={child}

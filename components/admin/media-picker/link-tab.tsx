@@ -27,7 +27,7 @@ export function LinkTab({ onSelect }: LinkTabProps) {
 
     try {
       new URL(url)
-    } catch (e) {
+    } catch {
       setError("URL không hợp lệ, vui lòng kiểm tra lại.")
       return
     }

@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Vendored automation docs/scripts are not app runtime code.
     ".github/get-shit-done/**",
     ".github/skills/**",
+    ".agents/**",
+    "generated/**",
   ]),
 ]);
 

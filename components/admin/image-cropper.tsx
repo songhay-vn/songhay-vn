@@ -35,7 +35,7 @@ export function ImageCropper({
 }: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
   const onCropChange = (crop: { x: number; y: number }) => {
@@ -47,7 +47,7 @@ export function ImageCropper({
   }
 
   const onCropCompleteInternal = useCallback(
-    (_croppedArea: any, croppedAreaPixels: any) => {
+    (_croppedArea: { x: number; y: number; width: number; height: number }, croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
       setCroppedAreaPixels(croppedAreaPixels)
     },
     []

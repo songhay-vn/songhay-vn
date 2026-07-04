@@ -24,7 +24,7 @@ for (const p of posts) {
 for (const [title, group] of titles.entries()) {
   if (group.length > 1) {
     console.log(`\nDUPLICATE TITLE: ${title}`)
-    group.forEach((p: any) => console.log(`  - id:${p.id} | slug:${p.slug} | status:${p.editorialStatus} | isPublished:${p.isPublished}`))
+    group.forEach((p: typeof posts[0]) => console.log(`  - id:${p.id} | slug:${p.slug} | status:${p.editorialStatus} | isPublished:${p.isPublished}`))
   }
 }
 

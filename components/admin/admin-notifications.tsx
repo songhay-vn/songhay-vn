@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, CheckCheck, Trash2 } from "lucide-react"
+import { Bell, CheckCheck } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 
@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"

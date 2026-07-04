@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, spyOn } from "bun:test"
+import { describe, expect, test, beforeEach } from "bun:test"
 import { memoizeWithTtl, clearDataCache } from "../lib/data-cache"
 
 describe("Unit: Data Cache (memoizeWithTtl)", () => {

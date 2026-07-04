@@ -12,7 +12,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -116,8 +115,9 @@ export function PostsTable({
   if (postToAssignFeatured) {
     previewUsedIds.add(postToAssignFeatured.id)
   }
-  let fillerIndex = 0
-  const featuredSlotPreviews = FEATURED_POSITIONS.map((position) => {
+  const featuredSlotPreviews: { position: number; previewPost: FeaturedPostRow | PostRow | null; source: "selected" | "assigned" | "fallback" | "empty" }[] = []
+  let index = 0;
+  for (const position of FEATURED_POSITIONS) {
     const isSelected = selectedFeaturedPosition === String(position)
     const assignedPost = featuredByPosition.get(position)
     let previewPost: FeaturedPostRow | PostRow | null =
@@ -130,22 +130,22 @@ export function PostsTable({
 
     if (!previewPost) {
       while (
-        fillerIndex < featuredSlotFillers.length &&
-        previewUsedIds.has(featuredSlotFillers[fillerIndex].id)
+        index < featuredSlotFillers.length &&
+        previewUsedIds.has(featuredSlotFillers[index].id)
       ) {
-        fillerIndex += 1
+        index += 1
       }
 
-      previewPost = featuredSlotFillers[fillerIndex] ?? null
+      previewPost = featuredSlotFillers[index] ?? null
       if (previewPost) {
         previewUsedIds.add(previewPost.id)
-        fillerIndex += 1
+        index += 1
         source = "fallback"
       }
     }
 
-    return { position, previewPost, source }
-  })
+    featuredSlotPreviews.push({ position, previewPost, source })
+  }
 
   const toggleSelectAll = () => {
     if (selectedIds.size === posts.length) {

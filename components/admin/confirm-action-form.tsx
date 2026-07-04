@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 type ConfirmActionFormProps = {
-  action: (formData: FormData) => void | Promise<any>
+  action: (formData: FormData) => void | Promise<unknown>
   confirmMessage: string
   children: ReactNode
   className?: string

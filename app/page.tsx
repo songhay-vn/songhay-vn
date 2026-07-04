@@ -2,7 +2,6 @@ import Image from "next/image"
 import type { Metadata } from "next"
 
 import { PostCard } from "@/components/news/post-card"
-import { SectionHeading } from "@/components/news/section-heading"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
   getHomepageData,

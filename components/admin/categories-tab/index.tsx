@@ -163,7 +163,7 @@ export function CategoriesTab({
                 <CategoryGroup
                   key={root.id}
                   parent={root}
-                  children={children}
+                  childCategories={children}
                   allCategories={categoriesForManage}
                   rootCategories={rootCategories}
                   parentIndex={ri}
