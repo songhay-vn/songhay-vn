@@ -145,7 +145,7 @@ export function OverviewTab({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
-          <CardTitle>Tuổi sinh học độc giả sinh học</CardTitle>
+          <CardTitle>Tuổi sinh học độc giả</CardTitle>
           <span className="text-xs text-muted-foreground">
             dữ liệu bài test
           </span>

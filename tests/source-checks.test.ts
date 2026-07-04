@@ -158,7 +158,7 @@ describe("Source Verification: Shared public bottom sections", () => {
     expect(apiSource).toContain("prisma.bioAgeSubmission.upsert")
     expect(apiSource).toContain("skipped")
     expect(loaderSource).toContain("getBioAgeInsights")
-    expect(overviewSource).toContain("Tuổi sinh học độc giả sinh học")
+    expect(overviewSource).toContain("Tuổi sinh học độc giả")
   })
 
   test("homepage data exposes non-overlapping hero and latest sets", () => {
