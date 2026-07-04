@@ -142,12 +142,7 @@ export async function OverviewGa4ContentSection() {
     <Card>
       <CardHeader className="flex flex-row items-end justify-between gap-3 space-y-0 pb-2">
         <div>
-          <CardTitle>GA4 Content</CardTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {ga4Content.propertyId
-              ? `GA4 ${ga4Content.propertyId}`
-              : "GA_PROPERTY_ID"}
-          </p>
+          <CardTitle>Dữ liệu từ Google</CardTitle>
         </div>
         <span className="text-3xl font-black text-emerald-700">
           {formatDurationSeconds(ga4Content.summary.averageSessionDuration)}
@@ -156,25 +151,25 @@ export async function OverviewGa4ContentSection() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-4 gap-px overflow-hidden rounded-md border bg-zinc-200">
           <div className="bg-white p-3">
-            <p className="text-xs text-muted-foreground">Views</p>
+            <p className="text-xs text-muted-foreground">Lượt xem</p>
             <p className="mt-1 text-lg font-black">
               {formatNumber(ga4Content.summary.screenPageViews)}
             </p>
           </div>
           <div className="bg-white p-3">
-            <p className="text-xs text-muted-foreground">Sessions</p>
+            <p className="text-xs text-muted-foreground">Phiên xem</p>
             <p className="mt-1 text-lg font-black">
               {formatNumber(ga4Content.summary.sessions)}
             </p>
           </div>
           <div className="bg-white p-3">
-            <p className="text-xs text-muted-foreground">Users</p>
+            <p className="text-xs text-muted-foreground">Người dùng</p>
             <p className="mt-1 text-lg font-black">
               {formatNumber(ga4Content.summary.activeUsers)}
             </p>
           </div>
           <div className="bg-white p-3">
-            <p className="text-xs text-muted-foreground">Engage</p>
+            <p className="text-xs text-muted-foreground">Tỷ lệ giữ chân</p>
             <p className="mt-1 text-lg font-black">
               {formatPercent(ga4Content.summary.engagementRate)}
             </p>
@@ -185,11 +180,11 @@ export async function OverviewGa4ContentSection() {
           <div className="overflow-x-auto">
             <div className="min-w-[520px]">
               <div className="grid grid-cols-[minmax(0,1fr)_58px_66px_62px_68px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
-                <span>Page</span>
-                <span className="text-right">Views</span>
-                <span className="text-right">Sessions</span>
-                <span className="text-right">Avg</span>
-                <span className="text-right">Engage</span>
+                <span>Trang</span>
+                <span className="text-right">Lượt xem</span>
+                <span className="text-right">Phiên xem</span>
+                <span className="text-right">Trung bình</span>
+                <span className="text-right">Tỷ lệ giữ chân</span>
               </div>
               {ga4Content.pages.length === 0 ? (
                 <p className="py-3 text-sm text-muted-foreground">
@@ -256,7 +251,7 @@ export async function OverviewSeoSignalsSection() {
         <section>
           <div className="mb-2 flex items-center justify-between gap-3 border-b pb-2">
             <h3 className="text-sm font-semibold">
-              Trends {signals.hotSeoKeywordGeo}
+              Xu hướng {signals.hotSeoKeywordGeo}
             </h3>
             {signals.hotSeoKeywordSourceUrl ? (
               <Link
@@ -364,59 +359,6 @@ export async function OverviewSeoSignalsSection() {
                     </span>
                     <span className="text-right text-sm text-muted-foreground">
                       {formatPosition(item.position)}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Organic landing page */}
-        <section>
-          <div className="mb-2 border-b pb-2">
-            <h3 className="text-sm font-semibold">Organic landing page</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {signals.googleSeoSignals.analytics.propertyId
-                ? `GA4 ${signals.googleSeoSignals.analytics.propertyId}`
-                : "GA_PROPERTY_ID"}
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <div className="min-w-[430px]">
-              <div className="grid grid-cols-[minmax(0,1fr)_64px_58px_72px] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
-                <span>Page</span>
-                <span className="text-right">Sessions</span>
-                <span className="text-right">Views</span>
-                <span className="text-right">Engage</span>
-              </div>
-              {organicLandingPages.length === 0 ? (
-                <p className="py-3 text-sm text-muted-foreground">
-                  {signals.googleSeoSignals.analytics.error ||
-                    "Chưa có organic landing page từ GA4."}
-                </p>
-              ) : (
-                organicLandingPages.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="grid grid-cols-[minmax(0,1fr)_64px_58px_72px] gap-3 border-b py-2.5 last:border-b-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="line-clamp-1 text-sm font-medium">
-                        {index + 1}. {item.title}
-                      </p>
-                      <p className="line-clamp-1 text-xs text-muted-foreground">
-                        {item.path}
-                      </p>
-                    </div>
-                    <span className="text-right text-sm text-zinc-700">
-                      {formatNumber(item.sessions)}
-                    </span>
-                    <span className="text-right text-sm text-muted-foreground">
-                      {formatNumber(item.screenPageViews)}
-                    </span>
-                    <span className="text-right text-sm text-muted-foreground">
-                      {formatPercent(item.engagementRate)}
                     </span>
                   </div>
                 ))

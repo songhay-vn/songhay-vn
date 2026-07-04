@@ -224,7 +224,7 @@ async function AdminPageContent({
     },
     {
       key: "views",
-      label: "GA4 views",
+      label: "Lượt xem",
       value: totalPostViews,
       note: "screenPageViews trong 30 ngày",
       icon: Activity,
@@ -232,7 +232,7 @@ async function AdminPageContent({
     },
     {
       key: "gsc-indexed",
-      label: "Google indexed",
+      label: "Google index",
       value: indexedPostCount,
       note: "Bài published có URL Inspection PASS",
       icon: Search,
@@ -240,7 +240,7 @@ async function AdminPageContent({
     },
     {
       key: "gsc-not-indexed",
-      label: "Chưa indexed",
+      label: "Chưa index",
       value: notIndexedPostCount,
       note: "Bài published bị FAIL hoặc Excluded",
       icon: Search,
@@ -248,7 +248,7 @@ async function AdminPageContent({
     },
     {
       key: "gsc-pending",
-      label: "Chờ GSC",
+      label: "Chờ chạy index",
       value: pendingInspectionCount,
       note: "Job inspection đang chờ hoặc đang chạy",
       icon: Clock,
@@ -256,7 +256,7 @@ async function AdminPageContent({
     },
     {
       key: "gsc-failed",
-      label: "Lỗi GSC",
+      label: "Lỗi chạy index",
       value: failedInspectionCount,
       note: "Job inspection đã thất bại",
       icon: AlertTriangle,
@@ -264,7 +264,7 @@ async function AdminPageContent({
     },
     {
       key: "gsc-usage",
-      label: "Inspect hôm nay",
+      label: "Lượt chạy index hôm nay",
       value: todayInspectionUsage,
       note: "Lượt URL Inspection đã gọi hôm nay",
       icon: Activity,

@@ -261,7 +261,7 @@ export function OverviewTab({
                       </div>
                       <p className="text-xs leading-5 text-zinc-600">
                         {resultLabelByKey.get(item.resultKey) || item.resultKey}{" "}
-                        · score {item.score} · sinh học{" "}
+                        · score {item.score} · tuổi sinh học tầm {" "}
                         {formatEstimatedAge(
                           item.estimatedMinAge,
                           item.estimatedMaxAge
