@@ -145,11 +145,11 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
+        <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
         <TooltipProvider>
           <Suspense fallback={null}>
             <ScrollToTopOnRouteChange />
           </Suspense>
-          <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
           {children}
           <Suspense fallback={null}>
             <FloatingGiftButton />
