@@ -107,6 +107,7 @@ export type PostPermissions = {
   canEditPendingReview: boolean
   canEditPendingPublish: boolean
   canEditPublished: boolean
+  canPinPost: boolean
 }
 
 export const STATUS_CONFIG: Record<

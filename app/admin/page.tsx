@@ -287,6 +287,7 @@ async function AdminPageContent({
     canEditPendingReview: canEditByStatus(currentUser.role, "PENDING_REVIEW"),
     canEditPendingPublish: canEditByStatus(currentUser.role, "PENDING_PUBLISH"),
     canEditPublished: canEditByStatus(currentUser.role, "PUBLISHED"),
+    canPinPost: can(currentUser.role, "pin-post"),
   }
 
   const postActions: PostActions = {

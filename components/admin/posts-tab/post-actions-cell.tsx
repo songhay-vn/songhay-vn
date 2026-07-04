@@ -41,6 +41,7 @@ export function PostActionsCell({
   canEditPendingReview,
   canEditPendingPublish,
   canEditPublished,
+  canPinPost,
   submitPostToPendingReview,
   promotePostToPendingPublish,
   approvePendingPost,
@@ -280,7 +281,7 @@ export function PostActionsCell({
           </ConfirmActionForm>
         ) : null}
 
-        {post.isPublished && (
+        {post.isPublished && canPinPost && (
           post.isFeatured ? (
             <Button
               type="button"

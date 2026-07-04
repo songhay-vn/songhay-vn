@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma"
 import {
   canCreateSubordinateAccount,
   canDeleteAnyMedia,
+  hydratePermissionsFromDb,
+  ALL_EDITABLE_ROLES,
 } from "@/lib/permissions"
 import { decodeSession, encodeSession, sessionTtlSeconds } from "@/lib/session"
 
@@ -43,14 +45,23 @@ export async function getCurrentUser() {
     return null
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { id: true, name: true, email: true, role: true },
-  })
+  const [user, rolePermissions] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { id: true, name: true, email: true, role: true },
+    }),
+    prisma.rolePermission.findMany({
+      where: { role: { in: ALL_EDITABLE_ROLES } },
+      select: { role: true, action: true },
+    }),
+  ])
 
   if (!user) {
     return null
   }
+
+  // Hydrate permissions from DB for the current request
+  hydratePermissionsFromDb(rolePermissions)
 
   return user
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { connection } from "next/server"
-import { ShieldCheck } from "lucide-react"
+import { ShieldCheck, LogOut } from "lucide-react"
+import { redirect } from "next/navigation"
 import { Suspense } from "react"
 
 import "ckeditor5/ckeditor5-content.css"
@@ -16,7 +17,7 @@ import { AdminNavButton } from "@/components/admin/admin-nav-button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { requireCmsUser } from "@/lib/auth"
+import { requireCmsUser, clearSessionCookie } from "@/lib/auth"
 import { can, canEditPenNames, ROLE_LABELS_VI } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { AdminNotifications } from "@/components/admin/admin-notifications"
@@ -30,6 +31,12 @@ export const metadata: Metadata = {
 }
 
 async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+  async function logoutAction() {
+    "use server"
+    await clearSessionCookie()
+    redirect("/login?admin=1")
+  }
+
   await connection()
   const currentUser = await requireCmsUser()
   const adminSnapshotPromise = getAdminSnapshot()
@@ -94,6 +101,15 @@ async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               <ShieldCheck className="size-3.5" />
               {ROLE_LABELS_VI[currentUser.role]}
             </Badge>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+              >
+                <LogOut className="size-3.5" />
+                Đăng xuất
+              </button>
+            </form>
           </div>
         </div>
       </header>

@@ -769,7 +769,7 @@ export async function checkPostIndex(formData: FormData) {
 export async function assignFeaturedSlot(formData: FormData) {
   const currentUser = await requireCmsUser()
   ensurePermission(
-    canPublishNow(currentUser.role),
+    can(currentUser.role, "pin-post"),
     "/admin?tab=posts&toast=post_action_forbidden"
   )
 
@@ -874,7 +874,7 @@ export async function assignFeaturedSlot(formData: FormData) {
 export async function clearFeaturedSlot(formData: FormData) {
   const currentUser = await requireCmsUser()
   ensurePermission(
-    canPublishNow(currentUser.role),
+    can(currentUser.role, "pin-post"),
     "/admin?tab=posts&toast=post_action_forbidden"
   )
 

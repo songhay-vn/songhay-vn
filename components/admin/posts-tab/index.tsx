@@ -30,6 +30,7 @@ export function PostsTab({
   canEditPendingReview,
   canEditPendingPublish,
   canEditPublished,
+  canPinPost,
   postsData,
   filters,
   postsPaginationItems,
@@ -65,6 +66,7 @@ export function PostsTab({
     canEditPendingReview,
     canEditPendingPublish,
     canEditPublished,
+    canPinPost,
   }
 
   const actions: PostActions = {

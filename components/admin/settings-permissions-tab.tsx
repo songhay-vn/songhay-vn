@@ -31,6 +31,7 @@ const ACTION_GROUPS: { label: string; actions: PermissionAction[] }[] = [
       "edit-pending-publish",
       "edit-published",
       "view-all-posts",
+      "pin-post",
     ],
   },
   {

@@ -52,6 +52,12 @@ describe("permissions matrix by role", () => {
     expect(canViewAllPosts("REPORTER_TRANSLATOR")).toBe(true)
     expect(canViewAllPosts("CONTRIBUTOR")).toBe(false)
 
+    expect(canViewAllPosts("EDITOR_IN_CHIEF")).toBe(true)
+    expect(canViewAllPosts("MANAGING_EDITOR")).toBe(true)
+    expect(canViewAllPosts("TEAM_LEAD")).toBe(true)
+    expect(canViewAllPosts("REPORTER_TRANSLATOR")).toBe(true)
+    expect(canViewAllPosts("CONTRIBUTOR")).toBe(false)
+
     expect(canDeleteAnyMedia("EDITOR_IN_CHIEF")).toBe(true)
     expect(canDeleteAnyMedia("MANAGING_EDITOR")).toBe(true)
     expect(canDeleteAnyMedia("TEAM_LEAD")).toBe(false)
@@ -63,6 +69,15 @@ describe("permissions matrix by role", () => {
     expect(canCreateSubordinateAccount("TEAM_LEAD")).toBe(false)
     expect(canCreateSubordinateAccount("REPORTER_TRANSLATOR")).toBe(false)
     expect(canCreateSubordinateAccount("CONTRIBUTOR")).toBe(false)
+  })
+
+  test("pin post capability defaults to managers only", () => {
+    expect(can("ADMIN", "pin-post")).toBe(true)
+    expect(can("EDITOR_IN_CHIEF", "pin-post")).toBe(true)
+    expect(can("MANAGING_EDITOR", "pin-post")).toBe(true)
+    expect(can("TEAM_LEAD", "pin-post")).toBe(false)
+    expect(can("REPORTER_TRANSLATOR", "pin-post")).toBe(false)
+    expect(can("CONTRIBUTOR", "pin-post")).toBe(false)
   })
 
   test("pen name management defaults to practical admin roles only", () => {
