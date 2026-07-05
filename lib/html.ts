@@ -1,7 +1,53 @@
+/**
+ * Repairs invalid HTML nesting by extracting block-level elements out of <p> tags.
+ *
+ * CKEditor can produce HTML with block-level elements (figure, table, ul, ol,
+ * div, blockquote, etc.) nested inside <p> tags, which is illegal per the HTML
+ * spec. Browsers auto-correct this during parsing, but React SSR sends the raw
+ * (broken) HTML. When React tries to hydrate, the browser DOM doesn't match
+ * React's VDOM → `insertBefore` HierarchyRequestError on hard loads / external links.
+ *
+ * This function iteratively extracts block-level children out of <p> wrappers,
+ * reproducing what the browser would parse — so SSR output matches the live DOM.
+ */
+function repairHtmlNesting(html: string): string {
+  // These block-level tags are forbidden as children of <p> per the HTML spec.
+  // When the browser encounters them inside <p>, it closes the <p> first.
+  const blockInP =
+    "figure|table|ul|ol|blockquote|div|h1|h2|h3|h4|h5|h6|section|article|aside|header|footer|pre|address"
+
+  // Regex: matches a <p ...> tag, then content that contains a block element, up to </p>
+  // We do multiple passes because there can be consecutive block elements inside one <p>.
+  const re = new RegExp(
+    `(<p(?:\\s[^>]*)?>)((?:(?!<p(?:\\s[^>]*)?>).)*?)(<(?:${blockInP})(?:\\s[^>]*)?>[\\s\\S]*?</(?:${blockInP})>)((?:(?!<p(?:\\s[^>]*)?>).)*?)(</p>)`,
+    "gi"
+  )
+
+  let prev = ""
+  let result = html
+
+  // Iterate until no more matches (handles multiple block children per <p>)
+  while (result !== prev) {
+    prev = result
+    result = result.replace(re, (_match, pOpen, before, block, after, pClose) => {
+      const beforeTrimmed = before.trimEnd()
+      const afterTrimmed = after.trimStart()
+      // Rebuild: close the <p> before the block, emit the block, reopen <p> after (if there's content)
+      const parts: string[] = []
+      if (beforeTrimmed) parts.push(`${pOpen}${beforeTrimmed}${pClose}`)
+      parts.push(block)
+      if (afterTrimmed) parts.push(`${pOpen}${afterTrimmed}${pClose}`)
+      return parts.join("")
+    })
+  }
+
+  return result
+}
+
 export function normalizeArticleHtml(rawHtml: string) {
   const blockTags = "p|h1|h2|h3|h4|h5|h6|li|blockquote|div|figure|figcaption|ul|ol|table|thead|tbody|tr|td|th|section|article|aside|header|footer"
 
-  return rawHtml
+  return repairHtmlNesting(rawHtml)
     .replace(/\r?\n|\r/g, " ")
     .replace(/\s+/g, " ")
     // We only remove spacing between a block tag and another tag to avoid breaking inline formatting (like links next to strong text).

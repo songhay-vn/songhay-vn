@@ -40,3 +40,56 @@ describe("normalizeArticleHtml", () => {
     expect(output).toBe(`<p>This is <strong>bold</strong> <a href="/test">link</a>.</p>`)
   })
 })
+
+describe("normalizeArticleHtml – HTML nesting repair (hydration safety)", () => {
+  it("should move figure out of p (React insertBefore crash case)", () => {
+    // CKEditor output: <p><figure>...</figure></p> → browser splits it
+    const input = `<p>Before<figure class="image"><img src="test.jpg" /></figure>After</p>`
+    const output = normalizeArticleHtml(input)
+    // figure must NOT be inside p
+    expect(output).not.toMatch(/<p[^>]*>[^<]*<figure/)
+    // both figure and the surrounding text should still exist
+    expect(output).toContain("<figure")
+    expect(output).toContain("Before")
+    expect(output).toContain("After")
+  })
+
+  it("should move table out of p", () => {
+    const input = `<p>Intro<table><tr><td>cell</td></tr></table>Outro</p>`
+    const output = normalizeArticleHtml(input)
+    expect(output).not.toMatch(/<p[^>]*>[^<]*<table/)
+    expect(output).toContain("<table")
+    expect(output).toContain("cell")
+  })
+
+  it("should move ul/ol out of p", () => {
+    const inputUl = `<p>List:<ul><li>item</li></ul></p>`
+    const outputUl = normalizeArticleHtml(inputUl)
+    expect(outputUl).not.toMatch(/<p[^>]*>[^<]*<ul/)
+    expect(outputUl).toContain("<ul")
+    expect(outputUl).toContain("item")
+
+    const inputOl = `<p>Numbered:<ol><li>one</li></ol></p>`
+    const outputOl = normalizeArticleHtml(inputOl)
+    expect(outputOl).not.toMatch(/<p[^>]*>[^<]*<ol/)
+    expect(outputOl).toContain("<ol")
+    expect(outputOl).toContain("one")
+  })
+
+  it("should move div out of p", () => {
+    const input = `<p>Text<div class="box">content</div>More</p>`
+    const output = normalizeArticleHtml(input)
+    expect(output).not.toMatch(/<p[^>]*>[^<]*<div/)
+    expect(output).toContain("<div")
+    expect(output).toContain("content")
+  })
+
+  it("should leave valid nesting intact", () => {
+    // strong, em, a, span, u, s are all valid inline children of p
+    const input = `<p>This is <strong>bold</strong> and <em>italic</em> with a <a href="/test">link</a>.</p>`
+    const output = normalizeArticleHtml(input)
+    expect(output).toContain("<strong>bold</strong>")
+    expect(output).toContain("<em>italic</em>")
+    expect(output).toContain('href="/test"')
+  })
+})
