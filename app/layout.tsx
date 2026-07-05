@@ -14,7 +14,6 @@ import {
   toAbsoluteUrl,
 } from "@/lib/seo"
 import { Toaster } from "@/components/ui/sonner"
-import { TooltipProvider } from "@/components/ui/tooltip"
 import { ScrollToTopOnRouteChange } from "@/components/scroll-to-top-on-route-change"
 import { cn } from "@/lib/utils"
 
@@ -146,16 +145,14 @@ export default function RootLayout({
         />
         <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
         <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
-        <TooltipProvider>
-          <Suspense fallback={null}>
-            <ScrollToTopOnRouteChange />
-          </Suspense>
-          {children}
-          <Suspense fallback={null}>
-            <FloatingGiftButton />
-          </Suspense>
-          <Toaster />
-        </TooltipProvider>
+        <Suspense fallback={null}>
+          <ScrollToTopOnRouteChange />
+        </Suspense>
+        {children}
+        <Suspense fallback={null}>
+          <FloatingGiftButton />
+        </Suspense>
+        <Toaster />
       </body>
     </html>
   )
