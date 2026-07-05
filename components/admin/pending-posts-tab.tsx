@@ -27,8 +27,8 @@ type PendingPost = {
 
 type PendingPostsTabProps = {
   rows: PendingPost[]
-  approvePendingPost: (formData: FormData) => Promise<unknown>
-  rejectPendingPost: (formData: FormData) => Promise<unknown>
+  approvePendingPost: (formData: FormData) => Promise<void>
+  rejectPendingPost: (formData: FormData) => Promise<void>
 }
 
 export function PendingPostsTab({

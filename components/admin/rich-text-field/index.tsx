@@ -128,7 +128,7 @@ export function RichTextField({
               data={html}
               onChange={setHtml}
               placeholder={placeholder}
-              onReady={(editor) => { editorRef.current = editor }}
+              onReady={(editor) => { editorRef.current = editor as EditorLike }}
             />
           ) : (
             <MonacoEditorWrapper

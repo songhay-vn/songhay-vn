@@ -54,6 +54,7 @@ export function ImageCropper({
   )
 
   const handleCrop = async () => {
+    if (!croppedAreaPixels) return
     try {
       setIsProcessing(true)
       const croppedImage = await getCroppedImg(
