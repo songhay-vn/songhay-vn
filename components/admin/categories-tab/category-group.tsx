@@ -36,7 +36,7 @@ export function CategoryGroup({
     <div className="space-y-2">
       {/* Parent row with collapse toggle */}
       <div className="flex items-stretch gap-2">
-        {children.length > 0 ? (
+        {childCategories.length > 0 ? (
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
@@ -71,7 +71,7 @@ export function CategoryGroup({
       </div>
 
       {/* Children */}
-      {!collapsed && hasChildren && (
+      {!collapsed && childCategories.length > 0 && (
         <div className="space-y-2 pl-8">
           {childCategories.map((child, ci) => (
             <CategoryRow
@@ -81,7 +81,7 @@ export function CategoryGroup({
               rootCategories={rootCategories}
               isChild
               index={ci}
-              totalCount={children.length}
+              totalCount={childCategories.length}
               movedCategoryId={movedCategoryId}
               movedDirection={movedDirection}
               updateCategory={updateCategory}
