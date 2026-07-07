@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getSiteUrl } from "@/lib/seo"
 
-
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl()
 
@@ -10,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/login", "/api/", "/_next/"],
+        disallow: ["/admin", "/login", "/api/"],
       },
       {
         userAgent: "FacebookBot",
