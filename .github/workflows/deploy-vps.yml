@@ -36,7 +36,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           set -euo pipefail
-          SSH_OPTS="-i ~/.ssh/songhay_vps -p ${VPS_PORT:-22}"
+          SSH_OPTS="-i ~/.ssh/songhay_vps -P ${VPS_PORT:-22}"
           scp $SSH_OPTS "$VPS_USER@$VPS_HOST:/opt/songhay/env/build.env" .env
 
       - name: Install Bun
