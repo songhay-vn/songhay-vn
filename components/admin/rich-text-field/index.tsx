@@ -1,9 +1,18 @@
 "use client"
 
 import { useMemo, useState, useRef } from "react"
+import dynamic from "next/dynamic"
 import { EditorMode, RichTextFieldProps } from "./types"
-import { CKEditorWrapper } from "./ck-editor-wrapper"
-import { MonacoEditorWrapper } from "./monaco-editor-wrapper"
+
+const CKEditorWrapper = dynamic(
+  () => import("./ck-editor-wrapper").then((mod) => mod.CKEditorWrapper),
+  { ssr: false }
+)
+
+const MonacoEditorWrapper = dynamic(
+  () => import("./monaco-editor-wrapper").then((mod) => mod.MonacoEditorWrapper),
+  { ssr: false }
+)
 import { MediaPicker } from "../media-picker"
 import { Plus, FileText, Code as CodeIcon, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
