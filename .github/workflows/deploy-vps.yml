@@ -29,7 +29,51 @@ jobs:
           chmod 600 ~/.ssh/songhay_vps
           ssh-keyscan -p "${VPS_PORT:-22}" -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
-      - name: Upload source
+      - name: Fetch build.env from VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i ~/.ssh/songhay_vps -p ${VPS_PORT:-22}"
+          scp $SSH_OPTS "$VPS_USER@$VPS_HOST:/opt/songhay/env/build.env" .env
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: bun run db:generate
+
+      - name: Build Next.js app
+        run: bun run build
+
+      - name: Remove .env file
+        run: rm -f .env
+
+      - name: Build Docker Image
+        run: |
+          mkdir -p release-context
+          cp -a .next/standalone/. release-context/
+          cp -a .next/static release-context/.next/static
+          cp -a public release-context/public
+          cp deploy/vps/Dockerfile.runtime release-context/Dockerfile
+          docker build -t songhay-app:latest release-context
+
+      - name: Upload source code to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
@@ -52,6 +96,16 @@ jobs:
             --exclude='*.log' \
             -e "ssh $SSH_OPTS" \
             ./ "$VPS_USER@$VPS_HOST:/opt/songhay/source/"
+
+      - name: Upload Docker Image to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i ~/.ssh/songhay_vps -p ${VPS_PORT:-22} -o ServerAliveInterval=30 -o ServerAliveCountMax=10"
+          docker save songhay-app:latest | gzip | ssh $SSH_OPTS "$VPS_USER@$VPS_HOST" "gzip -d | docker load"
 
       - name: Deploy on VPS
         env:

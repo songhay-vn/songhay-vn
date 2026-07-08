@@ -301,11 +301,6 @@ export function SeoKeywordPicker({
           </Badge>
         ))}
       </div>
-
-      <p className="text-xs text-muted-foreground">
-        Nhập trực tiếp hoặc chọn từ khóa có sẵn trong popup gợi ý. Nếu chưa có,
-        nhấn dấu + để thêm tạm vào bài.
-      </p>
     </div>
   )
 }

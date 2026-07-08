@@ -138,10 +138,15 @@ Never run `docker compose down -v` on production unless the user explicitly asks
 Normal deploy is automatic:
 
 1. Push to `main`.
-2. GitHub Actions workflow `.github/workflows/deploy-vps.yml` rsyncs the repo to `/opt/songhay/source`.
-3. The workflow SSHes into the VPS as `deploy`.
-4. `/opt/songhay/source/deploy/vps/deploy.sh` runs on the VPS.
-5. The script installs deps, applies Prisma migrations, builds Next standalone, builds Docker image `songhay-app:latest`, switches `/opt/songhay/runtime/current`, and restarts containers.
+2. GitHub Actions workflow `.github/workflows/deploy-vps.yml` starts:
+   - Configures the SSH key.
+   - Fetches the current `/opt/songhay/env/build.env` from the VPS.
+   - Installs Bun dependencies, generates the Prisma client, and builds the Next.js standalone app on the runner.
+   - Builds the Docker image `songhay-app:latest` on the runner.
+   - Rsyncs the updated source code (excluding `.next` and `node_modules`) to `/opt/songhay/source`.
+   - Saves, compresses, and transfers the Docker image to the VPS (`docker save | gzip | ssh ... docker load`).
+3. The workflow SSHes into the VPS and executes `/opt/songhay/source/deploy/vps/deploy.sh`.
+4. The deploy script runs Prisma database migrations, restarts the containers, and cleans up old docker images.
 
 GitHub repository secrets required by the workflow:
 
@@ -152,29 +157,16 @@ VPS_USER=deploy
 VPS_SSH_KEY=<private key for deploy user>
 ```
 
-Manual deploy from the VPS:
-
-```bash
-bash /opt/songhay/source/deploy/vps/deploy.sh
-```
-
 Monitor a live deploy from SSH:
 
 ```bash
-ps -ef | grep -E 'deploy.sh|bun run build|next build|docker build|rsync' | grep -v grep
-```
-
-Check which release is live:
-
-```bash
-readlink /opt/songhay/runtime/current
-ls -lt /opt/songhay/runtime/releases | head
+ps -ef | grep -E 'deploy.sh|rsync|docker load' | grep -v grep
 ```
 
 The deploy script uses a lock at `/tmp/songhay-deploy.lock`. If deploy says another deploy is running, first check processes:
 
 ```bash
-ps -ef | grep -E 'deploy.sh|next build|docker build' | grep -v grep
+ps -ef | grep -E 'deploy.sh|docker load' | grep -v grep
 ```
 
 Only remove the lock if no deploy process exists:
@@ -454,8 +446,14 @@ curl -I 'https://songhay.vn/_next/static/'
 
 Caddy logs like `client disconnected`, `stream closed`, or scanner requests for `.env` are usually internet noise unless they correlate with user-visible failures.
 
+## Development & Testing Guidelines
+
+- **Write Real Unit Tests**: For every new feature or bug fix, write a corresponding unit/integration test, or update existing tests to ensure compatibility.
+- **NO "Cheat" Tests**: Tests must execute the actual implementation code (libraries, components, hooks, functions). Never write mock/cheat assertions that bypass the actual logic or assert hardcoded values (e.g., asserting `console.log(2+2)` instead of calling the target function/component to verify `2+2`).
+
 ## Safety Rules For Agents
 
+- Keep all responses short, concise, and straight to the point.
 - Prefer `deploy` for application operations; use `root` only for OS, firewall, package, or Docker daemon issues.
 - Never expose `/opt/songhay/env/*` values.
 - Never expose SSH private key contents.
