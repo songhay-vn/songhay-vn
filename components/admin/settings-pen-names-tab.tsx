@@ -181,10 +181,6 @@ export function SettingsPenNamesTab({
               Tạo bút danh
             </PendingSubmitButton>
           </form>
-          <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <Upload className="size-4" />
-            Ảnh được tối ưu nhỏ trên Cloudinary và không lưu vào kho media.
-          </p>
         </CardContent>
       </Card>
 
