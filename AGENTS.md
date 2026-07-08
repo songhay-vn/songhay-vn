@@ -141,7 +141,9 @@ Normal deploy is automatic:
 2. GitHub Actions workflow `.github/workflows/deploy-vps.yml` starts:
    - Configures the SSH key.
    - Fetches the current `/opt/songhay/env/build.env` from the VPS.
-   - Installs Bun dependencies, generates the Prisma client, and builds the Next.js standalone app on the runner.
+   - Installs Bun dependencies and generates the Prisma client.
+   - Opens a secure SSH tunnel to the VPS database on port 5432 to allow Next.js static generation to fetch data at build-time.
+   - Builds the Next.js standalone app on the runner, then closes the SSH tunnel.
    - Builds the Docker image `songhay-app:latest` on the runner.
    - Rsyncs the updated source code (excluding `.next` and `node_modules`) to `/opt/songhay/source`.
    - Saves, compresses, and transfers the Docker image to the VPS (`docker save | gzip | ssh ... docker load`).

@@ -58,8 +58,23 @@ jobs:
       - name: Generate Prisma Client
         run: bun run db:generate
 
+      - name: Open SSH tunnel to database
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i ~/.ssh/songhay_vps -p ${VPS_PORT:-22} -o ServerAliveInterval=30 -o ServerAliveCountMax=10"
+          ssh $SSH_OPTS -N -f -L 5432:127.0.0.1:5432 "$VPS_USER@$VPS_HOST"
+          sleep 3
+
       - name: Build Next.js app
         run: bun run build
+
+      - name: Close SSH tunnel
+        run: |
+          pkill -f "ssh.*-L 5432:127.0.0.1:5432" || true
 
       - name: Remove .env file
         run: rm -f .env
