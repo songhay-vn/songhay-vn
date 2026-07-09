@@ -5,6 +5,7 @@ import { Suspense } from "react"
 
 import "./globals.css"
 import { FloatingGiftButton } from "@/components/news/floating-gift-button"
+import { GoogleAdSense } from "@/components/seo/google-adsense"
 import { GoogleAnalytics } from "@/components/seo/google-analytics"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
@@ -137,12 +138,7 @@ export default function RootLayout({
       className={cn("antialiased", fontSans.variable, fontSerif.variable)}
     >
       <body>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1176898129958487"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <GoogleAdSense />
         <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
         <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
         <Suspense fallback={null}>
