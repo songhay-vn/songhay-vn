@@ -78,8 +78,8 @@ export default async function HomePage() {
         showBottomCategorySections
         mainBanner={
           <Image
-            src="/banner.png"
-            alt="Banner"
+            src="/site-header-hero.png"
+            alt="Sống Hay Hero"
             width={1100}
             height={200}
             priority
