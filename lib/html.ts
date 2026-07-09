@@ -41,6 +41,29 @@ function repairHtmlNesting(html: string): string {
     })
   }
 
+  // Second pass: CKEditor sometimes wraps block-level elements inside <a> inside <p>:
+  // <p><a href="..."><figure>...</figure></a></p>
+  // Browsers auto-close <p> before <figure> even when it's inside <a>, causing
+  // React SSR↔DOM mismatch (HierarchyRequestError on insertBefore).
+  // Fix: unwrap the <a> when it only wraps a block-level element, hoisting the block out.
+  const blockInAInP = new RegExp(
+    `(<p(?:\\s[^>]*)?>)([^<]*)<a(\\s[^>]*)?>\\s*(<(?:${blockInP})(?:\\s[^>]*)?>)`,
+    "gi"
+  )
+  result = result.replace(blockInAInP, (_match, pOpen, before, _aAttrs, blockOpen) => {
+    const beforeTrimmed = before.trimEnd()
+    if (beforeTrimmed) {
+      return `${pOpen}${beforeTrimmed}</p>${blockOpen}`
+    }
+    return `</p>${blockOpen}`
+  })
+
+  // Close any dangling </a></p> that were opened by the above unwrap.
+  result = result.replace(
+    new RegExp(`(<\/(?:${blockInP})>)\\s*<\/a>\\s*(<\/p>)`, "gi"),
+    "$1"
+  )
+
   return result
 }
 

@@ -88,12 +88,41 @@ export default async function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-black text-zinc-900">Quảng cáo</h2>
+          <h2 className="text-2xl font-black text-zinc-900">
+            Quảng cáo và Cookie Google AdSense
+          </h2>
           <p>
-            Với tính năng cài đặt quảng cáo, người dùng hoặc khách hàng có thể
-            lựa chọn thoát ra khỏi tính năng theo dõi hành vi khách hàng của
-            Google Analytics và lựa chọn cách xuất hiện của kênh Hiển Thị Quảng
-            Cáo trên Google.
+            Songhay.vn hợp tác với các nhà cung cấp bên thứ ba, bao gồm cả Google, để hiển thị quảng cáo khi bạn truy cập website.
+          </p>
+          <p>
+            Các nhà cung cấp bên thứ ba, bao gồm cả Google, sử dụng cookie để phân phát quảng cáo dựa trên các lượt truy cập trước đó của người dùng vào website Songhay.vn hoặc các trang web khác trên Internet.
+          </p>
+          <p>
+            Việc Google sử dụng cookie quảng cáo cho phép Google và các đối tác của họ phân phát quảng cáo cho người dùng trên Songhay.vn dựa trên thông tin về lượt truy cập của họ vào trang web này và/hoặc các trang web khác trên Internet.
+          </p>
+          <p>
+            Người dùng có thể từ chối quảng cáo cá nhân hóa bằng cách truy cập vào trang{" "}
+            <a
+              href="https://www.google.com/settings/ads"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-rose-700 underline underline-offset-2 hover:text-rose-800"
+            >
+              Cài đặt quảng cáo của Google
+            </a>
+            . Ngoài ra, bạn cũng có thể từ chối việc nhà cung cấp bên thứ ba sử dụng cookie cho quảng cáo cá nhân hóa bằng cách truy cập trang{" "}
+            <a
+              href="https://www.aboutads.info"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-rose-700 underline underline-offset-2 hover:text-rose-800"
+            >
+              www.aboutads.info
+            </a>
+            .
+          </p>
+          <p>
+            Với tính năng cài đặt quảng cáo, người dùng cũng có thể lựa chọn thoát ra khỏi tính năng theo dõi hành vi khách hàng của Google Analytics thông qua việc cài đặt tiện ích mở rộng của trình duyệt từ chối Google Analytics.
           </p>
         </section>
 

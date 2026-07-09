@@ -92,4 +92,25 @@ describe("normalizeArticleHtml – HTML nesting repair (hydration safety)", () =
     expect(output).toContain("<em>italic</em>")
     expect(output).toContain('href="/test"')
   })
+
+  it("should hoist figure wrapped in <a> out of <p> (HierarchyRequestError case)", () => {
+    // CKEditor sometimes produces <p><a href="..."><figure>...</figure></a></p>
+    // Browsers auto-close <p> before <figure> even when inside <a>,
+    // causing React insertBefore HierarchyRequestError on hydration.
+    const input = `<p><a href="https://zalo.me/abc"><figure class="image"><img src="prod.jpg"/></figure></a></p>`
+    const output = normalizeArticleHtml(input)
+    // figure must NOT be inside p
+    expect(output).not.toMatch(/<p[^>]*>[^<]*<a[^>]*>[^<]*<figure/i)
+    // figure content should still exist
+    expect(output).toContain("<figure")
+    expect(output).toContain("prod.jpg")
+  })
+
+  it("should not strip safe inline <a> links that contain only text", () => {
+    // An <a> with only text content inside <p> is valid and must NOT be touched
+    const input = `<p>Mua ngay <a href="https://zalo.me/abc">tại đây</a> nhé.</p>`
+    const output = normalizeArticleHtml(input)
+    expect(output).toContain('<a href="https://zalo.me/abc">')
+    expect(output).toContain("tại đây")
+  })
 })

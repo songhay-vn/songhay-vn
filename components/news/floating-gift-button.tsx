@@ -6,6 +6,8 @@ import { useState } from "react"
 import { usePathname } from "next/navigation"
 
 export function FloatingGiftButton() {
+  return null;
+
   const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(true)
 
