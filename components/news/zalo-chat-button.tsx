@@ -1,23 +1,52 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { X } from "lucide-react"
+
 const ZALO_URL = "http://zalo.me/1461723500320922510?src=qr&f=1"
 const POPUP_TEXT = "Bạn cần hỗ trợ hay tư vấn gì về sản phẩm từ Viện Hàn Lâm KH&CN Việt Nam không?"
+const DISMISSED_KEY = "zalo_popup_dismissed"
 
 export function ZaloChatButton() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem(DISMISSED_KEY)
+    if (!dismissed) setVisible(true)
+  }, [])
+
+  function dismiss(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setVisible(false)
+    localStorage.setItem(DISMISSED_KEY, "1")
+  }
+
   return (
     <div className="fixed bottom-6 right-5 z-50 flex flex-col items-end gap-2">
-      {/* Speech-bubble — always visible */}
-      <a
-        href={ZALO_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="relative block max-w-[220px] rounded-2xl rounded-br-sm bg-white px-4 py-3 shadow-lg ring-1 ring-zinc-200 transition-all hover:ring-primary"
-      >
-        <p className="text-sm leading-snug text-zinc-800">{POPUP_TEXT}</p>
-        <span className="mt-2 inline-block text-xs font-semibold text-primary hover:underline">
-          Nhắn ngay qua Zalo →
-        </span>
-        {/* Tail pointing down to the button */}
-        <span className="absolute -bottom-2 right-4 h-0 w-0 border-x-8 border-t-8 border-x-transparent border-t-white drop-shadow-sm" />
-      </a>
+      {/* Speech-bubble — dismissible */}
+      {visible && (
+        <div className="relative block max-w-[220px] rounded-2xl rounded-br-sm bg-white px-4 py-3 shadow-lg ring-1 ring-zinc-200">
+          {/* Close button */}
+          <button
+            onClick={dismiss}
+            aria-label="Đóng thông báo"
+            className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-500 text-white shadow hover:bg-zinc-700 transition-colors"
+          >
+            <X className="h-3 w-3" strokeWidth={3} />
+          </button>
+
+          <a href={ZALO_URL} target="_blank" rel="noopener noreferrer" className="block">
+            <p className="text-sm leading-snug text-zinc-800">{POPUP_TEXT}</p>
+            <span className="mt-2 inline-block text-xs font-semibold text-primary hover:underline">
+              Nhắn ngay qua Zalo →
+            </span>
+          </a>
+
+          {/* Tail pointing down to the button */}
+          <span className="absolute -bottom-2 right-4 h-0 w-0 border-x-8 border-t-8 border-x-transparent border-t-white drop-shadow-sm" />
+        </div>
+      )}
 
       {/* Floating chat button */}
       <a
@@ -37,3 +66,4 @@ export function ZaloChatButton() {
     </div>
   )
 }
+
