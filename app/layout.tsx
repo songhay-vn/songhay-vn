@@ -90,9 +90,6 @@ export const metadata: Metadata = {
     description: defaultDescription,
     images: [defaultOgImage],
   },
-  other: {
-    "google-adsense-account": "ca-pub-1176898129958487",
-  },
 }
 
 export default function RootLayout({
