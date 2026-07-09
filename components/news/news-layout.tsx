@@ -44,7 +44,9 @@ export function NewsLayout({
   return (
     <div className={`min-h-screen bg-zinc-50 text-zinc-900 ${className || ""}`}>
       {topBanner}
-      <SiteHeader navCategories={navCategories} />
+      <Suspense fallback={<div className="h-20 bg-red-700 md:bg-white animate-pulse" />}>
+        <SiteHeader navCategories={navCategories} />
+      </Suspense>
 
       <SiteMainContainer className={containerClassName}>
         {mainBanner}
@@ -97,7 +99,9 @@ export function NewsLayout({
         </div>
       </SiteMainContainer>
 
-      <SiteFooter navCategories={navCategories} />
+      <Suspense fallback={<div className="h-40 bg-zinc-100 animate-pulse" />}>
+        <SiteFooter navCategories={navCategories} />
+      </Suspense>
 
       {showZalo && <ZaloChatButton />}
     </div>

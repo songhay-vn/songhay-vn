@@ -39,7 +39,8 @@ bunx --bun prisma migrate deploy
 # Restart containers with the newly loaded docker image
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 
-# Clean up old unused images
-docker image prune -f --filter "until=24h" >/dev/null
+# Clean up all unused images and builder cache to prevent running out of space
+docker image prune -a -f >/dev/null
+docker builder prune -f >/dev/null
 
 echo "Deployed successfully!"
