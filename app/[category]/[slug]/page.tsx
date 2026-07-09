@@ -160,12 +160,15 @@ export default async function PostPage({ params }: PostPageProps) {
   ]
 
   return (
-    <>
-      <JsonLd data={[articleJsonLd]} />
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ArticlePageShell
-        navCategories={navCategories}
-        article={article}
+    <ArticlePageShell
+      navCategories={navCategories}
+      seoElements={
+        <>
+          <JsonLd data={[articleJsonLd]} />
+          <BreadcrumbJsonLd items={breadcrumbItems} />
+        </>
+      }
+      article={article}
         articleHtml={articleHtml}
         fullUrl={fullUrl}
         dateValue={article.publishedAt}
@@ -182,6 +185,5 @@ export default async function PostPage({ params }: PostPageProps) {
           />
         }
       />
-    </>
   )
 }

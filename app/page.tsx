@@ -71,8 +71,6 @@ export default async function HomePage() {
   }
 
   return (
-    <>
-      <JsonLd data={homepageJsonLd} />
       <NewsLayout
         navCategories={navCategories}
         showBottomCategorySections
@@ -88,6 +86,7 @@ export default async function HomePage() {
         }
         latestPosts={latestRest}
       >
+        <JsonLd data={homepageJsonLd} />
         <section className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Main Featured (2/3 width) */}
@@ -149,6 +148,5 @@ export default async function HomePage() {
           </div>
         </section>
       </NewsLayout>
-    </>
   )
 }

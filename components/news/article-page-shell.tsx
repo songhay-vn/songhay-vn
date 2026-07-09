@@ -11,6 +11,7 @@ import { getPenNameInitials } from "@/lib/pen-names"
 
 type ArticlePageShellProps = {
   navCategories: CategoryWithChildren[]
+  seoElements?: ReactNode
   article: {
     id: string
     title: string
@@ -98,6 +99,7 @@ export function ArticlePageShell({
   mainBanner,
   showSocialShare = true,
   commentFormMode = "live",
+  seoElements,
 }: ArticlePageShellProps) {
   const displayPenName = article.penNameProfile?.name || article.penName
   const displayPenNameAvatarUrl = article.penNameProfile?.avatarUrl || null
@@ -112,6 +114,7 @@ export function ArticlePageShell({
       gridClassName="grid gap-8 md:grid-cols-[1fr_320px]"
       showBottomCategorySections={true}
     >
+      {seoElements}
       <div className="relative">
         {showSocialShare ? (
           <div className="absolute top-0 -left-20 hidden h-full lg:block">

@@ -99,9 +99,8 @@ export default async function BioAgePage() {
   }
 
   return (
-    <>
-      <JsonLd data={[webPageJsonLd, faqJsonLd]} />
       <NewsLayout navCategories={navCategories} className="bg-white">
+        <JsonLd data={[webPageJsonLd, faqJsonLd]} />
         <div className="space-y-10 font-serif">
           <section className="grid gap-6 border-b border-zinc-200 pb-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
             <div className="space-y-5">
@@ -173,6 +172,5 @@ export default async function BioAgePage() {
           </section>
         </div>
       </NewsLayout>
-    </>
   )
 }

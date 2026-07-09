@@ -115,9 +115,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   return (
-    <>
-      <JsonLd data={[breadcrumbJsonLd, collectionJsonLd]} />
       <NewsLayout navCategories={navCategories}>
+        <JsonLd data={[breadcrumbJsonLd, collectionJsonLd]} />
         <section className="flex flex-col gap-4">
           <SectionHeading title={currentCategory.name} />
 
@@ -128,6 +127,5 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           )}
         </section>
       </NewsLayout>
-    </>
   )
 }

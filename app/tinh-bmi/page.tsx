@@ -49,9 +49,8 @@ export default async function BmiPage() {
   }
 
   return (
-    <>
-      <JsonLd data={faqSchema} />
       <NewsLayout navCategories={navCategories} className="bg-white">
+        <JsonLd data={faqSchema} />
         <div className="space-y-6">
           <h1 className="text-3xl font-black text-zinc-900">Đo chỉ số cân nặng - chiều cao (BMI) online</h1>
           <BmiWidget />
@@ -139,6 +138,5 @@ export default async function BmiPage() {
           </article>
         </div>
       </NewsLayout>
-    </>
   )
 }
