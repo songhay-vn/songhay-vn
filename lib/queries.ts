@@ -2,10 +2,7 @@ import { cacheTag, cacheLife } from "next/cache"
 import type { Prisma } from "@prisma/client"
 
 import { NAV_CATEGORIES } from "./categories"
-import {
-  fetchAnalyticsContentSignals,
-  fetchAnalyticsPageViewCount,
-} from "@/lib/google-seo-signals"
+import { fetchAnalyticsContentSignals } from "@/lib/google-seo-signals"
 import { prisma } from "@/lib/prisma"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
 import { publishedPostWhere, selectApprovedCommentsCount } from "./query-utils"
@@ -35,7 +32,6 @@ const POPULAR_POSTS_ANALYTICS_DAYS = 7
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MULTIPLIER = 8
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MIN = 30
 const POPULAR_POSTS_ANALYTICS_CANDIDATE_MAX = 100
-const POST_VIEW_COUNT_ANALYTICS_DAYS = 30
 const FEATURED_HOMEPAGE_SLOT_COUNT = 6
 
 const postCardSelect = {
@@ -589,21 +585,6 @@ export async function getPostByCategoryAndSlug(
   }
 }
 
-export async function getPostViewCountFromAnalytics(
-  categorySlug: string,
-  slug: string
-) {
-  "use cache"
-  cacheTag("ga4-post-views", `ga4-post-views:${categorySlug}:${slug}`)
-  cacheLife({ stale: 60 * 60, revalidate: 6 * 60 * 60, expire: 24 * 60 * 60 })
-
-  const result = await fetchAnalyticsPageViewCount({
-    path: `/${categorySlug}/${slug}`,
-    days: POST_VIEW_COUNT_ANALYTICS_DAYS,
-  })
-
-  return result.error ? null : result.screenPageViews
-}
 
 export async function getTrendingPosts() {
   "use cache"

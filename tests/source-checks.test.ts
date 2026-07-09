@@ -60,23 +60,15 @@ describe("Source Verification: Date Fixes", () => {
 })
 
 describe("Source Verification: Public article analytics", () => {
-  test("public article pages keep a cached GA4-backed view count", () => {
+  test("public article pages do not display or query view counts", () => {
     const pageSource = readWorkspaceFile("app/[category]/[slug]/page.tsx")
     const shellSource = readWorkspaceFile("components/news/article-page-shell.tsx")
     const queriesSource = readWorkspaceFile("lib/queries.ts")
-    const signalsSource = readWorkspaceFile("lib/google-seo-signals.ts")
 
-    expect(pageSource).toContain("getPostViewCountFromAnalytics")
-    expect(pageSource).toContain("viewCount={articleViewCount}")
-    expect(shellSource).toContain("lượt xem")
-    expect(queriesSource).toContain("fetchAnalyticsPageViewCount")
-    expect(queriesSource).toContain("POST_VIEW_COUNT_ANALYTICS_DAYS = 30")
-    expect(queriesSource).toContain('cacheTag("ga4-post-views"')
-    expect(queriesSource).toContain("cacheLife({ stale:")
-    expect(signalsSource).toContain("fetchAnalyticsPageViewCount")
-    expect(signalsSource).toContain(
-      "GOOGLE_ANALYTICS_PAGE_VIEW_REVALIDATE_SECONDS"
-    )
+    expect(pageSource).not.toContain("getPostViewCountFromAnalytics")
+    expect(pageSource).not.toContain("viewCount={articleViewCount}")
+    expect(shellSource).not.toContain("lượt xem")
+    expect(queriesSource).not.toContain("getPostViewCountFromAnalytics")
   })
 })
 

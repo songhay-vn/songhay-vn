@@ -9,7 +9,6 @@ import {
   getPostByCategoryAndSlug,
   getNavCategories,
   getLatestPostsForSsg,
-  getPostViewCountFromAnalytics,
 } from "@/lib/queries"
 import { normalizeArticleHtml } from "@/lib/html"
 import { buildAutoSeoDescription, buildAutoSeoTitle } from "@/lib/post-seo"
@@ -114,10 +113,6 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   const article = post!
-  const articleViewCount = await getPostViewCountFromAnalytics(
-    article.category.slug,
-    article.slug
-  )
   const siteUrl = getSiteUrl()
   const fullUrl = `${siteUrl}/${article.category.slug}/${article.slug}`
   const articleHtml = normalizeArticleHtml(article.content)
@@ -174,7 +169,6 @@ export default async function PostPage({ params }: PostPageProps) {
         articleHtml={articleHtml}
         fullUrl={fullUrl}
         dateValue={article.publishedAt}
-        viewCount={articleViewCount}
         showSocialShare
         commentFormMode="live"
         mainBanner={

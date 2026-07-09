@@ -35,7 +35,6 @@ type ArticlePageShellProps = {
   articleHtml: string
   fullUrl: string
   dateValue: Date | string | null
-  viewCount?: number | null
   topBanner?: ReactNode
   mainBanner?: ReactNode
   showSocialShare?: boolean
@@ -89,17 +88,12 @@ function renderCommentForm(
   return null
 }
 
-function formatViewCount(viewCount: number) {
-  return new Intl.NumberFormat("vi-VN").format(Math.max(0, Math.round(viewCount)))
-}
-
 export function ArticlePageShell({
   navCategories,
   article,
   articleHtml,
   fullUrl,
   dateValue,
-  viewCount,
   topBanner,
   mainBanner,
   showSocialShare = true,
@@ -107,8 +101,6 @@ export function ArticlePageShell({
 }: ArticlePageShellProps) {
   const displayPenName = article.penNameProfile?.name || article.penName
   const displayPenNameAvatarUrl = article.penNameProfile?.avatarUrl || null
-  const hasViewCount =
-    typeof viewCount === "number" && Number.isFinite(viewCount)
 
   return (
     <NewsLayout
@@ -155,15 +147,6 @@ export function ArticlePageShell({
               <span>
                 <FormattedDate value={dateValue} />
               </span>
-              {hasViewCount ? (
-                <>
-                  <span
-                    className="size-1 rounded-full bg-zinc-400"
-                    aria-hidden="true"
-                  />
-                  <span>{formatViewCount(viewCount)} lượt xem</span>
-                </>
-              ) : null}
             </div>
           </header>
 
