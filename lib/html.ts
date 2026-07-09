@@ -1,71 +1,189 @@
+import { parse, HTMLElement as NHTMLElement } from "node-html-parser"
+
 /**
- * Repairs invalid HTML nesting by extracting block-level elements out of <p> tags.
+ * Repairs invalid HTML nesting so React SSR output matches the browser DOM.
  *
- * CKEditor can produce HTML with block-level elements (figure, table, ul, ol,
- * div, blockquote, etc.) nested inside <p> tags, which is illegal per the HTML
- * spec. Browsers auto-correct this during parsing, but React SSR sends the raw
- * (broken) HTML. When React tries to hydrate, the browser DOM doesn't match
- * React's VDOM → `insertBefore` HierarchyRequestError on hard loads / external links.
+ * WHY THIS EXISTS
+ * ───────────────
+ * CKEditor (with GeneralHtmlSupport, HtmlEmbed, MediaEmbed, PasteFromOffice,
+ * Link-wrapping-images, etc.) can produce HTML that is illegal per the HTML5
+ * spec — e.g. block-level elements (figure, table, ul, div, …) nested inside
+ * <p> tags, directly or buried inside inline ancestors like <a> or <span>.
  *
- * This function iteratively extracts block-level children out of <p> wrappers,
- * reproducing what the browser would parse — so SSR output matches the live DOM.
+ * Browsers auto-correct this during parsing: they close the <p> *before*
+ * emitting any block-level descendant. React SSR sends the raw (broken) HTML
+ * while the browser builds a corrected DOM — mismatch → insertBefore
+ * HierarchyRequestError on hydration.
+ *
+ * WHY REGEX FAILED
+ * ────────────────
+ * Regex cannot reliably parse HTML. Every new CKEditor plugin or paste source
+ * can produce a new structural pattern that the regex misses, causing the bug
+ * to reappear days later when a new article with that pattern is published.
+ *
+ * THE FIX
+ * ───────
+ * Use node-html-parser — an HTML5-spec-compliant parser — to parse the raw
+ * HTML into a real DOM tree, then walk that tree and flatten any block-level
+ * element found inside a <p> out to the top level. The serialised output
+ * matches what the browser builds, so React hydration always succeeds.
  */
-function repairHtmlNesting(html: string): string {
-  // These block-level tags are forbidden as children of <p> per the HTML spec.
-  // When the browser encounters them inside <p>, it closes the <p> first.
-  const blockInP =
-    "figure|table|ul|ol|blockquote|div|h1|h2|h3|h4|h5|h6|section|article|aside|header|footer|pre|address"
 
-  // Regex: matches a <p ...> tag, then content that contains a block element, up to </p>
-  // We do multiple passes because there can be consecutive block elements inside one <p>.
-  const re = new RegExp(
-    `(<p(?:\\s[^>]*)?>)((?:(?!<p(?:\\s[^>]*)?>).)*?)(<(?:${blockInP})(?:\\s[^>]*)?>[\\s\\S]*?</(?:${blockInP})>)((?:(?!<p(?:\\s[^>]*)?>).)*?)(</p>)`,
-    "gi"
-  )
+// Per the HTML5 spec, these elements are NOT allowed as descendants of <p>.
+// When a browser encounters one inside <p> (at any depth through inline
+// ancestors), it first implicitly closes the <p>.
+// NOTE: "p" is intentionally excluded — containsBlock is used to check
+// whether a <p>'s *children* contain block elements. If we included "p"
+// itself, every <p> would wrongly return true from containsBlock.
+const BLOCK_ELEMENTS = new Set([
+  "address", "article", "aside", "blockquote", "canvas", "dd", "details",
+  "dialog", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer",
+  "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "hr",
+  "li", "main", "nav", "noscript", "ol", "pre", "section", "summary",
+  "table", "template", "ul",
+])
 
-  let prev = ""
-  let result = html
+/**
+ * Returns true if the node or any of its descendants is a block-level element.
+ */
+function containsBlock(node: NHTMLElement): boolean {
+  if (BLOCK_ELEMENTS.has(node.tagName?.toLowerCase() ?? "")) return true
+  for (const child of node.childNodes) {
+    if (child instanceof NHTMLElement && containsBlock(child)) return true
+  }
+  return false
+}
 
-  // Iterate until no more matches (handles multiple block children per <p>)
-  while (result !== prev) {
-    prev = result
-    result = result.replace(re, (_match, pOpen, before, block, after, pClose) => {
-      const beforeTrimmed = before.trimEnd()
-      const afterTrimmed = after.trimStart()
-      // Rebuild: close the <p> before the block, emit the block, reopen <p> after (if there's content)
-      const parts: string[] = []
-      if (beforeTrimmed) parts.push(`${pOpen}${beforeTrimmed}${pClose}`)
-      parts.push(block)
-      if (afterTrimmed) parts.push(`${pOpen}${afterTrimmed}${pClose}`)
-      return parts.join("")
-    })
+/**
+ * Serialise a node back to its HTML string, preserving all attributes.
+ */
+function outerHtml(node: NHTMLElement): string {
+  return node.outerHTML
+}
+
+/**
+ * Given a <p> element that contains block-level descendants, flatten it into
+ * a sequence of sibling nodes:
+ *   <p>text<figure>…</figure>more text</p>
+ *   → <p>text</p><figure>…</figure><p>more text</p>
+ *
+ * Works recursively so that deeply nested blocks (inside <a>, <span>, …) are
+ * also correctly extracted.
+ */
+function flattenP(p: NHTMLElement): string {
+  const pOpen = `<p${p.rawAttrs ? " " + p.rawAttrs : ""}>`
+  const pClose = "</p>"
+
+  // Collect top-level children and split on the first block element found.
+  // We work on the *serialised* children to avoid mutating the live tree.
+  const parts: string[] = []
+  let inlineBuf = ""
+
+  for (const child of p.childNodes) {
+    const isElement = child instanceof NHTMLElement
+    if (!isElement) {
+      // Text node
+      inlineBuf += child.toString()
+      continue
+    }
+
+    const el = child as NHTMLElement
+    const tag = el.tagName?.toLowerCase() ?? ""
+
+    if (BLOCK_ELEMENTS.has(tag)) {
+      // Flush inline content before the block
+      if (inlineBuf.trim()) parts.push(`${pOpen}${inlineBuf}${pClose}`)
+      inlineBuf = ""
+      // Recursively fix the block itself (it might have its own bad nesting)
+      parts.push(repairNode(el))
+    } else if (containsBlock(el)) {
+      // Inline element (e.g. <a>, <span>) that *contains* a block — split it.
+      // We serialize its children and re-run the whole algorithm on a synthetic
+      // <p> wrapping each portion.
+      const innerHtml = el.innerHTML
+      // Re-parse the inner HTML as if it were directly inside a <p>
+      const syntheticP = parse(`${pOpen}${innerHtml}${pClose}`).querySelector("p")
+      if (syntheticP) {
+        const flattened = flattenP(syntheticP)
+        if (inlineBuf.trim()) parts.push(`${pOpen}${inlineBuf}${pClose}`)
+        inlineBuf = ""
+        parts.push(flattened)
+      } else {
+        inlineBuf += outerHtml(el)
+      }
+    } else {
+      // Safe inline element
+      inlineBuf += outerHtml(el)
+    }
   }
 
-  // Second pass: CKEditor sometimes wraps block-level elements inside <a> inside <p>:
-  // <p><a href="..."><figure>...</figure></a></p>
-  // Browsers auto-close <p> before <figure> even when it's inside <a>, causing
-  // React SSR↔DOM mismatch (HierarchyRequestError on insertBefore).
-  // Fix: unwrap the <a> when it only wraps a block-level element, hoisting the block out.
-  const blockInAInP = new RegExp(
-    `(<p(?:\\s[^>]*)?>)([^<]*)<a(\\s[^>]*)?>\\s*(<(?:${blockInP})(?:\\s[^>]*)?>)`,
-    "gi"
-  )
-  result = result.replace(blockInAInP, (_match, pOpen, before, _aAttrs, blockOpen) => {
-    const beforeTrimmed = before.trimEnd()
-    if (beforeTrimmed) {
-      return `${pOpen}${beforeTrimmed}</p>${blockOpen}`
+  // Flush remaining inline content
+  if (inlineBuf.trim()) parts.push(`${pOpen}${inlineBuf}${pClose}`)
+
+  return parts.join("")
+}
+
+/**
+ * Recursively repair a single DOM node and return its corrected HTML string.
+ */
+function repairNode(node: NHTMLElement): string {
+  const tag = node.tagName?.toLowerCase() ?? ""
+
+  if (tag === "p") {
+    if (containsBlock(node)) {
+      return flattenP(node)
     }
-    return `</p>${blockOpen}`
+    // <p> with only safe inline content — leave as-is
+    return outerHtml(node)
+  }
+
+  // For all other elements: recursively repair their children
+  if (!node.childNodes.length) return outerHtml(node)
+
+  let innerHtml = ""
+  for (const child of node.childNodes) {
+    if (child instanceof NHTMLElement) {
+      innerHtml += repairNode(child)
+    } else {
+      innerHtml += child.toString()
+    }
+  }
+
+  const rawAttrs = node.rawAttrs ? " " + node.rawAttrs : ""
+  // Self-closing / void elements
+  const VOID_ELEMENTS = new Set(["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"])
+  if (VOID_ELEMENTS.has(tag)) return `<${tag}${rawAttrs}>`
+  return `<${tag}${rawAttrs}>${innerHtml}</${tag}>`
+}
+
+function repairHtmlNesting(html: string): string {
+  if (!html?.trim()) return html
+
+  const root = parse(html, {
+    lowerCaseTagName: true,
+    comment: true,
+    fixNestedATags: true,
+    parseNoneClosedTags: false,
+    voidTag: {
+      tags: ["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"],
+      // Keep self-closing slash (e.g. <img />) so output matches the input
+      // and doesn't break existing tests or content that relies on XHTML syntax.
+      closingSlash: true,
+    },
   })
 
-  // Close any dangling </a></p> that were opened by the above unwrap.
-  result = result.replace(
-    new RegExp(`(<\/(?:${blockInP})>)\\s*<\/a>\\s*(<\/p>)`, "gi"),
-    "$1"
-  )
+  let result = ""
+  for (const child of root.childNodes) {
+    if (child instanceof NHTMLElement) {
+      result += repairNode(child)
+    } else {
+      result += child.toString()
+    }
+  }
 
   return result
 }
+
 
 export function normalizeArticleHtml(rawHtml: string) {
   const blockTags = "p|h1|h2|h3|h4|h5|h6|li|blockquote|div|figure|figcaption|ul|ol|table|thead|tbody|tr|td|th|section|article|aside|header|footer"
