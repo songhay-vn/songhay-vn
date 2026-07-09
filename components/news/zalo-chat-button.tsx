@@ -31,7 +31,7 @@ export function ZaloChatButton() {
           <button
             onClick={dismiss}
             aria-label="Đóng thông báo"
-            className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-500 text-white shadow hover:bg-zinc-700 transition-colors"
+            className="absolute -top-2 -left-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-500 text-white shadow hover:bg-zinc-700 transition-colors"
           >
             <X className="h-3 w-3" strokeWidth={3} />
           </button>
