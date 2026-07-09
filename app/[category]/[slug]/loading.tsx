@@ -8,6 +8,7 @@ export default function PostLoading() {
       gridClassName="grid gap-8 md:grid-cols-[1fr_320px]"
       showDontMissSection={false}
       showBottomCategorySections={false}
+      showSidebar={false}
     >
       <article className="space-y-6">
         <div className="space-y-3">
