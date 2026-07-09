@@ -2,7 +2,11 @@ import { NewsLayout } from "@/components/news/news-layout"
 
 export default function CategoryLoading() {
   return (
-    <NewsLayout showDontMissSection={false} showBottomCategorySections={false}>
+    <NewsLayout
+      showDontMissSection={false}
+      showBottomCategorySections={false}
+      showSidebar={false}
+    >
       <div className="space-y-6">
         <div className="h-8 w-56 animate-pulse bg-zinc-200" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
