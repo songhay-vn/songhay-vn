@@ -41,14 +41,14 @@ function GoogleAnalyticsInner({ measurementId }: GoogleAnalyticsProps) {
 
   return (
     <>
-      <Script id="google-analytics-enable" strategy="afterInteractive">
+      <Script id="google-analytics-enable" strategy="lazyOnload">
         {`window[${disableKeyLiteral}] = false;`}
       </Script>
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
-      <Script id="google-analytics" strategy="afterInteractive">
+      <Script id="google-analytics" strategy="lazyOnload">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){window.dataLayer.push(arguments);}
