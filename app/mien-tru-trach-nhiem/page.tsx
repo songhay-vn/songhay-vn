@@ -30,15 +30,15 @@ export default async function DisclaimerPage() {
       <div className="space-y-6">
         <header className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-rose-700">Songhay.vn</p>
-          <h1 className="text-3xl font-black text-zinc-900">Miễn trừ trách nhiệm</h1>
-          <p className="text-zinc-600">
+          <h1 className="text-3xl font-black text-zinc-950">Miễn trừ trách nhiệm</h1>
+          <p className="text-black font-medium">
             Nội dung trên website được cung cấp nhằm mục đích thông tin tham khảo, không thay thế tư vấn chuyên môn trong các lĩnh vực
             y tế, pháp lý, tài chính hoặc tâm lý.
           </p>
         </header>
 
-        <section className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 text-zinc-700">
-          <h2 className="text-xl font-bold text-zinc-900">Phạm vi thông tin</h2>
+        <section className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 text-black">
+          <h2 className="text-xl font-bold text-zinc-950">Phạm vi thông tin</h2>
           <p>
             Songhay.vn nỗ lực đảm bảo độ chính xác của nội dung tại thời điểm đăng tải, tuy nhiên không cam kết toàn bộ thông tin luôn
             đầy đủ, cập nhật hoặc phù hợp với mọi trường hợp cụ thể.
@@ -48,20 +48,20 @@ export default async function DisclaimerPage() {
           </p>
         </section>
 
-        <section className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 text-zinc-700">
-          <h2 className="text-xl font-bold text-zinc-900">Giới hạn trách nhiệm</h2>
+        <section className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 text-black">
+          <h2 className="text-xl font-bold text-zinc-950">Giới hạn trách nhiệm</h2>
           <p>
             Songhay.vn không chịu trách nhiệm với bất kỳ thiệt hại trực tiếp hoặc gián tiếp nào phát sinh từ việc sử dụng hoặc không thể
             sử dụng nội dung trên website.
           </p>
           <p>
-            Liên kết ngoài (nếu có) chỉ nhằm mục đích tham khảo. Songhay.vn không kiểm soát và không chịu trách nhiệm đối với nội dung,
+            Liên kết ngoài (nếu có) chỉ nhằm mục đích tham khảo. Songhay.vn không kiểm soát and không chịu trách nhiệm đối với nội dung,
             chính sách hoặc hoạt động của các website bên thứ ba.
           </p>
         </section>
 
-        <section className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 text-zinc-700">
-          <h2 className="text-xl font-bold text-zinc-900">Liên hệ</h2>
+        <section className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 text-black">
+          <h2 className="text-xl font-bold text-zinc-950">Liên hệ</h2>
           <p>
             Nếu bạn cần làm rõ nội dung hoặc phản hồi liên quan đến bài viết, vui lòng gửi email tới
             <a href="mailto:lienhesonghay@gmail.com" className="ml-1 font-semibold text-rose-700">lienhesonghay@gmail.com</a>.
@@ -73,7 +73,7 @@ export default async function DisclaimerPage() {
           </p>
         </section>
 
-        <Link href="/" className="inline-flex text-sm font-semibold text-zinc-700 underline underline-offset-2 hover:text-rose-700">
+        <Link href="/" className="inline-flex text-sm font-bold text-zinc-900 underline underline-offset-2 hover:text-rose-700">
           Quay về trang chủ
         </Link>
       </div>

@@ -4,6 +4,11 @@ import { useEffect } from "react"
 
 export function GoogleAdSense() {
   useEffect(() => {
+    // Do not load AdSense on admin routes
+    if (window.location.pathname.startsWith("/admin")) {
+      return
+    }
+
     // Only load AdSense on the client side after hydration is complete.
     // This prevents AdSense auto-ads from mutating the DOM before React
     // finishes hydrating the page, which causes Uncaught HierarchyRequestError.

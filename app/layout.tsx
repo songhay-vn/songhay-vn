@@ -5,6 +5,7 @@ import { Suspense } from "react"
 
 import "./globals.css"
 import { FloatingGiftButton } from "@/components/news/floating-gift-button"
+import { CookieConsentBanner } from "@/components/news/cookie-consent-banner"
 import { GoogleAdSense } from "@/components/seo/google-adsense"
 import { GoogleAnalytics } from "@/components/seo/google-analytics"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -163,6 +164,7 @@ export default function RootLayout({
         />
         <GoogleAdSense />
         <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
+        <CookieConsentBanner />
         <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
         <Suspense fallback={null}>
           <ScrollToTopOnRouteChange />

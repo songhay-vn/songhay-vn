@@ -26,15 +26,15 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <NewsLayout navCategories={navCategories}>
-      <article className="mx-auto max-w-3xl space-y-8 text-zinc-700">
+      <article className="mx-auto max-w-3xl space-y-8 text-black">
         <header className="space-y-3 border-b border-zinc-200 pb-5">
           <p className="text-sm font-semibold tracking-wide text-rose-700 uppercase">
             Songhay.vn
           </p>
-          <h1 className="text-3xl leading-tight font-black text-zinc-900 md:text-4xl">
+          <h1 className="text-3xl leading-tight font-black text-zinc-950 md:text-4xl">
             Chính sách bảo mật
           </h1>
-          <p className="text-lg leading-relaxed text-zinc-700">
+          <p className="text-lg leading-relaxed text-black font-medium">
             Cám ơn quý khách đã truy cập vào website Songhay.vn. Chúng tôi tôn
             trọng và cam kết sẽ bảo mật những thông tin mang tính riêng tư của
             bạn.
@@ -204,7 +204,7 @@ export default async function PrivacyPolicyPage() {
 
         <Link
           href="/"
-          className="inline-flex text-sm font-semibold text-zinc-700 underline underline-offset-2 hover:text-rose-700"
+          className="inline-flex text-sm font-bold text-zinc-900 underline underline-offset-2 hover:text-rose-700"
         >
           Quay về trang chủ
         </Link>

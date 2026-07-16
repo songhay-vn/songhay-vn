@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **songhay-vn** (3607 symbols, 8019 relationships, 298 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **songhay-vn** (3628 symbols, 8051 relationships, 299 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -452,7 +452,7 @@ Caddy logs like `client disconnected`, `stream closed`, or scanner requests for 
 
 - **Write Real Unit Tests**: For every new feature or bug fix, write a corresponding unit/integration test, or update existing tests to ensure compatibility.
 - **NO "Cheat" Tests**: Tests must execute the actual implementation code (libraries, components, hooks, functions). Never write mock/cheat assertions that bypass the actual logic or assert hardcoded values (e.g., asserting `console.log(2+2)` instead of calling the target function/component to verify `2+2`).
-
+- **High-Contrast Text for Accessibility**: To ensure readability for elderly readers, never use light gray colors (such as `text-zinc-600` or `text-zinc-700` overrides) for main body copy, lists, disclaimers, headers, or buttons on user-facing pages and widgets. Always use high-contrast dark options like `text-black`, `text-zinc-950`, or `text-zinc-900`.
 ## Safety Rules For Agents
 
 - Keep all responses short, concise, and straight to the point.

@@ -35,15 +35,15 @@ export default async function AboutPage() {
 
   return (
     <NewsLayout navCategories={navCategories}>
-      <article className="mx-auto max-w-3xl space-y-8 text-zinc-700">
+      <article className="mx-auto max-w-3xl space-y-8 text-black">
         <header className="space-y-3 border-b border-zinc-200 pb-5">
           <p className="text-sm font-semibold tracking-wide text-rose-700 uppercase">
             Songhay.vn
           </p>
-          <h1 className="text-3xl leading-tight font-black text-zinc-900 md:text-4xl">
+          <h1 className="text-3xl leading-tight font-black text-zinc-950 md:text-4xl">
             Về chúng tôi
           </h1>
-          <p className="text-lg leading-relaxed text-zinc-700">
+          <p className="text-lg leading-relaxed text-black font-medium">
             Sống Hay được xây dựng bởi nhóm biên tập viên yêu thích lối sống
             thuận tự nhiên, với kinh nghiệm nhiều năm trong lĩnh vực nội dung
             đời sống và sức khỏe.
@@ -197,7 +197,7 @@ export default async function AboutPage() {
 
         <Link
           href="/"
-          className="inline-flex text-sm font-semibold text-zinc-700 underline underline-offset-2 hover:text-rose-700"
+          className="inline-flex text-sm font-bold text-zinc-900 underline underline-offset-2 hover:text-rose-700"
         >
           Quay về trang chủ
         </Link>
