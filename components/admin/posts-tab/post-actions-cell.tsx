@@ -203,7 +203,25 @@ export function PostActionsCell({
             </ConfirmActionForm>
           )}
 
-        {canPublishNow && post.editorialStatus === "PUBLISHED" && (
+        {canPublishNow && post.editorialStatus === "PUBLISHED" && !post.isPublished && (
+          <ConfirmActionForm
+            action={approvePendingPost}
+            fields={[{ name: "postId", value: post.id }]}
+            confirmMessage="Xuất bản bài viết này để hiển thị công khai trở lại?"
+          >
+            <PendingSubmitButton
+              type="submit"
+              size="sm"
+              className={`${btn} bg-emerald-600 hover:bg-emerald-700`}
+              pendingText="Đang đăng..."
+            >
+              <Globe className="mr-1.5 size-3" />
+              Xuất bản
+            </PendingSubmitButton>
+          </ConfirmActionForm>
+        )}
+
+        {canPublishNow && post.editorialStatus === "PUBLISHED" && post.isPublished && (
           <ConfirmActionForm
             action={returnPostToPendingPublish}
             fields={[{ name: "postId", value: post.id }]}
