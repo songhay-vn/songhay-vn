@@ -77,7 +77,7 @@ export function BabyNameWidget() {
           ) : (
             <p>Không tìm thấy tên phù hợp với từ khóa. Thử từ khóa khác nhé.</p>
           )}
-          <p className="text-xs text-zinc-600">Tên chỉ mang tính tham khảo để lấy ý tưởng.</p>
+          <p className="text-xs text-zinc-900 font-medium">Tên chỉ mang tính tham khảo để lấy ý tưởng.</p>
         </div>
       ) : null}
     </section>

@@ -33,6 +33,9 @@ import {
   deleteUser,
   assignFeaturedSlot,
   clearFeaturedSlot,
+  createRedirect,
+  deleteRedirect,
+  toggleRedirect,
 } from "@/app/admin/actions"
 import { type AdminTab, getAdminPageData } from "@/app/admin/data"
 import {
@@ -57,6 +60,7 @@ import { SettingsPermissionsTab } from "@/components/admin/settings-permissions-
 import { SettingsUsersTab } from "@/components/admin/settings-users-tab"
 import { TrashTab } from "@/components/admin/trash-tab"
 import { WriteTab } from "@/components/admin/write-tab"
+import { RedirectsTab } from "@/components/admin/redirects-tab"
 import { requireCmsUser } from "@/lib/auth"
 import {
   can,
@@ -179,6 +183,8 @@ async function AdminPageContent({
     historyPaginationItems,
     permissionsMatrix,
     penNamesSettingsData,
+    redirectsData,
+    publishedPostsForRedirect,
   } = await getAdminPageData({
     activeTab,
     overviewRange,
@@ -422,6 +428,15 @@ async function AdminPageContent({
           canCreateSubordinateAccount={canCreateSubordinateAccount(
             currentUser.role
           )}
+        />
+      ) : null}
+      {activeTab === "redirects" ? (
+        <RedirectsTab
+          redirects={redirectsData}
+          publishedPosts={publishedPostsForRedirect}
+          createRedirect={createRedirect}
+          deleteRedirect={deleteRedirect}
+          toggleRedirect={toggleRedirect}
         />
       ) : null}
     </>

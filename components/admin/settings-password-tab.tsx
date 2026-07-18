@@ -2,6 +2,7 @@ import { Save, KeyRound } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
+import { Select } from "@/components/ui/select"
 import type { getUsersData } from "@/app/admin/data-loaders"
 
 type SettingsPasswordTabProps = {
@@ -78,11 +79,11 @@ export function SettingsPasswordTab({
             <form action={resetUserPassword} className="space-y-3">
               <div className="space-y-1.5">
                 <Label htmlFor="userId">Chọn người dùng</Label>
-                <select
+                <Select
                   id="userId"
                   name="userId"
                   required
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-10"
                 >
                   <option value="">-- Chọn người dùng --</option>
                   {users.map((user) => (
@@ -90,7 +91,7 @@ export function SettingsPasswordTab({
                       {user.name} ({user.email}) - {user.role}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="adminNewPassword">Mật khẩu mới</Label>

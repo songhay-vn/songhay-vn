@@ -15,6 +15,7 @@ export type AdminTab =
   | "settings-pen-names"
   | "settings-permissions"
   | "settings-users"
+  | "redirects"
 
 export type PostsFilters = {
   query: string

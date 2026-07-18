@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import { ROLE_LABELS_VI, ALL_EDITABLE_ROLES } from "@/lib/permissions"
+import { Select } from "@/components/ui/select"
 import type { UserRow } from "@/app/admin/data-types"
 import type { UserRole } from "@prisma/client"
 
@@ -17,8 +18,7 @@ const ROLE_BADGE_COLORS: Record<UserRole, string> = {
   CONTRIBUTOR: "bg-amber-100 text-amber-700 border-amber-200",
 }
 
-const SELECT_CLASS_NAME =
-  "flex rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+
 
 type SettingsUsersTabProps = {
   users: UserRow[]
@@ -61,11 +61,11 @@ export function SettingsUsersTab({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="subordinateRole">Vai trò</Label>
-              <select
+              <Select
                 id="subordinateRole"
                 name="role"
                 defaultValue="CONTRIBUTOR"
-                className={`${SELECT_CLASS_NAME} h-10 w-full px-3 py-2 text-sm`}
+                className="h-10"
               >
                 <option value="MANAGING_EDITOR">Thư ký biên tập</option>
                 <option value="TEAM_LEAD">Trưởng nhóm</option>
@@ -73,7 +73,7 @@ export function SettingsUsersTab({
                   Phóng viên/Biên dịch
                 </option>
                 <option value="CONTRIBUTOR">Cộng tác viên</option>
-              </select>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="subordinatePassword">Mật khẩu khởi tạo</Label>
@@ -175,17 +175,17 @@ export function SettingsUsersTab({
                             className="flex items-center gap-1.5"
                           >
                             <input type="hidden" name="userId" value={user.id} />
-                            <select
+                            <Select
                               name="newRole"
                               defaultValue={user.role}
-                              className={`${SELECT_CLASS_NAME} h-7 px-2 py-0 text-xs`}
+                              className="h-7 px-2 py-0 text-xs w-auto"
                             >
                               {ALL_EDITABLE_ROLES.map((role) => (
                                 <option key={role} value={role}>
                                   {ROLE_LABELS_VI[role]}
                                 </option>
                               ))}
-                            </select>
+                            </Select>
                             <PendingSubmitButton
                               type="submit"
                               pendingText="..."

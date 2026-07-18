@@ -70,12 +70,12 @@ export async function SiteFooter({
         </nav>
       )}
       <div className="mx-auto grid w-full max-w-[1100px] gap-6 px-4 py-8 md:grid-cols-[1.3fr_1fr] md:px-6">
-        <div className="space-y-3 text-zinc-700">
+        <div className="space-y-3 text-zinc-950">
           <p className="text-2xl font-black text-zinc-900">Songhay.vn</p>
           <p className="text-sm font-semibold tracking-wide text-rose-700 uppercase">
             Liên hệ quảng cáo
           </p>
-          <p className="text-zinc-600">
+          <p className="text-zinc-900">
             Đặt banner, booking bài PR, tài trợ chuyên mục và hợp tác nội dung
             thương hiệu.
           </p>
@@ -133,7 +133,7 @@ export async function SiteFooter({
         </div>
 
         <div className="space-y-3">
-          <p className="text-sm font-semibold tracking-wide text-zinc-700 uppercase">
+          <p className="text-sm font-semibold tracking-wide text-zinc-900 uppercase">
             Kết nối với Songhay
           </p>
           <div className="flex flex-wrap items-center gap-3">
@@ -143,7 +143,7 @@ export async function SiteFooter({
                 variant="outline"
                 size="icon"
                 asChild
-                className="rounded-full bg-white text-zinc-700 shadow-none hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                className="rounded-full bg-white text-zinc-900 shadow-none hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
               >
                 <Link
                   href={social.href}
@@ -156,11 +156,11 @@ export async function SiteFooter({
               </Button>
             ))}
           </div>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-zinc-900">
             Theo dõi để nhận tin nổi bật, video mới và chương trình hợp tác
             truyền thông.
           </p>
-          <p className="border-t border-zinc-200 pt-3 text-sm leading-relaxed text-zinc-600">
+          <p className="border-t border-zinc-200 pt-3 text-sm leading-relaxed text-zinc-950">
             Sống Hay (songhay.vn) là chuyên trang chuyên sâu về lối sống thuận
             tự nhiên, được vận hành bởi đội ngũ nhà báo và các chuyên gia y tế
             chuyên trách. Chúng tôi kết nối tri thức bản địa cùng các thành tựu

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { useAdminFilterForm } from "@/hooks/use-admin-filter-form"
 import { AdminPagination } from "./admin-pagination"
+import { Card, CardContent } from "@/components/ui/card"
 
 type TrashedPost = {
   id: string
@@ -141,67 +142,71 @@ export function TrashTab({
       {data.rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">Thùng rác đang trống.</p>
       ) : (
-        data.rows.map((post) => (
-          <div key={post.id} className="rounded-lg border p-3">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <PostThumbnail
-                  src={post.thumbnailUrl}
-                  alt={post.title}
-                  width={80}
-                  height={56}
-                />
-                <div>
-                  <p className="font-semibold">{post.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    /{post.category.slug}/{post.slug}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Người viết: {post.author?.name || "Không rõ"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Đã xóa lúc:{" "}
-                    {post.deletedAt
-                      ? new Date(post.deletedAt).toLocaleString("vi-VN")
-                      : "Không rõ"}
-                  </p>
+        <div className="space-y-3">
+          {data.rows.map((post) => (
+            <Card key={post.id}>
+              <CardContent className="p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <PostThumbnail
+                      src={post.thumbnailUrl}
+                      alt={post.title}
+                      width={80}
+                      height={56}
+                    />
+                    <div>
+                      <p className="font-semibold">{post.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        /{post.category.slug}/{post.slug}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Người viết: {post.author?.name || "Không rõ"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Đã xóa lúc:{" "}
+                        {post.deletedAt
+                          ? new Date(post.deletedAt).toLocaleString("vi-VN")
+                          : "Không rõ"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <form action={async (fd) => {
+                      const res = await restorePostFromTrash(fd)
+                      if (res && res.toast) showToastByKey(res.toast)
+                    }}>
+                      <input type="hidden" name="postId" value={post.id} />
+                      <PendingSubmitButton
+                        type="submit"
+                        size="sm"
+                        variant="outline"
+                        pendingText="Đang khôi phục..."
+                      >
+                        <RotateCcw className="size-4" />
+                        Khôi phục
+                      </PendingSubmitButton>
+                    </form>
+                    <ConfirmActionForm
+                      action={deletePostPermanently}
+                      fields={[{ name: "postId", value: post.id }]}
+                      confirmMessage="Xóa vĩnh viễn bài viết này? Hành động này không thể hoàn tác."
+                    >
+                      <PendingSubmitButton
+                        type="submit"
+                        size="sm"
+                        variant="destructive"
+                        pendingText="Đang xóa..."
+                      >
+                        <Trash2 className="size-4" />
+                        Xóa vĩnh viễn
+                      </PendingSubmitButton>
+                    </ConfirmActionForm>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <form action={async (fd) => {
-                  const res = await restorePostFromTrash(fd)
-                  if (res && res.toast) showToastByKey(res.toast)
-                }}>
-                  <input type="hidden" name="postId" value={post.id} />
-                  <PendingSubmitButton
-                    type="submit"
-                    size="sm"
-                    variant="outline"
-                    pendingText="Đang khôi phục..."
-                  >
-                    <RotateCcw className="size-4" />
-                    Khôi phục
-                  </PendingSubmitButton>
-                </form>
-                <ConfirmActionForm
-                  action={deletePostPermanently}
-                  fields={[{ name: "postId", value: post.id }]}
-                  confirmMessage="Xóa vĩnh viễn bài viết này? Hành động này không thể hoàn tác."
-                >
-                  <PendingSubmitButton
-                    type="submit"
-                    size="sm"
-                    variant="destructive"
-                    pendingText="Đang xóa..."
-                  >
-                    <Trash2 className="size-4" />
-                    Xóa vĩnh viễn
-                  </PendingSubmitButton>
-                </ConfirmActionForm>
-              </div>
-            </div>
-          </div>
-        ))
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       <AdminPagination

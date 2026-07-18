@@ -16,9 +16,12 @@ import {
   getPenNameOptions,
   getPenNamesSettingsData,
   getBioAgeInsights,
+  getRedirectsData,
+  type RedirectRow,
 } from "@/app/admin/data-loaders/index"
 import { buildPaginationItems } from "@/app/admin/data-helpers"
 import type { GetAdminPageDataInput } from "@/app/admin/data-types"
+import { prisma } from "@/lib/prisma"
 
 export type { AdminTab } from "@/app/admin/data-types"
 
@@ -105,6 +108,8 @@ export async function getAdminPageData({
   let penNamesSettingsData: Awaited<
     ReturnType<typeof getPenNamesSettingsData>
   > = []
+  let redirectsData: RedirectRow[] = []
+  let publishedPostsForRedirect: { slug: string; categorySlug: string; title: string; thumbnailUrl: string | null; path: string }[] = []
 
   // Selectively fire only required loaders for the active tab
   const activeTabDataPromise = (async () => {
@@ -169,6 +174,30 @@ export async function getAdminPageData({
       case "settings-users":
       case "settings-password":
         usersData = await getUsersData(activeTab)
+        break
+      case "redirects":
+        ;[redirectsData, publishedPostsForRedirect] = await Promise.all([
+          getRedirectsData(activeTab),
+          prisma.post.findMany({
+            where: { isPublished: true, isDeleted: false },
+            select: {
+              slug: true,
+              title: true,
+              thumbnailUrl: true,
+              category: { select: { slug: true } },
+            },
+            orderBy: { publishedAt: "desc" },
+            take: 500,
+          }).then((posts) =>
+            posts.map((p) => ({
+              slug: p.slug,
+              categorySlug: p.category.slug,
+              title: p.title,
+              thumbnailUrl: p.thumbnailUrl,
+              path: `/${p.category.slug}/${p.slug}`,
+            }))
+          ),
+        ])
         break
       default:
         // No extra data needed for "settings-password" or unknown tabs
@@ -242,5 +271,7 @@ export async function getAdminPageData({
     historyPaginationItems,
     permissionsMatrix,
     penNamesSettingsData,
+    redirectsData,
+    publishedPostsForRedirect,
   }
 }

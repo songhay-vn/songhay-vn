@@ -29,3 +29,7 @@ export type {
   PenNameOption,
   PenNameSettingsRow,
 } from "@/app/admin/data-loaders/pen-names"
+export {
+  getRedirectsData,
+} from "@/app/admin/data-loaders/redirects"
+export type { RedirectRow } from "@/app/admin/data-loaders/redirects"

@@ -52,12 +52,12 @@ export function DontMissWidget() {
             <p className="text-lg leading-tight font-black text-zinc-950">
               Cách tính tuổi sinh học
             </p>
-            <p className="max-w-2xl text-sm leading-6 text-zinc-600">
+            <p className="max-w-2xl text-sm leading-6 text-zinc-900">
               Nhập tuổi rồi trả lời nhanh các câu trắc nghiệm về giới tính, giấc
               ngủ, vận động, dinh dưỡng và stress để nhận tuổi sinh học tham
               khảo.
             </p>
-            <div className="flex flex-wrap gap-2 text-xs font-semibold text-zinc-700">
+            <div className="flex flex-wrap gap-2 text-xs font-semibold text-zinc-900">
               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-1 text-emerald-700">
                 <Activity className="size-3.5" aria-hidden="true" />
                 14 câu hỏi

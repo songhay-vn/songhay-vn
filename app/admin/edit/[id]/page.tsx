@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { CategorySelector } from "@/components/admin/category-selector"
 import { SeoKeywordPicker } from "@/components/admin/seo-keyword-picker"
 import { uploadThumbnail } from "@/lib/cloudinary"
@@ -502,12 +503,11 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
                   defaultCategoryId={post.categoryId}
                 />
                 <div className="flex items-center gap-2 pt-2">
-                  <input
-                    className="size-4 rounded border-input"
-                    name="isSensitive"
-                    type="checkbox"
-                    defaultChecked={post.isSensitive}
+                  <Checkbox
                     id="isSensitiveEdit"
+                    name="isSensitive"
+                    defaultChecked={post.isSensitive}
+                    value="on"
                   />
                   <Label htmlFor="isSensitiveEdit">Nội dung nhạy cảm</Label>
                 </div>

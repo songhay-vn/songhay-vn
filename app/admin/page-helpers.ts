@@ -18,6 +18,7 @@ export type NavIconName =
   | "timer"
   | "globe"
   | "signature"
+  | "arrowRightLeft"
 
 export type NavLeaf = {
   key: string
@@ -204,6 +205,14 @@ export const SETTINGS_TABS: NavLeaf[] = [
     label: "Người dùng",
     description: "Quản lý tài khoản và phân quyền",
     iconName: "users",
+    adminOnly: true,
+  },
+  {
+    key: "redirects",
+    tabKey: "redirects",
+    label: "Redirect 301",
+    description: "Quản lý chuyển hướng SEO",
+    iconName: "arrowRightLeft",
     adminOnly: true,
   },
 ]

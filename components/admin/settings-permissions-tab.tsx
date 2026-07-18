@@ -2,6 +2,7 @@ import { Save } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   ALL_EDITABLE_ROLES,
   ACTION_LABELS_VI,
@@ -84,12 +85,10 @@ function RolePermissionsCard({
                         key={action}
                         className="flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2 text-sm transition-colors hover:bg-muted/50"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           name={`perm_${action}`}
                           defaultChecked={checked}
                           value="on"
-                          className="h-4 w-4 rounded accent-violet-600"
                         />
                         <span
                           className={

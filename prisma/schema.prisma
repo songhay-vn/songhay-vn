@@ -330,6 +330,18 @@ model PostHistory {
   @@index([actorId])
 }
 
+model Redirect {
+  id        String   @id @default(cuid())
+  fromPath  String   @unique
+  toPath    String
+  isActive  Boolean  @default(true)
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
 model Notification {
   id        String   @id @default(cuid())
   userId    String

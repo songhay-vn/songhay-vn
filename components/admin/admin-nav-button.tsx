@@ -4,6 +4,7 @@ import { Suspense, useTransition } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
+  ArrowRightLeft,
   FileEdit,
   FileSearch,
   FileWarning,
@@ -51,6 +52,7 @@ const navIcons: Record<NavIconName, typeof LayoutDashboard> = {
   timer: Timer,
   globe: Globe,
   signature: Signature,
+  arrowRightLeft: ArrowRightLeft,
 }
 
 type AdminNavButtonProps = {
@@ -62,14 +64,14 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  
+
   const activeTab = searchParams.get("tab") || "overview"
   const activePostsStatus = searchParams.get("postsStatus")
   const TabIcon = navIcons[tab.iconName]
   const isActive = tab.activeWhen
     ? activeTab === tab.activeWhen.tab &&
-    (typeof tab.activeWhen.postsStatus === "undefined" ||
-      activePostsStatus === tab.activeWhen.postsStatus)
+      (typeof tab.activeWhen.postsStatus === "undefined" ||
+        activePostsStatus === tab.activeWhen.postsStatus)
     : activeTab === tab.tabKey
 
   const href = tab.href || `/admin?tab=${tab.tabKey}`
@@ -90,10 +92,11 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
         <Button
           asChild
           variant="ghost"
-          className={`h-10 w-full justify-start rounded-xl border px-3.5 ${isActive
+          className={`h-10 w-full justify-start rounded-xl border px-3.5 ${
+            isActive
               ? "border-zinc-200 bg-zinc-100 text-zinc-900 hover:bg-zinc-100 hover:text-zinc-900"
               : "border-transparent text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
-            }`}
+          }`}
         >
           <Link
             href={href}
@@ -102,7 +105,9 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
           >
             <span className="flex min-w-0 flex-1 items-center gap-2.5">
               {isPending ? (
-                <Loader2 className={`size-4 animate-spin ${isActive ? "text-zinc-900" : "text-zinc-500"}`} />
+                <Loader2
+                  className={`size-4 animate-spin ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
+                />
               ) : (
                 <TabIcon
                   className={`size-4 ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
@@ -113,10 +118,9 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
             {typeof count === "number" ? (
               <Badge
                 variant="secondary"
-                className={`ml-auto h-5 min-w-6 justify-center px-1.5 text-[11px] font-semibold tabular-nums ${isActive
-                    ? "bg-zinc-900 text-white"
-                    : "bg-zinc-100 text-zinc-600"
-                  }`}
+                className={`ml-auto h-5 min-w-6 justify-center px-1.5 text-[11px] font-semibold tabular-nums ${
+                  isActive ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
+                }`}
               >
                 {isPending ? "..." : count.toLocaleString("vi-VN")}
               </Badge>
@@ -133,9 +137,9 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
 
 export function AdminNavButton({ tab, count }: AdminNavButtonProps) {
   return (
-    <Suspense fallback={
-      <div className="h-10 w-full rounded-xl bg-zinc-100 animate-pulse" />
-    }>
+    <Suspense
+      fallback={<div className="h-10 w-full rounded-xl bg-zinc-100 animate-pulse" />}
+    >
       <AdminNavButtonInner tab={tab} count={count} />
     </Suspense>
   )

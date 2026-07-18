@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select } from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -205,8 +206,8 @@ export function PostsTable({
         <div className="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-indigo-800 shadow-sm">
           <span className="text-sm font-medium">Đã chọn {selectedIds.size} bài viết</span>
           <div className="flex items-center gap-2">
-            <select
-              className="h-8 rounded-md border border-indigo-200 bg-white px-2 text-xs font-medium text-indigo-700 outline-none"
+            <Select
+              className="h-8 rounded-md border border-indigo-200 bg-white px-2 text-xs font-medium text-indigo-700 outline-none w-auto"
               onChange={(e) => {
                 if (e.target.value) handleBulkStatus(e.target.value)
                 e.target.value = ""
@@ -220,7 +221,7 @@ export function PostsTable({
               <option value="PENDING_PUBLISH">Chờ xuất bản</option>
               {rest.canPublishNow && <option value="PUBLISHED">Đã xuất bản</option>}
               <option value="REJECTED">Từ chối</option>
-            </select>
+            </Select>
             <button
               onClick={handleBulkTrash}
               disabled={isPending}

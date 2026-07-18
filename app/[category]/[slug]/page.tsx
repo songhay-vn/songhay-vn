@@ -159,15 +159,17 @@ export default async function PostPage({ params }: PostPageProps) {
     { name: article.title, url: fullUrl },
   ]
 
+  const seoElements = (
+    <>
+      <JsonLd data={[articleJsonLd]} />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+    </>
+  )
+
   return (
     <ArticlePageShell
       navCategories={navCategories}
-      seoElements={
-        <>
-          <JsonLd data={[articleJsonLd]} />
-          <BreadcrumbJsonLd items={breadcrumbItems} />
-        </>
-      }
+      seoElements={seoElements}
       article={article}
         articleHtml={articleHtml}
         fullUrl={fullUrl}

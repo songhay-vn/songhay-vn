@@ -300,7 +300,53 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
     description: "Bạn không thể xóa tài khoản này.",
     type: "error",
   },
+  redirect_created: {
+    title: "Đã tạo redirect",
+    description: "Redirect 301 mới đã được lưu thành công.",
+    type: "success",
+  },
+  redirect_deleted: {
+    title: "Đã xóa redirect",
+    description: "Redirect đã được xóa khỏi hệ thống.",
+    type: "success",
+  },
+  redirect_toggled: {
+    title: "Đã cập nhật trạng thái",
+    description: "Trạng thái redirect đã được thay đổi.",
+    type: "success",
+  },
+  redirect_create_failed: {
+    title: "Không thể tạo redirect",
+    description: "Vui lòng kiểm tra lại đường dẫn nguồn và đích.",
+    type: "error",
+  },
+  redirect_create_forbidden: {
+    title: "Không đủ quyền",
+    description: "Chỉ Admin mới có thể quản lý redirect.",
+    type: "error",
+  },
+  redirect_delete_failed: {
+    title: "Không thể xóa redirect",
+    description: "Có lỗi xảy ra. Vui lòng thử lại.",
+    type: "error",
+  },
+  redirect_delete_forbidden: {
+    title: "Không đủ quyền xóa",
+    description: "Chỉ Admin mới có thể xóa redirect.",
+    type: "error",
+  },
+  redirect_toggle_failed: {
+    title: "Không thể thay đổi trạng thái",
+    description: "Có lỗi xảy ra. Vui lòng thử lại.",
+    type: "error",
+  },
+  redirect_loop_error: {
+    title: "Vòng lặp redirect",
+    description: "Không thể tạo redirect vì sẽ tạo vòng lặp (A → B → A).",
+    type: "error",
+  },
 }
+
 
 export function showToastByKey(toastKey: string) {
   const message = TOAST_MESSAGES[toastKey]

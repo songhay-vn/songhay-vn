@@ -304,7 +304,7 @@ export function BioAgeWidget() {
           >
             Bộ câu hỏi tuổi sinh học
           </h2>
-          <p className="mt-1 text-sm leading-6 text-zinc-600">
+          <p className="mt-1 text-sm leading-6 text-zinc-900 font-medium">
             {answeredCount}/{totalQuestionCount} câu đã trả lời
           </p>
         </div>

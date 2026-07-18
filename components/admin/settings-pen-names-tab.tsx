@@ -175,6 +175,9 @@ export function SettingsPenNamesTab({
                 type="file"
                 accept="image/*"
               />
+              <p className="text-xs text-muted-foreground">
+                Tải lên trực tiếp để hiển thị bên dưới bài viết, không lưu vào kho media.
+              </p>
             </div>
             <PendingSubmitButton type="submit" pendingText="Đang tạo...">
               <Plus className="size-4" />
