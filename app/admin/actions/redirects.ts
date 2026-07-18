@@ -41,7 +41,7 @@ function normalizePath(raw: string): string {
  */
 async function syncMatchedPostStatus(
   fromPath: string,
-  mode: "REDIRECT_ON" | "REPUBLISH"
+  mode: "REDIRECT_ON" | "REPUBLISH" | "DEMOTE_TO_PENDING"
 ) {
   const pathParts = fromPath.split("/").filter(Boolean)
   if (pathParts.length !== 2) return
@@ -55,8 +55,7 @@ async function syncMatchedPostStatus(
       isDeleted: false,
       // REDIRECT_ON: find posts that are currently public (isPublished: true) OR
       // that were set to DRAFT by the old version (isDraft: true, editorialStatus: "DRAFT").
-      // REPUBLISH: find posts that are currently hidden by a redirect (isPublished: false,
-      // editorialStatus: "PUBLISHED") OR legacy draft posts.
+      // REPUBLISH / DEMOTE_TO_PENDING: find posts that are currently hidden by a redirect (isPublished: false).
       ...(mode === "REDIRECT_ON"
         ? { OR: [{ isPublished: true }, { isDraft: true, editorialStatus: "DRAFT" }] }
         : { isPublished: false }),
@@ -77,7 +76,7 @@ async function syncMatchedPostStatus(
         editorialStatus: "PUBLISHED",
       },
     })
-  } else {
+  } else if (mode === "REPUBLISH") {
     // Restore to full public visibility
     await prisma.post.update({
       where: { id: matchedPost.id },
@@ -85,6 +84,16 @@ async function syncMatchedPostStatus(
         isPublished: true,
         isDraft: false,
         editorialStatus: "PUBLISHED",
+      },
+    })
+  } else if (mode === "DEMOTE_TO_PENDING") {
+    // Demote to PENDING_PUBLISH (moves to 'Chờ xuất bản' tab)
+    await prisma.post.update({
+      where: { id: matchedPost.id },
+      data: {
+        isPublished: false,
+        isDraft: false,
+        editorialStatus: "PENDING_PUBLISH",
       },
     })
   }
@@ -160,8 +169,12 @@ export async function deleteRedirect(formData: FormData) {
     select: { fromPath: true },
   })
 
-  if (redirectRow && republish) {
-    await syncMatchedPostStatus(redirectRow.fromPath, "REPUBLISH")
+  if (redirectRow) {
+    if (republish) {
+      await syncMatchedPostStatus(redirectRow.fromPath, "REPUBLISH")
+    } else {
+      await syncMatchedPostStatus(redirectRow.fromPath, "DEMOTE_TO_PENDING")
+    }
   }
 
   await prisma.redirect.delete({ where: { id: redirectId } })
@@ -197,6 +210,9 @@ export async function toggleRedirect(formData: FormData) {
     } else if (republish) {
       // Disabling redirect with republish -> restore matched post to public
       await syncMatchedPostStatus(redirectRow.fromPath, "REPUBLISH")
+    } else {
+      // Disabling redirect without republish -> demote to PENDING_PUBLISH (Chờ xuất bản)
+      await syncMatchedPostStatus(redirectRow.fromPath, "DEMOTE_TO_PENDING")
     }
   }
 

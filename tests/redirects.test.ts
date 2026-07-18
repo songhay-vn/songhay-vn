@@ -255,4 +255,69 @@ describe("createRedirect action with auto-unpublishing", () => {
       url: "https://songhay.vn/xa-hoi/duplicate-post",
     })
   })
+
+  test("deleteRedirect with republish=false demotes the matched post to PENDING_PUBLISH", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "redirect-123",
+      fromPath: "/xa-hoi/duplicate-post",
+    })
+    mockFindFirst.mockResolvedValue({
+      id: "post-123",
+      slug: "duplicate-post",
+      category: { slug: "xa-hoi" },
+    })
+
+    const formData = new FormData()
+    formData.append("redirectId", "redirect-123")
+    formData.append("republish", "false")
+
+    try {
+      await deleteRedirect(formData)
+    } catch (e) {
+      // ignore redirect call
+    }
+
+    // Verify it updated the post to PENDING_PUBLISH
+    expect(mockUpdate).toHaveBeenCalledWith({
+      where: { id: "post-123" },
+      data: {
+        isPublished: false,
+        isDraft: false,
+        editorialStatus: "PENDING_PUBLISH",
+      },
+    })
+  })
+
+  test("toggleRedirect turning OFF with republish=false demotes the matched post to PENDING_PUBLISH", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "redirect-123",
+      fromPath: "/xa-hoi/duplicate-post",
+    })
+    mockFindFirst.mockResolvedValue({
+      id: "post-123",
+      slug: "duplicate-post",
+      category: { slug: "xa-hoi" },
+    })
+
+    const formData = new FormData()
+    formData.append("redirectId", "redirect-123")
+    formData.append("isActive", "true") // Currently active (turning it OFF)
+    formData.append("republish", "false")
+
+    try {
+      await toggleRedirect(formData)
+    } catch (e) {
+      // ignore redirect call
+    }
+
+    // Verify it updated the post to PENDING_PUBLISH
+    expect(mockUpdate).toHaveBeenCalledWith({
+      where: { id: "post-123" },
+      data: {
+        isPublished: false,
+        isDraft: false,
+        editorialStatus: "PENDING_PUBLISH",
+      },
+    })
+  })
 })
