@@ -203,7 +203,7 @@ export function PostActionsCell({
             </ConfirmActionForm>
           )}
 
-        {canPublishNow && post.editorialStatus === "PUBLISHED" && !post.isPublished && (
+        {canPublishNow && post.editorialStatus === "PUBLISHED" && !post.isPublished && !post.isRedirected && (
           <ConfirmActionForm
             action={approvePendingPost}
             fields={[{ name: "postId", value: post.id }]}

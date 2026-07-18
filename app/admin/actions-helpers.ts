@@ -221,6 +221,22 @@ export async function revalidatePost(
   categorySlug?: string,
   options?: RevalidatePostOptions
 ) {
+  if (slug && categorySlug) {
+    const fromPath = `/${categorySlug}/${slug}`
+    const activeRedirect = await prisma.redirect.findFirst({
+      where: { fromPath, isActive: true },
+      select: { id: true },
+    })
+    if (activeRedirect) {
+      await prisma.redirect.update({
+        where: { id: activeRedirect.id },
+        data: { isActive: false },
+      })
+      const { clearDataCache } = await import("@/lib/data-cache")
+      clearDataCache("admin:redirects")
+    }
+  }
+
   if (slug) {
     revalidateTag(`post:${slug}`)
   }
