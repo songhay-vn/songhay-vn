@@ -67,10 +67,10 @@ describe("createRedirect action with auto-unpublishing", () => {
     mock.restore()
   })
 
-  test("Automatically unpublishes a matched active published post", async () => {
+  test("REDIRECT_ON: hides matched post from public frontend (isPublished: false) while keeping it in Published tab", async () => {
     mockFindUnique.mockResolvedValue(null)
 
-    // Mock that a matching published post is found at the redirected fromPath
+    // Mock that a matching post is found at the redirected fromPath
     mockFindFirst.mockResolvedValue({
       id: "post-123",
       slug: "duplicate-post",
@@ -94,13 +94,13 @@ describe("createRedirect action with auto-unpublishing", () => {
     // Verify it queried the matching post
     expect(mockFindFirst).toHaveBeenCalled()
 
-    // Verify it updated the post to DRAFT
+    // Verify post is hidden from public but stays in Published tab
     expect(mockUpdate).toHaveBeenCalledWith({
       where: { id: "post-123" },
       data: {
         isPublished: false,
-        isDraft: true,
-        editorialStatus: "DRAFT",
+        isDraft: false,
+        editorialStatus: "PUBLISHED",
       },
     })
 
@@ -211,7 +211,7 @@ describe("createRedirect action with auto-unpublishing", () => {
     })
   })
 
-  test("toggleRedirect turning ON automatically enqueues GSC inspection for the redirect path", async () => {
+  test("toggleRedirect turning ON: hides matched post from public frontend (isPublished: false) while keeping it in Published tab", async () => {
     mockFindUnique.mockResolvedValue({
       id: "redirect-123",
       fromPath: "/xa-hoi/duplicate-post",
@@ -232,13 +232,13 @@ describe("createRedirect action with auto-unpublishing", () => {
       // ignore redirect call
     }
 
-    // Verify it updated the post to DRAFT
+    // Verify post is hidden from public but stays in Published tab
     expect(mockUpdate).toHaveBeenCalledWith({
       where: { id: "post-123" },
       data: {
         isPublished: false,
-        isDraft: true,
-        editorialStatus: "DRAFT",
+        isDraft: false,
+        editorialStatus: "PUBLISHED",
       },
     })
     expect(mockRevalidatePost).toHaveBeenCalledWith(

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, startTransition } from "react"
 import {
   ArrowRight,
   Plus,
@@ -512,19 +512,25 @@ export function RedirectsTab({
 
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeleteRepublish(false)}>Hủy</AlertDialogCancel>
-            <form action={async (fd) => {
-              if (deleteConfirmId) {
-                fd.append("redirectId", deleteConfirmId)
-                fd.append("republish", String(deleteRepublish))
-                await deleteRedirect(fd)
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                const id = deleteConfirmId
+                const rep = deleteRepublish
                 setDeleteConfirmId(null)
                 setDeleteRepublish(false)
-              }
-            }}>
-              <AlertDialogAction type="submit" variant="destructive">
-                Xác nhận
-              </AlertDialogAction>
-            </form>
+                if (id) {
+                  startTransition(async () => {
+                    const fd = new FormData()
+                    fd.append("redirectId", id)
+                    fd.append("republish", String(rep))
+                    await deleteRedirect(fd)
+                  })
+                }
+              }}
+            >
+              Xác nhận
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -552,20 +558,25 @@ export function RedirectsTab({
 
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setToggleRepublish(false)}>Hủy</AlertDialogCancel>
-            <form action={async (fd) => {
-              if (toggleConfirmRow) {
-                fd.append("redirectId", toggleConfirmRow.id)
-                fd.append("isActive", String(toggleConfirmRow.isActive))
-                fd.append("republish", String(toggleRepublish))
-                await toggleRedirect(fd)
+            <AlertDialogAction
+              onClick={() => {
+                const row = toggleConfirmRow
+                const rep = toggleRepublish
                 setToggleConfirmRow(null)
                 setToggleRepublish(false)
-              }
-            }}>
-              <AlertDialogAction type="submit">
-                Xác nhận
-              </AlertDialogAction>
-            </form>
+                if (row) {
+                  startTransition(async () => {
+                    const fd = new FormData()
+                    fd.append("redirectId", row.id)
+                    fd.append("isActive", String(row.isActive))
+                    fd.append("republish", String(rep))
+                    await toggleRedirect(fd)
+                  })
+                }
+              }}
+            >
+              Xác nhận
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

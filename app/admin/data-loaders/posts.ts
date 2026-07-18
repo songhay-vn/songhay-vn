@@ -288,8 +288,27 @@ export async function getPostsData(
   })
   const postsWithViews = await attachAnalyticsViewsToPostRows(posts)
 
+  // Attach isRedirected flag: check which posts match an active redirect's fromPath
+  const postPaths = postsWithViews.map(
+    (p) => `/${p.category.slug}/${p.slug}`
+  )
+  const activeRedirectPaths = postPaths.length > 0
+    ? await prisma.redirect
+        .findMany({
+          where: { fromPath: { in: postPaths }, isActive: true },
+          select: { fromPath: true },
+        })
+        .then((rows) => new Set(rows.map((r) => r.fromPath)))
+        .catch(() => new Set<string>())
+    : new Set<string>()
+
+  const postsWithFlags = postsWithViews.map((p) => ({
+    ...p,
+    isRedirected: activeRedirectPaths.has(`/${p.category.slug}/${p.slug}`),
+  }))
+
   return {
-    posts: postsWithViews,
+    posts: postsWithFlags,
     totalCount,
     totalPages,
     currentPage,

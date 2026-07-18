@@ -27,41 +27,67 @@ function normalizePath(raw: string): string {
 }
 
 /**
- * Shared helper to dynamically switch a post's status and trigger Google Search Console inspection.
- * - toStatus = "DRAFT": Looks for a published post, unpublishes it, and enqueues inspection.
- * - toStatus = "PUBLISHED": Looks for a draft post, publishes it, and enqueues inspection.
+ * Shared helper to synchronize a post's visibility when a redirect is activated or deactivated.
+ *
+ * REDIRECT_ON  — Hides the post from the public frontend (isPublished: false) but keeps
+ *                editorialStatus: "PUBLISHED" so it stays visible in the Admin 'Published' tab.
+ *                Also enqueues a GSC inspection of the old URL to let Google discover the 301.
+ *
+ * REPUBLISH    — Restores the post to full public visibility (isPublished: true).
+ *                Enqueues a GSC inspection so Google re-crawls and re-indexes the URL.
+ *
+ * The helper also handles backward-compat: posts that were set to DRAFT by an older version
+ * of the redirect action are treated as REDIRECT_ON posts and updated to the new shape.
  */
 async function syncMatchedPostStatus(
   fromPath: string,
-  toStatus: "PUBLISHED" | "DRAFT"
+  mode: "REDIRECT_ON" | "REPUBLISH"
 ) {
   const pathParts = fromPath.split("/").filter(Boolean)
   if (pathParts.length !== 2) return
 
   const [categorySlug, postSlug] = pathParts
-  const isPublishedFilter = toStatus === "DRAFT" // To unpublish, post must be published; to publish, it must be draft/unpublished
 
   const matchedPost = await prisma.post.findFirst({
     where: {
       slug: postSlug,
       category: { slug: categorySlug },
       isDeleted: false,
-      isPublished: isPublishedFilter,
+      // REDIRECT_ON: find posts that are currently public (isPublished: true) OR
+      // that were set to DRAFT by the old version (isDraft: true, editorialStatus: "DRAFT").
+      // REPUBLISH: find posts that are currently hidden by a redirect (isPublished: false,
+      // editorialStatus: "PUBLISHED") OR legacy draft posts.
+      ...(mode === "REDIRECT_ON"
+        ? { OR: [{ isPublished: true }, { isDraft: true, editorialStatus: "DRAFT" }] }
+        : { isPublished: false }),
     },
     select: { id: true, slug: true, category: { select: { slug: true } } },
   })
 
   if (!matchedPost) return
 
-  const isDraft = toStatus === "DRAFT"
-  await prisma.post.update({
-    where: { id: matchedPost.id },
-    data: {
-      isPublished: !isDraft,
-      isDraft: isDraft,
-      editorialStatus: toStatus,
-    },
-  })
+  if (mode === "REDIRECT_ON") {
+    // Keep editorialStatus PUBLISHED so it stays in the Admin 'Published' tab,
+    // but hide from the public frontend by setting isPublished: false.
+    await prisma.post.update({
+      where: { id: matchedPost.id },
+      data: {
+        isPublished: false,
+        isDraft: false,
+        editorialStatus: "PUBLISHED",
+      },
+    })
+  } else {
+    // Restore to full public visibility
+    await prisma.post.update({
+      where: { id: matchedPost.id },
+      data: {
+        isPublished: true,
+        isDraft: false,
+        editorialStatus: "PUBLISHED",
+      },
+    })
+  }
 
   await revalidatePost(matchedPost.slug, matchedPost.category?.slug, {
     isVisibilityChange: true,
@@ -108,8 +134,8 @@ export async function createRedirect(formData: FormData) {
     update: { toPath, note, isActive: true },
   })
 
-  // Automatically unpublish the old post URL if it exists
-  await syncMatchedPostStatus(fromPath, "DRAFT")
+  // Hide the old post from the public frontend while keeping it in the Admin Published tab
+  await syncMatchedPostStatus(fromPath, "REDIRECT_ON")
 
   clearDataCache("admin:redirects")
   revalidatePath("/admin")
@@ -135,8 +161,7 @@ export async function deleteRedirect(formData: FormData) {
   })
 
   if (redirectRow && republish) {
-    // Optionally publish the matched post again
-    await syncMatchedPostStatus(redirectRow.fromPath, "PUBLISHED")
+    await syncMatchedPostStatus(redirectRow.fromPath, "REPUBLISH")
   }
 
   await prisma.redirect.delete({ where: { id: redirectId } })
@@ -167,11 +192,11 @@ export async function toggleRedirect(formData: FormData) {
 
   if (redirectRow) {
     if (!isActive) {
-      // Activating redirect -> set post to DRAFT
-      await syncMatchedPostStatus(redirectRow.fromPath, "DRAFT")
-    } else if (isActive && republish) {
-      // Disabling redirect -> set post to PUBLISHED
-      await syncMatchedPostStatus(redirectRow.fromPath, "PUBLISHED")
+      // Activating redirect -> hide matched post from public frontend
+      await syncMatchedPostStatus(redirectRow.fromPath, "REDIRECT_ON")
+    } else if (republish) {
+      // Disabling redirect with republish -> restore matched post to public
+      await syncMatchedPostStatus(redirectRow.fromPath, "REPUBLISH")
     }
   }
 

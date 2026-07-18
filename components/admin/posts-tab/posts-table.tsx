@@ -339,6 +339,15 @@ export function PostsTable({
                             Xu hướng
                           </Badge>
                         )}
+                        {post.isRedirected && (
+                          <Badge
+                            variant="outline"
+                            className="h-5 border-indigo-300 px-1 py-0 text-[11px] text-indigo-600"
+                            title="Bài viết này đang bị chuyển hướng (301 Redirect) sang một URL khác"
+                          >
+                            Chuyển hướng
+                          </Badge>
+                        )}
                         {post.isPublished && (
                           <Badge
                             variant="outline"

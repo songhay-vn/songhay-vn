@@ -37,6 +37,7 @@ export type PostRow = {
   isTrending: boolean
   isPublished: boolean
   isDraft: boolean
+  isRedirected?: boolean
   editorialStatus: EditorialStatus
   views?: number | null
   author: { id: string; name: string; email: string } | null
@@ -46,6 +47,7 @@ export type PostRow = {
   searchConsoleStatuses?: SearchConsoleUrlStatusRow[]
   searchConsoleJobs?: SearchConsoleJobRow[]
 }
+
 
 export type PostsFilters = {
   query: string
