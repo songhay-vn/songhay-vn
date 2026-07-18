@@ -1,6 +1,6 @@
 import Image from "next/image"
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
 import { ArticlePageShell } from "@/components/news/article-page-shell"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -10,6 +10,7 @@ import {
   getNavCategories,
   getLatestPostsForSsg,
 } from "@/lib/queries"
+import { prisma } from "@/lib/prisma"
 import { normalizeArticleHtml } from "@/lib/html"
 import { buildAutoSeoDescription, buildAutoSeoTitle } from "@/lib/post-seo"
 import { DEFAULT_OG_IMAGE_PATH, getSiteUrl, toAbsoluteUrl } from "@/lib/seo"
@@ -109,6 +110,16 @@ export default async function PostPage({ params }: PostPageProps) {
   ])
 
   if (!post) {
+    // Fallback: if an active redirect exists for this URL, issue a 301.
+    // This handles cases where the middleware in-memory cache is stale.
+    const fromPath = `/${category}/${slug}`
+    const activeRedirect = await prisma.redirect.findFirst({
+      where: { fromPath, isActive: true },
+      select: { toPath: true },
+    })
+    if (activeRedirect) {
+      redirect(activeRedirect.toPath)
+    }
     notFound()
   }
 
@@ -171,21 +182,21 @@ export default async function PostPage({ params }: PostPageProps) {
       navCategories={navCategories}
       seoElements={seoElements}
       article={article}
-        articleHtml={articleHtml}
-        fullUrl={fullUrl}
-        dateValue={article.publishedAt}
-        showSocialShare
-        commentFormMode="live"
-        mainBanner={
-          <Image
-            src="/site-header-hero.png"
-            alt="Sống Hay Hero"
-            width={1100}
-            height={200}
-            priority
-            className="h-auto w-full object-cover"
-          />
-        }
-      />
+      articleHtml={articleHtml}
+      fullUrl={fullUrl}
+      dateValue={article.publishedAt}
+      showSocialShare
+      commentFormMode="live"
+      mainBanner={
+        <Image
+          src="/site-header-hero.png"
+          alt="Sống Hay Hero"
+          width={1100}
+          height={200}
+          priority
+          className="h-auto w-full object-cover"
+        />
+      }
+    />
   )
 }

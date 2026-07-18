@@ -185,9 +185,10 @@ async function getAnalyticsPopularPosts({
     return []
   }
 
+  const now = new Date()
   const posts = await prisma.post.findMany({
     where: {
-      ...publishedPostWhere(),
+      ...publishedPostWhere(now),
       isDraft: false,
       OR: rankedPaths.map(({ categorySlug, slug }) => ({
         slug,
@@ -237,10 +238,11 @@ function normalizeSearchQuery(query: string) {
 }
 
 function createPublishedSearchWhere(
-  normalizedQuery: string
+  normalizedQuery: string,
+  now: Date
 ): Prisma.PostWhereInput {
   return {
-    ...publishedPostWhere(),
+    ...publishedPostWhere(now),
     isDraft: false,
     OR: [
       { title: { contains: normalizedQuery, mode: "insensitive" } },
@@ -287,8 +289,9 @@ async function getLatestPostsHome() {
   "use cache"
   cacheTag("homepage", "homepage-latest")
   cacheLife("weeks")
+  const now = new Date()
   return prisma.post.findMany({
-    where: publishedPostWhere(),
+    where: publishedPostWhere(now),
     select: postCardSelect,
     orderBy: { publishedAt: "desc" },
     take: 36,
@@ -299,10 +302,10 @@ async function getFeaturedPostsHome() {
   "use cache"
   cacheTag("featured-posts")
   cacheLife("days")
-
+  const now = new Date()
   return prisma.post.findMany({
     where: {
-      ...publishedPostWhere(),
+      ...publishedPostWhere(now),
       isFeatured: true,
       featuredPosition: { not: null },
     },
@@ -359,11 +362,11 @@ export async function getLatestPublishedPosts(limit = 4) {
   "use cache"
   cacheTag("homepage", "homepage-latest")
   cacheLife("hours")
-
+  const now = new Date()
   const safeLimit = Math.min(Math.max(limit, 1), 12)
 
   return prisma.post.findMany({
-    where: publishedPostWhere(),
+    where: publishedPostWhere(now),
     select: postCardSelect,
     orderBy: { publishedAt: "desc" },
     take: safeLimit,
@@ -374,10 +377,10 @@ export async function getPostsByCategory(categorySlug: string) {
   "use cache"
   cacheTag("category-posts", `category:${categorySlug}`)
   cacheLife("weeks") // Content rarely changes, use days or 86400s
-
+  const now = new Date()
   return prisma.post.findMany({
     where: {
-      ...publishedPostWhere(),
+      ...publishedPostWhere(now),
       OR: [
         { category: { slug: categorySlug } },
         { category: { parent: { slug: categorySlug } } },
@@ -398,9 +401,11 @@ export async function searchPublishedPosts(query: string, limit = 24) {
   const safeLimit = Math.min(Math.max(limit, 1), 48)
 
   if (!normalizedQuery) return []
+  const now = new Date()
 
+  // where: createPublishedSearchWhere(normalizedQuery)
   return prisma.post.findMany({
-    where: createPublishedSearchWhere(normalizedQuery),
+    where: createPublishedSearchWhere(normalizedQuery, now),
     select: {
       id: true,
       title: true,
@@ -442,7 +447,8 @@ export async function getPublishedSearchResults(
     }
   }
 
-  const where = createPublishedSearchWhere(normalizedQuery)
+  const now = new Date()
+  const where = createPublishedSearchWhere(normalizedQuery, now)
   const totalCount = await prisma.post.count({ where })
 
   if (totalCount === 0) {
@@ -498,8 +504,9 @@ export async function searchPublishedPostSuggestions(query: string, limit = 6) {
 
   if (normalizedQuery.length < 2) return []
 
+  const now = new Date()
   return prisma.post.findMany({
-    where: createPublishedSearchWhere(normalizedQuery),
+    where: createPublishedSearchWhere(normalizedQuery, now),
     select: {
       id: true,
       title: true,
@@ -530,11 +537,11 @@ export async function getPostByCategoryAndSlug(
   "use cache"
   cacheTag(`post:${slug}`)
   cacheLife("weeks")
-
+  const now = new Date()
   try {
     return await prisma.post.findFirst({
       where: {
-        ...publishedPostWhere(),
+        ...publishedPostWhere(now),
         slug,
         category: { slug: categorySlug },
       },
@@ -555,7 +562,7 @@ export async function getPostByCategoryAndSlug(
 
     return prisma.post.findFirst({
       where: {
-        ...publishedPostWhere(),
+        ...publishedPostWhere(now),
         slug,
         category: { slug: categorySlug },
       },
@@ -600,10 +607,10 @@ export async function getFeaturedPosts() {
   "use cache"
   cacheTag("featured-posts")
   cacheLife("days")
-
+  const now = new Date()
   return prisma.post.findMany({
     where: {
-      ...publishedPostWhere(),
+      ...publishedPostWhere(now),
       isFeatured: true,
       featuredPosition: { not: null },
     },
@@ -632,8 +639,8 @@ async function getRecommendedPostsCached(
   "use cache"
   cacheTag("recommended-posts")
   cacheLife("weeks")
-
-  const where: Prisma.PostWhereInput = publishedPostWhere()
+  const now = new Date()
+  const where: Prisma.PostWhereInput = publishedPostWhere(now)
 
   const orConditions: Prisma.PostWhereInput[] = [
     { isFeatured: true },
@@ -717,6 +724,7 @@ export async function getLatestByCategory(
   "use cache"
   cacheTag("latest-by-category", "category-posts", "categories")
   cacheLife("hours")
+  const now = new Date()
 
   const topCategories = await prisma.category.findMany({
     where: { parentId: null },
@@ -730,7 +738,7 @@ export async function getLatestByCategory(
   // Single query instead of N concurrent queries — avoids connection pool exhaustion
   const allPosts = await prisma.post.findMany({
     where: {
-      ...publishedPostWhere(),
+      ...publishedPostWhere(now),
       isDraft: false,
       category: {
         OR: [{ id: { in: categoryIds } }, { parentId: { in: categoryIds } }],
@@ -768,9 +776,10 @@ export async function getLatestByCategory(
 // --- Build-time helpers (no cache needed — run at build in generateStaticParams) ---
 
 export async function getLatestPostsForSsg(limit = 50) {
+  const now = new Date()
   return prisma.post.findMany({
     where: {
-      ...publishedPostWhere(),
+      ...publishedPostWhere(now),
       isDraft: false,
     },
     select: { slug: true, category: { select: { slug: true } } },
