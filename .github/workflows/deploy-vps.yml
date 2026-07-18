@@ -69,6 +69,12 @@ jobs:
           ssh $SSH_OPTS -N -f -L 5432:127.0.0.1:5432 "$VPS_USER@$VPS_HOST"
           sleep 3
 
+      - name: Apply migrations to production DB
+        run: |
+          set -euo pipefail
+          # Apply committed migrations to the production DB via the SSH tunnel
+          bunx --bun prisma migrate deploy
+
       - name: Build Next.js app
         run: bun run build
 
