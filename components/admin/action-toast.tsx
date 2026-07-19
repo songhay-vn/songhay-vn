@@ -242,7 +242,7 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
   },
   pen_name_avatar_removed: {
     title: "Đã gỡ ảnh bút danh",
-    description: "Ảnh đại diện đã được xóa khỏi Cloudinary.",
+    description: "Ảnh đại diện đã được xóa.",
     type: "success",
   },
   pen_name_duplicated: {

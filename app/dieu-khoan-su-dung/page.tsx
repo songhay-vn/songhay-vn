@@ -6,7 +6,7 @@ import { getNavCategories } from "@/lib/queries"
 import { DEFAULT_OG_IMAGE_PATH, toAbsoluteUrl } from "@/lib/seo"
 
 export const metadata: Metadata = {
-  title: "Điều khoản sử dụng | Songhay.vn",
+  title: "Điều khoản sử dụng",
   description:
     "Quy chế cung cấp, trao đổi thông tin và điều khoản sử dụng website Songhay.vn.",
   alternates: {

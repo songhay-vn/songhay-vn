@@ -20,6 +20,7 @@ const WRITE_FORM_TRACKED_FIELDS = new Set([
   "canonicalUrl",
   "scheduledPublishAt",
   "isSensitive",
+  "isSponsored",
   "hasVideo",
   "isFeatured",
   "isTrending",

@@ -71,6 +71,7 @@ export function WriteTab({
 }: WriteTabProps) {
   const [hasVideo, setHasVideo] = useState(false)
   const [isSensitive, setIsSensitive] = useState(false)
+  const [isSponsored, setIsSponsored] = useState(false)
   const [isPreviewing, startPreviewTransition] = useTransition()
   const [previewPostId, setPreviewPostId] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
@@ -239,6 +240,18 @@ export function WriteTab({
               </div>
               {isSensitive ? (
                 <input type="hidden" name="isSensitive" value="on" />
+              ) : null}
+
+              <div className="flex items-center gap-2 pt-2 border-t mt-2">
+                <Checkbox
+                  id="isSponsored"
+                  checked={isSponsored}
+                  onCheckedChange={(checked) => setIsSponsored(checked === true)}
+                />
+                <Label htmlFor="isSponsored">Nội dung được tài trợ (Quảng cáo)</Label>
+              </div>
+              {isSponsored ? (
+                <input type="hidden" name="isSponsored" value="on" />
               ) : null}
             </fieldset>
 

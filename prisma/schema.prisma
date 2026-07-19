@@ -128,6 +128,7 @@ model Post {
   seoKeywords           String?
   ogImage               String?
   isSensitive           Boolean                  @default(false)
+  isSponsored           Boolean                  @default(false)
   isDraft               Boolean                  @default(true)
   isFeatured            Boolean                  @default(false)
   featuredPosition      Int?                     @unique

@@ -150,11 +150,17 @@ export default async function PostPage({ params }: PostPageProps) {
       "@id": fullUrl,
     },
     image: [articleImage],
-    author: {
-      "@type": "Organization",
-      "@id": `${siteUrl}#organization`,
-      name: "Songhay.vn",
-    },
+    author: (article.penNameProfile?.name || article.penName
+      ? {
+          "@type": "Person",
+          name: String(article.penNameProfile?.name || article.penName),
+          url: `${siteUrl}/ve-chung-toi`,
+        }
+      : {
+          "@type": "Organization",
+          "@id": `${siteUrl}#organization`,
+          name: "Songhay.vn",
+        }) as any,
     publisher: {
       "@id": `${siteUrl}#organization`,
       logo: {

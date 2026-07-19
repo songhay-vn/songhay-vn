@@ -27,6 +27,7 @@ type ArticlePageShellProps = {
       name: string
       slug: string
     }
+    isSponsored?: boolean
     comments: Array<{
       id: string
       authorName: string
@@ -101,7 +102,8 @@ export function ArticlePageShell({
   commentFormMode = "live",
   seoElements,
 }: ArticlePageShellProps) {
-  const displayPenName = article.penNameProfile?.name || article.penName
+  const displayPenName =
+    article.penNameProfile?.name || article.penName || "Ban biên tập Sống Hay"
   const displayPenNameAvatarUrl = article.penNameProfile?.avatarUrl || null
 
   return (
@@ -128,6 +130,11 @@ export function ArticlePageShell({
 
         <article className="mx-auto flex w-full max-w-xl flex-col gap-6 overflow-hidden font-serif break-words">
           <header className="flex flex-col gap-3">
+            {article.isSponsored && (
+              <div className="self-start inline-flex items-center gap-1 rounded bg-zinc-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                Được tài trợ
+              </div>
+            )}
             <Link
               href={`/${article.category.slug}`}
               className="text-sm font-bold text-rose-600"
@@ -146,10 +153,21 @@ export function ArticlePageShell({
             <p className="text-xl leading-relaxed font-bold text-zinc-950">
               {article.excerpt.trim()}
             </p>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-black">
-              <span>
-                <FormattedDate value={dateValue} />
-              </span>
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-black">
+                <span>
+                  <FormattedDate value={dateValue} />
+                </span>
+              </div>
+              <p className="text-xs text-zinc-500">
+                Nội dung được kiểm duyệt bởi{" "}
+                <Link
+                  href="/ve-chung-toi"
+                  className="underline underline-offset-2 hover:text-rose-600"
+                >
+                  ban biên tập Sống Hay
+                </Link>
+              </p>
             </div>
           </header>
 

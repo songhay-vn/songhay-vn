@@ -166,6 +166,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     const rawScheduledPublishAt = String(formData.get("scheduledPublishAt") || "").trim()
     const scheduledPublishAt = rawScheduledPublishAt ? new Date(rawScheduledPublishAt) : null
     const isSensitive = formData.get("isSensitive") === "on"
+    const isSponsored = formData.get("isSponsored") === "on"
     const submitAction = String(formData.get("submitAction") || "").trim()
     const lastUpdatedAt = String(formData.get("lastUpdatedAt") || "").trim()
 
@@ -257,7 +258,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         title,
         slug,
         penName,
-        penNameId,
+        penNameId: penNameId || null,
         excerpt,
         content,
         categoryId,
@@ -270,6 +271,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         canonicalUrl,
         scheduledPublishAt,
         isSensitive,
+        isSponsored,
         isFeatured: currentPost.isFeatured,
         isTrending: currentPost.isTrending,
         isPublished,
@@ -510,6 +512,15 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
                     value="on"
                   />
                   <Label htmlFor="isSensitiveEdit">Nội dung nhạy cảm</Label>
+                </div>
+                <div className="flex items-center gap-2 pt-2 border-t mt-2">
+                  <Checkbox
+                    id="isSponsoredEdit"
+                    name="isSponsored"
+                    defaultChecked={post.isSponsored}
+                    value="on"
+                  />
+                  <Label htmlFor="isSponsoredEdit">Nội dung được tài trợ (Quảng cáo)</Label>
                 </div>
               </fieldset>
 

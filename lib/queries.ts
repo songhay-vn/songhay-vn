@@ -573,6 +573,8 @@ export async function getPostByCategoryAndSlug(
         excerpt: true,
         content: true,
         penName: true,
+        penNameProfile: { select: { name: true, avatarUrl: true } },
+        isSponsored: true,
         thumbnailUrl: true,
         videoEmbedUrl: true,
         seoTitle: true,

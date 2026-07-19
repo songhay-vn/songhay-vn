@@ -58,6 +58,7 @@ export async function createPost(formData: FormData) {
   const videoEmbedUrl =
     String(formData.get("videoEmbedUrl") || "").trim() || null
   const isSensitive = formData.get("isSensitive") === "on"
+  const isSponsored = formData.get("isSponsored") === "on"
   const isFeatured = formData.get("isFeatured") === "on"
   const isTrending = formData.get("isTrending") === "on"
   const submitAction = String(formData.get("submitAction") || "").trim()
@@ -146,6 +147,7 @@ export async function createPost(formData: FormData) {
             ogImage,
             videoEmbedUrl,
             isSensitive,
+            isSponsored,
             isFeatured,
             isTrending,
             isPublished,
@@ -179,6 +181,7 @@ export async function createPost(formData: FormData) {
         ogImage,
         videoEmbedUrl,
         isSensitive,
+        isSponsored,
         isFeatured,
         isTrending,
         isPublished,
@@ -268,6 +271,7 @@ export async function createPostForPreview(
   const videoEmbedUrl =
     String(formData.get("videoEmbedUrl") || "").trim() || null
   const isSensitive = formData.get("isSensitive") === "on"
+  const isSponsored = formData.get("isSponsored") === "on"
   const thumbnailUpload = formData.get("thumbnailUpload")
   const thumbnailUrlInput = String(formData.get("thumbnailUrl") || "").trim()
   const previewPostId = String(formData.get("previewPostId") || "").trim() || null
@@ -324,6 +328,7 @@ export async function createPostForPreview(
           ogImage: thumbnailUrl,
           videoEmbedUrl,
           isSensitive,
+          isSponsored,
           thumbnailUrl,
         },
       })
@@ -349,6 +354,7 @@ export async function createPostForPreview(
         ogImage: thumbnailUrl,
         videoEmbedUrl,
         isSensitive,
+        isSponsored,
         isPublished: false,
         isDraft: true,
         editorialStatus: "DRAFT",

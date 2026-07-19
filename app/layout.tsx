@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { Be_Vietnam_Pro, Merriweather } from "next/font/google"
-import Script from "next/script"
 import { Suspense } from "react"
 
 import "./globals.css"
@@ -136,32 +135,6 @@ export default function RootLayout({
       className={cn("antialiased", fontSans.variable, fontSerif.variable)}
     >
       <body>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const origInsertBefore = Node.prototype.insertBefore;
-                Node.prototype.insertBefore = function(newNode, referenceNode) {
-                  try {
-                    return origInsertBefore.call(this, newNode, referenceNode);
-                  } catch (err) {
-                    if (err.name === 'HierarchyRequestError' || err.message.includes('insertBefore')) {
-                      console.error('--- HIERARCHY REQUEST ERROR DETECTED ---');
-                      console.error('Parent:', this);
-                      console.error('Parent HTML:', this.outerHTML ? this.outerHTML.substring(0, 500) : this.nodeName);
-                      console.error('New Node:', newNode);
-                      console.error('New Node HTML:', newNode.outerHTML ? newNode.outerHTML.substring(0, 500) : (newNode.nodeName || newNode.textContent));
-                      console.error('Ref Node:', referenceNode);
-                      console.error('Ref Node HTML:', referenceNode ? (referenceNode.outerHTML ? referenceNode.outerHTML.substring(0, 500) : referenceNode.nodeName) : 'null');
-                      console.error('Error stack:', err.stack);
-                    }
-                    throw err;
-                  }
-                };
-              })();
-            `,
-          }}
-        />
         <GoogleAdSense />
         <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
         <CookieConsentBanner />

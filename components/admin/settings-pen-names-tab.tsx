@@ -107,7 +107,7 @@ function PenNameRow({
             </Badge>
             <ConfirmActionForm
               action={removePenNameAvatar}
-              confirmMessage={`Gỡ ảnh đại diện của bút danh "${row.name}"? Tệp trên Cloudinary cũng sẽ bị xóa.`}
+              confirmMessage={`Gỡ ảnh đại diện của bút danh "${row.name}"?`}
               fields={[{ name: "penNameId", value: row.id }]}
               className="contents"
             >
