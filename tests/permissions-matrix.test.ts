@@ -12,6 +12,7 @@ import {
   canViewAllPosts,
   getAllowedSubmitActions,
   roleCanCreate,
+  ALL_EDITABLE_ROLES,
 } from "../lib/permissions"
 
 import type { UserRole } from "../generated/prisma/client"
@@ -25,6 +26,16 @@ const ALL_ROLES: UserRole[] = [
 ]
 
 describe("permissions matrix by role", () => {
+  test("ALL_EDITABLE_ROLES excludes EDITOR_IN_CHIEF", () => {
+    expect(ALL_EDITABLE_ROLES.includes("EDITOR_IN_CHIEF")).toBe(false)
+    expect(ALL_EDITABLE_ROLES).toEqual([
+      "MANAGING_EDITOR",
+      "TEAM_LEAD",
+      "REPORTER_TRANSLATOR",
+      "CONTRIBUTOR",
+    ])
+  })
+
   test("critical workflow capabilities are mapped correctly", () => {
     expect(canApprovePendingReview("EDITOR_IN_CHIEF")).toBe(true)
     expect(canApprovePendingReview("MANAGING_EDITOR")).toBe(true)

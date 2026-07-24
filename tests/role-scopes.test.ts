@@ -111,4 +111,21 @@ describe("role action scopes and dynamic permissions", () => {
     expect(getPermissions()["ADMIN"].has("create-post")).toBe(false)
     expect(getPermissions()["ADMIN"].has("delete-category")).toBe(true)
   })
+
+  test("EDITOR_IN_CHIEF is not in ALL_EDITABLE_ROLES and maintains absolute priority", () => {
+    // Hydrating DB with empty permissions for editable roles
+    hydratePermissionsFromDb([])
+
+    // EDITOR_IN_CHIEF permissions cannot be cleared by DB hydration
+    expect(can("EDITOR_IN_CHIEF", "delete-post")).toBe(true)
+    expect(can("EDITOR_IN_CHIEF", "create-category")).toBe(true)
+    expect(can("EDITOR_IN_CHIEF", "publish-pending-publish")).toBe(true)
+
+    // EDITOR_IN_CHIEF can trash or delete posts by any author across all statuses
+    expect(canTrashOrDeletePost("EDITOR_IN_CHIEF", "author-123", "editor-in-chief-id", "PUBLISHED")).toBe(true)
+    expect(canTrashOrDeletePost("EDITOR_IN_CHIEF", "author-123", "editor-in-chief-id", "PENDING_PUBLISH")).toBe(true)
+    expect(canTrashOrDeletePost("EDITOR_IN_CHIEF", "author-123", "editor-in-chief-id", "PENDING_REVIEW")).toBe(true)
+    expect(canTrashOrDeletePost("EDITOR_IN_CHIEF", "author-123", "editor-in-chief-id", "DRAFT")).toBe(true)
+    expect(canTrashOrDeletePost("EDITOR_IN_CHIEF", "author-123", "editor-in-chief-id", "REJECTED")).toBe(true)
+  })
 })

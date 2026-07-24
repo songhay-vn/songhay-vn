@@ -639,7 +639,7 @@ export async function bulkUpdateStatus(formData: FormData) {
 }
 
 export async function bulkTrashPosts(formData: FormData) {
-  await requireCmsUser()
+  const currentUser = await requireCmsUser()
   const postIdsRaw = String(formData.get("postIds") || "")
   const postIds = postIdsRaw.split(",").filter(Boolean)
 
@@ -648,15 +648,25 @@ export async function bulkTrashPosts(formData: FormData) {
   const posts = await prisma.post.findMany({
     where: { id: { in: postIds } },
     select: {
+      id: true,
+      authorId: true,
+      editorialStatus: true,
       isPublished: true,
       slug: true,
       category: { select: { slug: true } },
     },
   })
 
-  // Need to ensure user has permission for all these posts (simplification for brevity)
+  const allowedPosts = posts.filter((post) =>
+    canTrashOrDeletePost(currentUser.role, post.authorId, currentUser.id, post.editorialStatus)
+  )
+
+  if (allowedPosts.length === 0) return
+
+  const allowedIds = allowedPosts.map((p) => p.id)
+
   await prisma.post.updateMany({
-    where: { id: { in: postIds } },
+    where: { id: { in: allowedIds } },
     data: {
       isDeleted: true,
       deletedAt: new Date(),
@@ -667,11 +677,11 @@ export async function bulkTrashPosts(formData: FormData) {
     },
   })
 
-  for (const post of posts) {
+  for (const post of allowedPosts) {
     // Trashed posts become non-public — full revalidate to update homepage/category
     await revalidatePost(post.slug, post.category?.slug, { isVisibilityChange: true })
   }
-  if (posts.some((post) => post.isPublished && post.category?.slug)) {
+  if (allowedPosts.some((post) => post.isPublished && post.category?.slug)) {
     await enqueueRemovedPostSearchConsoleJobs()
     scheduleSearchConsoleDrain()
   }

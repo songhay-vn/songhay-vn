@@ -73,7 +73,6 @@ export const ALL_PERMISSION_ACTIONS: PermissionAction[] = [
 ]
 
 export const ALL_EDITABLE_ROLES: UserRole[] = [
-  "EDITOR_IN_CHIEF",
   "MANAGING_EDITOR",
   "TEAM_LEAD",
   "REPORTER_TRANSLATOR",
@@ -216,6 +215,9 @@ export function setRolePermissions(role: UserRole, actions: PermissionAction[]) 
 }
 
 export function can(role: UserRole, action: PermissionAction) {
+  if (role === "EDITOR_IN_CHIEF" || role === "ADMIN") {
+    return true
+  }
   return getPermissions()[role].has(action)
 }
 
