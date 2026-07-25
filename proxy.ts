@@ -6,7 +6,9 @@ type RedirectEntry = { fromPath: string; toPath: string }
 // Module-level cache — survives across requests within the same Edge worker lifetime.
 let redirectCache: Map<string, string> | null = null
 let cacheExpiresAt = 0
-const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+// In dev, disable in-memory cache so DB changes are reflected on the next request.
+// In prod, cache for 5 minutes and rely on bustProxyCache() calls from admin actions.
+const CACHE_TTL_MS = process.env.NODE_ENV === "development" ? 0 : 5 * 60 * 1000
 
 async function getRedirects(baseUrl: string): Promise<Map<string, string>> {
   const now = Date.now()
@@ -16,8 +18,9 @@ async function getRedirects(baseUrl: string): Promise<Map<string, string>> {
 
   try {
     const res = await fetch(`${baseUrl}/api/redirects`, {
-      // Bypass Next.js data cache — we manage TTL ourselves
-      cache: "no-store",
+      // Bypass Next.js data cache in dev (TTL=0); in prod the tag lets
+      // admin actions invalidate this via POST /api/redirects/revalidate.
+      next: { tags: ["proxy-redirects"] },
     })
     if (!res.ok) throw new Error(`/api/redirects returned ${res.status}`)
     const data: RedirectEntry[] = (await res.json()) as RedirectEntry[]

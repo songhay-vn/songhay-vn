@@ -13,6 +13,20 @@ import {
   scheduleSearchConsoleDrain,
   buildPublicPostUrl,
 } from "@/lib/search-console-queue"
+import { getSiteUrl } from "@/lib/seo"
+
+/**
+ * Fire-and-forget: tells the proxy to flush its in-memory redirect cache
+ * immediately so the next request re-fetches from the DB instead of waiting
+ * for the 5-minute TTL to expire.
+ */
+async function bustProxyCache() {
+  try {
+    await fetch(`${getSiteUrl()}/api/redirects/revalidate`, { method: "POST", cache: "no-store" })
+  } catch {
+    // Non-critical — worst case the cache expires on its own after 5 minutes
+  }
+}
 
 function normalizePath(raw: string): string {
   let trimmed = raw.trim()
@@ -148,6 +162,7 @@ export async function createRedirect(formData: FormData) {
 
   clearDataCache("admin:redirects")
   revalidatePath("/admin")
+  await bustProxyCache()
   redirect("/admin?tab=redirects&toast=redirect_created")
 }
 
@@ -181,6 +196,7 @@ export async function deleteRedirect(formData: FormData) {
 
   clearDataCache("admin:redirects")
   revalidatePath("/admin")
+  await bustProxyCache()
   redirect("/admin?tab=redirects&toast=redirect_deleted")
 }
 
@@ -223,5 +239,6 @@ export async function toggleRedirect(formData: FormData) {
 
   clearDataCache("admin:redirects")
   revalidatePath("/admin")
+  await bustProxyCache()
   redirect("/admin?tab=redirects&toast=redirect_toggled")
 }

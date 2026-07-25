@@ -1,14 +1,13 @@
 "use client"
 
-import { useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useState } from "react"
+import { Cookie, ShieldCheck, X } from "lucide-react"
 import { getCookie, setCookie } from "@/lib/cookie-consent"
 
 export function CookieConsentBanner() {
   const [isOpen, setIsOpen] = useState(false)
 
-  // Use useSyncExternalStore or simple useEffect to read client cookie after mount
   useEffect(() => {
-    // Only check on client side
     const consent = getCookie("cookie_consent")
     if (!consent) {
       setIsOpen(true)
@@ -21,7 +20,7 @@ export function CookieConsentBanner() {
   }
 
   const handleDismiss = () => {
-    setCookie("cookie_consent", "dismissed", 7) // 7 days (Do not show again for a week)
+    setCookie("cookie_consent", "dismissed", 7) // 7 days
     setIsOpen(false)
   }
 
@@ -30,48 +29,53 @@ export function CookieConsentBanner() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-50 max-w-[calc(100vw-32px)] w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-xl md:bottom-8 md:left-8">
+    <div className="fixed bottom-4 left-4 z-50 max-w-[calc(100vw-2rem)] w-[380px] rounded-2xl border border-zinc-200/90 bg-white/95 p-4 shadow-2xl shadow-zinc-950/15 backdrop-blur-md transition-all animate-in fade-in slide-in-from-bottom-5 duration-300 md:bottom-6 md:left-6">
       <div className="space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-extrabold text-black">Thông báo về Cookie 🍪</p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20">
+              <Cookie className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-zinc-950 tracking-tight">
+                Cookie &amp; Quyền riêng tư
+              </h3>
+              <p className="text-[11px] font-semibold text-zinc-900">
+                Songhay.vn
+              </p>
+            </div>
+          </div>
+
           <button
             onClick={handleDismiss}
             aria-label="Đóng và không hiển thị lại trong 7 ngày"
-            className="text-zinc-500 hover:text-black focus:outline-none"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-900 hover:bg-zinc-100 transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="h-4 w-4" />
           </button>
         </div>
-        <p className="text-xs leading-normal font-medium text-black">
-          Chúng tôi sử dụng cookie (bao gồm của Google Analytics và AdSense) để nâng cao trải nghiệm và phân tích lượt truy cập của bạn trên website.
+
+        <p className="text-xs leading-relaxed text-zinc-950 font-normal">
+          Chúng tôi sử dụng cookie (Google Analytics &amp; AdSense) nhằm tối ưu hóa trải nghiệm bài viết và phân tích lưu lượng truy cập trên website.
         </p>
-        <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:justify-between sm:items-center">
+
+        <div className="flex items-center justify-end gap-2 pt-1">
           <button
             onClick={handleDismiss}
-            className="rounded px-2.5 py-1.5 text-xs font-bold text-zinc-900 hover:bg-zinc-100 text-left sm:text-center hover:text-black"
+            className="rounded-xl bg-zinc-100 px-3.5 py-2 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 active:scale-[0.98] transition-all"
           >
-            Không hiển thị lại
+            Tùy chọn
           </button>
           <button
             onClick={handleAccept}
-            className="rounded bg-rose-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+            className="flex items-center gap-1.5 rounded-xl bg-red-700 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-red-800 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            Đồng ý
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" />
+            <span>Đồng ý tất cả</span>
           </button>
         </div>
       </div>
     </div>
   )
 }
+
