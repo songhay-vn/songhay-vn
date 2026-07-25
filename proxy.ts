@@ -34,7 +34,7 @@ async function getRedirects(baseUrl: string): Promise<Map<string, string>> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const NR = NextResponse as any
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Skip internal Next.js routes, static files, and API routes to avoid loops
@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
   return NR.next() as Response
 }
 
-export const config = {
+export const proxyConfig = {
   // Run on all page routes — exclude static assets and Next internals
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 }
