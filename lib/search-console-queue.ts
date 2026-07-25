@@ -54,30 +54,31 @@ export function getSearchConsoleJobErrorMessage(error: unknown) {
 }
 
 function isUniqueConstraintError(error: unknown) {
-  return Boolean(
-    error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "P2002"
-  )
+  if (!error) return false
+  if (typeof error === "object" && "code" in error && error.code === "P2002") {
+    return true
+  }
+  const msg = String((error as { message?: string })?.message || error)
+  return msg.includes("P2002") || msg.includes("Unique constraint failed")
 }
 
 async function createQueueJob(input: QueueJobInput) {
-  try {
-    return await prisma.searchConsoleJob.create({
-      data: {
-        type: input.type,
-        url: input.url,
-        dedupeKey: input.dedupeKey,
-        postId: input.postId,
-      },
-    })
-  } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return null
-    }
-    throw error
+  if (!isSearchConsoleConfigured()) {
+    return null
   }
+
+  // upsert with update:{} avoids a P2002 unique constraint error on duplicate
+  // dedupeKeys entirely — create+catch would still trigger Prisma's error logger
+  return prisma.searchConsoleJob.upsert({
+    where: { dedupeKey: input.dedupeKey },
+    update: {},
+    create: {
+      type: input.type,
+      url: input.url,
+      dedupeKey: input.dedupeKey,
+      postId: input.postId,
+    },
+  })
 }
 
 function getSitemapDedupeKey(sitemapUrl: string) {

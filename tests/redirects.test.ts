@@ -27,7 +27,7 @@ const mockUpsert = mock()
 const mockFindFirst = mock()
 const mockUpdate = mock()
 const mockFindUnique = mock()
-const mockJobCreate = mock(() => Promise.resolve({}))
+const mockJobUpsert = mock(() => Promise.resolve({}))
 
 mock.module("@/lib/prisma", () => ({
   prisma: {
@@ -40,7 +40,7 @@ mock.module("@/lib/prisma", () => ({
       update: mockUpdate,
     },
     searchConsoleJob: {
-      create: mockJobCreate,
+      upsert: mockJobUpsert,
       aggregate: mock(() => Promise.resolve({ _sum: { attempts: 0 } })),
       findMany: mock(() => Promise.resolve([])),
       findFirst: mock(() => Promise.resolve(null)),
@@ -60,7 +60,7 @@ describe("createRedirect action with auto-unpublishing", () => {
     mockFindFirst.mockClear()
     mockUpdate.mockClear()
     mockFindUnique.mockClear()
-    mockJobCreate.mockClear()
+    mockJobUpsert.mockClear()
   })
 
   afterAll(() => {
@@ -112,8 +112,8 @@ describe("createRedirect action with auto-unpublishing", () => {
     )
     
     // Verify GSC inspection was enqueued for the redirect activation
-    expect(mockJobCreate).toHaveBeenCalled()
-    expect((mockJobCreate.mock.calls as any)[0][0].data).toMatchObject({
+    expect(mockJobUpsert).toHaveBeenCalled()
+    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",
@@ -156,9 +156,8 @@ describe("createRedirect action with auto-unpublishing", () => {
       { isVisibilityChange: true }
     )
     
-    // Verify GSC inspection was enqueued by looking at mockJobCreate
-    expect(mockJobCreate).toHaveBeenCalled()
-    expect((mockJobCreate.mock.calls as any)[0][0].data).toMatchObject({
+    expect(mockJobUpsert).toHaveBeenCalled()
+    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",
@@ -203,8 +202,8 @@ describe("createRedirect action with auto-unpublishing", () => {
     )
     
     // Verify GSC inspection was enqueued
-    expect(mockJobCreate).toHaveBeenCalled()
-    expect((mockJobCreate.mock.calls as any)[0][0].data).toMatchObject({
+    expect(mockJobUpsert).toHaveBeenCalled()
+    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",
@@ -248,8 +247,8 @@ describe("createRedirect action with auto-unpublishing", () => {
     )
 
     // Verify GSC inspection was enqueued for the redirect path
-    expect(mockJobCreate).toHaveBeenCalled()
-    expect((mockJobCreate.mock.calls as any)[0][0].data).toMatchObject({
+    expect(mockJobUpsert).toHaveBeenCalled()
+    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",

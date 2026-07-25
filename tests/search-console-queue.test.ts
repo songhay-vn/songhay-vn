@@ -20,6 +20,7 @@ mock.module("@/lib/prisma", () => ({
   prisma: {
     searchConsoleJob: {
       create: mockCreate,
+      upsert: mockUpsert,
       aggregate: mockAggregate,
       findFirst: mockFindFirst,
       update: mockUpdate,
@@ -98,7 +99,7 @@ describe("search console queue", () => {
   })
 
   test("enqueues URL inspection and news sitemap submit jobs with dedupe keys", async () => {
-    mockCreate.mockResolvedValue({})
+    mockUpsert.mockResolvedValue({})
 
     await enqueuePublishedPostSearchConsoleJobs({
       postId: "post-1",
@@ -106,35 +107,35 @@ describe("search console queue", () => {
       slug: "tin-moi",
     })
 
-    expect(mockCreate).toHaveBeenCalledTimes(2)
-    expect(mockCreate.mock.calls[0][0].data).toMatchObject({
+    expect(mockUpsert).toHaveBeenCalledTimes(2)
+    expect(mockUpsert.mock.calls[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-1",
       url: "https://songhay.vn/thoi-su/tin-moi",
       dedupeKey: "URL_INSPECTION:post-1:https://songhay.vn/thoi-su/tin-moi",
     })
-    expect(mockCreate.mock.calls[1][0].data).toMatchObject({
+    expect(mockUpsert.mock.calls[1][0].create).toMatchObject({
       type: "SITEMAP_SUBMIT",
       url: "https://songhay.vn/news-sitemap.xml",
     })
     expect(
-      mockCreate.mock.calls[1][0].data.dedupeKey.startsWith(
+      mockUpsert.mock.calls[1][0].create.dedupeKey.startsWith(
         "SITEMAP_SUBMIT:https://songhay.vn/news-sitemap.xml:"
       )
     ).toBe(true)
   })
 
   test("enqueues standard and news sitemap submits for removed posts", async () => {
-    mockCreate.mockResolvedValue({})
+    mockUpsert.mockResolvedValue({})
 
     await enqueueRemovedPostSearchConsoleJobs()
 
-    expect(mockCreate).toHaveBeenCalledTimes(2)
-    expect(mockCreate.mock.calls[0][0].data).toMatchObject({
+    expect(mockUpsert).toHaveBeenCalledTimes(2)
+    expect(mockUpsert.mock.calls[0][0].create).toMatchObject({
       type: "SITEMAP_SUBMIT",
       url: "https://songhay.vn/sitemap.xml",
     })
-    expect(mockCreate.mock.calls[1][0].data).toMatchObject({
+    expect(mockUpsert.mock.calls[1][0].create).toMatchObject({
       type: "SITEMAP_SUBMIT",
       url: "https://songhay.vn/news-sitemap.xml",
     })

@@ -238,13 +238,13 @@ export async function revalidatePost(
   }
 
   if (slug) {
-    revalidateTag(`post:${slug}`)
+    revalidateTag(`post:${slug}`, "max")
   }
 
   if (categorySlug) {
-    revalidateTag(`category:${categorySlug}`)
+    revalidateTag(`category:${categorySlug}`, "max")
     if (!options || options.isVisibilityChange) {
-      revalidateTag("category-posts")
+      revalidateTag("category-posts", "max")
     }
   }
 
@@ -254,32 +254,32 @@ export async function revalidatePost(
     options.isFeaturedChange ||
     options.isTrendingChange
   ) {
-    revalidateTag("homepage")
+    revalidateTag("homepage", "max")
   }
 
   if (!options || options.isTrendingChange) {
-    revalidateTag("trending-posts")
+    revalidateTag("trending-posts", "max")
   }
 
   if (!options || options.isFeaturedChange || options.isVisibilityChange) {
-    revalidateTag("featured-posts")
+    revalidateTag("featured-posts", "max")
   }
 
   if (!options || options.isVisibilityChange) {
-    revalidateTag("latest-by-category")
+    revalidateTag("latest-by-category", "max")
   }
 
   if (!options || options.isVisibilityChange) {
-    revalidateTag("search-results")
+    revalidateTag("search-results", "max")
   }
 
   if (options?.isVideoChange || options?.isVisibilityChange) {
-    revalidateTag("most-watched-videos")
+    revalidateTag("most-watched-videos", "max")
   }
 
   if (!options || options.isVisibilityChange) {
     // Bust news-sitemap so it reflects the new publish set within the next crawl window
-    revalidateTag("news-sitemap")
+    revalidateTag("news-sitemap", "max")
   }
 
   if (options?.warmPublicRoutes) {
@@ -301,9 +301,9 @@ export function revalidatePostTagsOnly(slug?: string, categorySlug?: string) {
   // — those are public-facing caches (e.g. getNavCategories renders on every page)
   // and draft/pending posts never appear in them.
   if (slug) {
-    revalidateTag(`post:${slug}`)
+    revalidateTag(`post:${slug}`, "max")
   }
   if (categorySlug) {
-    revalidateTag(`category:${categorySlug}`)
+    revalidateTag(`category:${categorySlug}`, "max")
   }
 }

@@ -35,7 +35,7 @@ export async function createCategory(formData: FormData) {
     create: { name, slug, description, sortOrder: nextSortOrder, parentId },
   })
 
-  revalidateTag("categories")
+  revalidateTag("categories", "max")
   clearDataCache()
   redirect("/admin?tab=categories&toast=category_created")
 }
@@ -75,7 +75,7 @@ export async function updateCategory(formData: FormData) {
     data: { name, description, slug, parentId },
   })
 
-  revalidateTag("categories")
+  revalidateTag("categories", "max")
   clearDataCache()
   redirect("/admin?tab=categories&toast=category_updated")
 }
@@ -121,7 +121,7 @@ export async function reorderCategory(formData: FormData) {
     )
   )
 
-  revalidateTag("categories")
+  revalidateTag("categories", "max")
   clearDataCache()
   redirect(`/admin?tab=categories&toast=category_reordered&moved=${currentItem.id}&direction=${direction}`)
 }
@@ -170,12 +170,12 @@ export async function deleteCategory(formData: FormData) {
       prisma.category.delete({ where: { id: categoryId } }),
     ])
 
-    revalidateTag("category-posts")
+    revalidateTag("category-posts", "max")
   } else {
     await prisma.category.delete({ where: { id: categoryId } })
   }
 
-  revalidateTag("categories")
+  revalidateTag("categories", "max")
   clearDataCache()
   return { toast: "category_deleted" }
 }
