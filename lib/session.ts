@@ -5,11 +5,18 @@ import type { SessionPayload } from "@/types/auth"
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7
 
 function getSessionSecret() {
-  return (
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    "songhay-dev-secret-change-me"
-  )
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "AUTH_SECRET or NEXTAUTH_SECRET environment variable is missing in production"
+      )
+    }
+    return "songhay-dev-secret-change-me"
+  }
+
+  return secret
 }
 
 function toBase64Url(value: string) {

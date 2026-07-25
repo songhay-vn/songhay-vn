@@ -61,6 +61,29 @@ describe("session encoding / decoding", () => {
     const result = decodeSession(`${garbage}.whatever`)
     expect(result).toBeNull()
   })
+
+  test("throws error in production if AUTH_SECRET and NEXTAUTH_SECRET are missing", () => {
+    const origEnv = process.env.NODE_ENV
+    const origAuthSecret = process.env.AUTH_SECRET
+    const origNextAuthSecret = process.env.NEXTAUTH_SECRET
+    const envObj = process.env as Record<string, string | undefined>
+
+    try {
+      envObj.NODE_ENV = "production"
+      delete process.env.AUTH_SECRET
+      delete process.env.NEXTAUTH_SECRET
+
+      expect(() => encodeSession({ userId: "u1", role: "ADMIN" })).toThrow(
+        "AUTH_SECRET or NEXTAUTH_SECRET environment variable is missing in production"
+      )
+    } finally {
+      envObj.NODE_ENV = origEnv
+      if (origAuthSecret !== undefined) process.env.AUTH_SECRET = origAuthSecret
+      else delete process.env.AUTH_SECRET
+      if (origNextAuthSecret !== undefined) process.env.NEXTAUTH_SECRET = origNextAuthSecret
+      else delete process.env.NEXTAUTH_SECRET
+    }
+  })
 })
 
 // ── Auth guard source assertions ─────────────────────────────────────────────
