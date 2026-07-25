@@ -124,11 +124,11 @@ export function OverviewTab({
 
       {/* Traffic chart + GA4 Content card (GA4 streams in via Suspense) */}
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.75fr)]">
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
             <CardTitle>Traffic</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col pb-4">
             {overviewAnalytics.error ? (
               <p className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                 GA4: {overviewAnalytics.error}

@@ -35,7 +35,10 @@ const overviewChartConfig = {
 
 export function OverviewActivityChart({ data }: OverviewActivityChartProps) {
   return (
-    <ChartContainer config={overviewChartConfig} className="h-80 w-full">
+    <ChartContainer
+      config={overviewChartConfig}
+      className="aspect-auto min-h-[300px] w-full flex-1"
+    >
       <LineChart
         accessibilityLayer
         data={data}
