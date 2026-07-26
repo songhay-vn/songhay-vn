@@ -50,7 +50,7 @@ This project runs in production on a full VPS. Keep this section practical and c
 
 - Primary domain: `https://songhay.vn`
 - Canonical redirect: `https://www.songhay.vn` -> `https://songhay.vn`
-- VPS host: `157.66.219.250`
+- VPS host: `<VPS_HOST_IP>`
 - OS: Ubuntu VPS
 - Normal deploy user: `deploy`
 - Emergency/system user: `root`
@@ -72,19 +72,19 @@ Do not print, commit, paste, or summarize secret values from `/opt/songhay/env/*
 From Windows PowerShell, connect as the normal deploy user:
 
 ```powershell
-ssh -i "$env:USERPROFILE\.ssh\songhay_vps_deploy" deploy@157.66.219.250
+ssh -i "$env:USERPROFILE\.ssh\songhay_vps_deploy" deploy@<VPS_HOST_IP>
 ```
 
 Connect as root only for system administration:
 
 ```powershell
-ssh root@157.66.219.250
+ssh root@<VPS_HOST_IP>
 ```
 
 Useful one-off remote command pattern:
 
 ```powershell
-ssh -i "$env:USERPROFILE\.ssh\songhay_vps_deploy" deploy@157.66.219.250 "docker compose -f /opt/songhay/docker-compose.yml ps"
+ssh -i "$env:USERPROFILE\.ssh\songhay_vps_deploy" deploy@<VPS_HOST_IP> "docker compose -f /opt/songhay/docker-compose.yml ps"
 ```
 
 Once on the VPS, use this variable to reduce typing:
@@ -153,7 +153,7 @@ Normal deploy is automatic:
 GitHub repository secrets required by the workflow:
 
 ```txt
-VPS_HOST=157.66.219.250
+VPS_HOST=<VPS_HOST_IP>
 VPS_PORT=22
 VPS_USER=deploy
 VPS_SSH_KEY=<private key for deploy user>
@@ -338,7 +338,7 @@ JS
 DNS should be:
 
 ```txt
-A      @     157.66.219.250
+A      @     <VPS_HOST_IP>
 CNAME  www   songhay.vn
 TTL    300 during cutover, higher after stable
 ```
