@@ -1,13 +1,6 @@
 "use client"
 
-const formatter = new Intl.DateTimeFormat("vi-VN", {
-  timeZone: "Asia/Ho_Chi_Minh",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-})
+import { formatDateTimeVi } from "@/lib/date-utils"
 
 type FormattedDateProps = {
   value: Date | string | null | undefined
@@ -18,7 +11,7 @@ export function FormattedDate({ value, className }: FormattedDateProps) {
   if (!value) return null
   return (
     <span className={className} suppressHydrationWarning>
-      {formatter.format(new Date(value))}
+      {formatDateTimeVi(value)}
     </span>
   )
 }

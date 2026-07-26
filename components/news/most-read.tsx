@@ -1,15 +1,33 @@
 import Image from "next/image"
 import Link from "next/link"
 
-type MostReadItem = {
+export type MostReadItem = {
   id: string
   title: string
   thumbnailUrl?: string | null
   slug: string
-  categorySlug: string
   category: {
     name: string
     slug: string
+  }
+}
+
+export function toMostReadItem(post: {
+  id: string
+  title: string
+  slug: string
+  thumbnailUrl?: string | null
+  category: { name: string; slug: string }
+}): MostReadItem {
+  return {
+    id: post.id,
+    title: post.title,
+    thumbnailUrl: post.thumbnailUrl,
+    slug: post.slug,
+    category: {
+      name: post.category.name,
+      slug: post.category.slug,
+    },
   }
 }
 
@@ -41,7 +59,7 @@ export function MostRead({ posts, title = "Đọc nhiều nhất" }: MostReadPro
                 {post.category.name}
               </Link>
               <Link
-                href={`/${post.categorySlug}/${post.slug}`}
+                href={`/${post.category.slug}/${post.slug}`}
                 className="line-clamp-3 text-sm font-bold leading-snug text-zinc-800 transition hover:text-rose-600"
               >
                 {post.title}

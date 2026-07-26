@@ -25,7 +25,7 @@ export type PostsFilters = {
   categoryId: string
   fromDate: string
   toDate: string
-  requestedPage: number
+  requestedPage?: number
 }
 
 export type PersonalArchiveFilters = {
@@ -33,7 +33,7 @@ export type PersonalArchiveFilters = {
   status: "all" | "draft" | "pending" | "pending-publish" | "published" | "rejected"
   fromDate: string
   toDate: string
-  requestedPage: number
+  requestedPage?: number
 }
 
 export type TrashFilters = {
@@ -41,7 +41,7 @@ export type TrashFilters = {
   authorId: string
   fromDate: string
   toDate: string
-  requestedPage: number
+  requestedPage?: number
 }
 
 export type AdminCurrentUser = {

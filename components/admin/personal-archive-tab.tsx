@@ -12,6 +12,8 @@ import type { PostPermissions, PostActions, PostRow } from "@/components/admin/p
 import { useAdminFilterForm } from "@/hooks/use-admin-filter-form"
 import { AdminPagination } from "./admin-pagination"
 
+import type { PersonalArchiveFilters } from "@/types/admin"
+
 type PersonalArchiveTabProps = {
   data: {
     rows: PostRow[]
@@ -20,18 +22,7 @@ type PersonalArchiveTabProps = {
     currentPage: number
     paginationItems: Array<number | "ellipsis">
   }
-  filters: {
-    query: string
-    status:
-    | "all"
-    | "draft"
-    | "pending"
-    | "pending-publish"
-    | "published"
-    | "rejected"
-    fromDate: string
-    toDate: string
-  }
+  filters: PersonalArchiveFilters
 } & PostPermissions & PostActions
 
 export function PersonalArchiveTab({

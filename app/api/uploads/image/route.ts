@@ -4,33 +4,10 @@ import { authCookieName, decodeSession } from "@/lib/auth"
 import { uploadImageToCloudinary } from "@/lib/cloudinary"
 import { attachMediaUsage } from "@/lib/media-usage"
 import { prisma } from "@/lib/prisma"
+import { readCookie, toPaging } from "@/lib/query-utils"
 
 const DEFAULT_PAGE_SIZE = 12
 const MAX_PAGE_SIZE = 48
-
-function readCookie(raw: string | null, name: string) {
-  if (!raw) {
-    return null
-  }
-
-  const chunks = raw.split(";")
-  for (const chunk of chunks) {
-    const [key, ...rest] = chunk.trim().split("=")
-    if (key === name) {
-      return decodeURIComponent(rest.join("="))
-    }
-  }
-
-  return null
-}
-
-function toPaging(input: string | null, fallback: number) {
-  const value = Number.parseInt(input || "", 10)
-  if (!Number.isFinite(value) || value <= 0) {
-    return fallback
-  }
-  return value
-}
 
 const SUPPORTED_IMAGE_EXTENSION_REGEX = /\.(gif|png|jpe?g|webp|avif)$/i
 

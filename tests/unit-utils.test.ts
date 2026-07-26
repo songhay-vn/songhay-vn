@@ -214,3 +214,51 @@ describe("Unit: Admin Data Helpers", () => {
     expect(sorted.map((c) => c.id)).toEqual(["1", "2", "3", "4"])
   })
 })
+
+describe("Unit: Refactored Shared Utilities", () => {
+  const { formatDateVi, formatDateTimeVi } = require("../lib/date-utils")
+  const { readCookie, toPaging, toPositiveInt } = require("../lib/query-utils")
+  const { toMostReadItem } = require("../components/news/most-read")
+
+  test("formatDateVi and formatDateTimeVi format dates to Vietnamese locale safely", () => {
+    const testDate = new Date("2026-07-26T10:30:00Z")
+    expect(formatDateVi(testDate)).toMatch(/\d{2}\/\d{2}\/2026/)
+    expect(formatDateTimeVi(testDate)).toMatch(/\d{2}:\d{2}/)
+    expect(formatDateVi(null)).toBe("")
+    expect(formatDateVi("invalid-date")).toBe("")
+  })
+
+  test("readCookie parses target cookie string from header correctly", () => {
+    const rawCookies = "theme=dark; songhay_session=token123; tracking=disabled"
+    expect(readCookie(rawCookies, "songhay_session")).toBe("token123")
+    expect(readCookie(rawCookies, "theme")).toBe("dark")
+    expect(readCookie(rawCookies, "missing")).toBeNull()
+    expect(readCookie(null, "anything")).toBeNull()
+  })
+
+  test("toPaging and toPositiveInt safely fallback invalid numbers", () => {
+    expect(toPaging("5", 1)).toBe(5)
+    expect(toPaging("invalid", 1)).toBe(1)
+    expect(toPaging("-3", 1)).toBe(1)
+    expect(toPositiveInt("12", 1)).toBe(12)
+  })
+
+  test("toMostReadItem maps raw post objects to canonical sidebar item shape", () => {
+    const mockPost = {
+      id: "p1",
+      title: "Test Article Title",
+      slug: "test-article",
+      thumbnailUrl: "/thumb.png",
+      category: {
+        name: "Sống hay",
+        slug: "song-hay",
+      },
+    }
+
+    const item = toMostReadItem(mockPost)
+    expect(item.id).toBe("p1")
+    expect(item.title).toBe("Test Article Title")
+    expect(item.category.slug).toBe("song-hay")
+  })
+})
+

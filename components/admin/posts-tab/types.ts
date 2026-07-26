@@ -1,4 +1,7 @@
 import type { EditorialStatus } from "@prisma/client"
+import type { PostsFilters } from "@/types/admin"
+
+export type { PostsFilters }
 
 type SearchConsoleUrlStatusRow = {
   verdict: string | null
@@ -49,15 +52,7 @@ export type PostRow = {
 }
 
 
-export type PostsFilters = {
-  query: string
-  authorId: string
-  status: "all" | "draft" | "pending-review" | "pending-publish" | "published" | "rejected"
-  approval: "all" | "approved" | "unapproved"
-  categoryId: string
-  fromDate: string
-  toDate: string
-}
+
 
 export type FeaturedPostRow = {
   id: string

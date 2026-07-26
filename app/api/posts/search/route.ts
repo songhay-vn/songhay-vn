@@ -4,14 +4,7 @@ import {
   getPublishedSearchResults,
   searchPublishedPostSuggestions,
 } from "@/lib/queries"
-
-function toPositiveInt(value: string | null, fallback: number) {
-  const parsed = Number.parseInt(value || "", 10)
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return fallback
-  }
-  return parsed
-}
+import { toPositiveInt } from "@/lib/query-utils"
 
 export async function GET(request: unknown) {
   const incomingRequest = request as Request

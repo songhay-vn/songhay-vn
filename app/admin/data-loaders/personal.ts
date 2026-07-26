@@ -51,7 +51,7 @@ export async function getPersonalPostsData(activeTab: AdminTab, personalArchiveF
 
   const totalCount = await prisma.post.count({ where: personalWhere })
   const totalPages = Math.max(1, Math.ceil(totalCount / PERSONAL_ARCHIVE_PAGE_SIZE))
-  const currentPage = Math.min(personalArchiveFilters.requestedPage, totalPages)
+  const currentPage = Math.min(personalArchiveFilters.requestedPage ?? 1, totalPages)
 
   const rows = await prisma.post.findMany({
     where: personalWhere,

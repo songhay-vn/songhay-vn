@@ -151,7 +151,7 @@ export async function getPostsData(
 
   const totalCount = await prisma.post.count({ where: postsWhere })
   const totalPages = Math.max(1, Math.ceil(totalCount / POSTS_PAGE_SIZE))
-  const currentPage = Math.min(postsFilters.requestedPage, totalPages)
+  const currentPage = Math.min(postsFilters.requestedPage ?? 1, totalPages)
 
   const [posts, [authorOptions, categoryOptions]] = await Promise.all([
     prisma.post.findMany({

@@ -49,7 +49,7 @@ export async function getTrashedPostsData(activeTab: AdminTab, trashFilters: Tra
 
   const totalCount = await prisma.post.count({ where: trashWhere })
   const totalPages = Math.max(1, Math.ceil(totalCount / TRASH_PAGE_SIZE))
-  const currentPage = Math.min(trashFilters.requestedPage, totalPages)
+  const currentPage = Math.min(trashFilters.requestedPage ?? 1, totalPages)
 
   const rows = await prisma.post.findMany({
     where: trashWhere,
