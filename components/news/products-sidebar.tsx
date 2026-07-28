@@ -1,6 +1,6 @@
-import Image from "next/image"
 import Link from "next/link"
 import { getProductsForSidebar } from "@/lib/queries"
+import { PostCard } from "./post-card"
 
 export async function ProductsSidebar() {
   const { products, totalCount } = await getProductsForSidebar()
@@ -8,37 +8,24 @@ export async function ProductsSidebar() {
   if (products.length === 0) return null
 
   return (
-    <section className="space-y-3 border-t border-zinc-200 bg-white p-4">
-      <h3 className="text-lg font-bold text-zinc-900">Sản Phẩm Khoa Học</h3>
-      <ul className="space-y-3">
+    <section className="space-y-4 border border-zinc-200 bg-white p-4">
+      <h3 className="text-lg font-bold text-zinc-900 border-b border-zinc-100 pb-2">Sản Phẩm Khoa Học</h3>
+      <div className="space-y-4">
         {products.map((product) => (
-          <li
+          <div
             key={product.id}
-            className="flex gap-3 border-b border-zinc-200 pb-3 last:border-b-0 last:pb-0"
+            className="border-b border-zinc-100 pb-4 last:border-b-0 last:pb-0"
           >
-            <Link
+            <PostCard
               href={`/san-pham/${product.slug}`}
-              className="flex gap-3 w-full group"
-            >
-              <div className="relative w-24 aspect-[12/7] flex-shrink-0 bg-zinc-100 overflow-hidden">
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  fill
-                  sizes="96px"
-                  loading="lazy"
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="line-clamp-2 text-sm font-bold leading-snug text-zinc-800 transition group-hover:text-rose-600">
-                  {product.name}
-                </h4>
-              </div>
-            </Link>
-          </li>
+              title={product.name}
+              imageUrl={product.imageUrl}
+              aspectRatio="square"
+              showExcerpt={false}
+            />
+          </div>
         ))}
-      </ul>
+      </div>
       {totalCount > 5 && (
         <div className="pt-2 text-center border-t border-zinc-100">
           <Link

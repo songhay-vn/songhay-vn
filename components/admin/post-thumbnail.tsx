@@ -27,6 +27,7 @@ export function PostThumbnail({
         alt={alt}
         width={width}
         height={height}
+        loading="lazy"
         className={cn("shrink-0 rounded-md border border-zinc-200 object-cover", className)}
       />
     )

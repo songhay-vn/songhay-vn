@@ -80,7 +80,7 @@ export default async function HomePage() {
             alt="Sống Hay Hero"
             width={1100}
             height={200}
-            priority
+            loading="lazy"
             className="h-auto w-full object-cover"
           />
         }

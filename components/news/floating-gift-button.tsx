@@ -36,7 +36,7 @@ export function FloatingGiftButton() {
         target="_blank"
         rel="noreferrer nofollow sponsored"
         aria-label="Nhận voucher ưu đãi"
-        className="group relative flex h-16 w-16 items-center justify-center rounded-full border-4 border-amber-200 bg-[radial-gradient(circle_at_30%_20%,#fef08a_0%,#f59e0b_48%,#dc2626_100%)] text-center shadow-[0_12px_30px_rgba(217,70,70,0.42)] transition-transform hover:scale-105 md:h-24 md:w-24"
+        className="group relative flex h-16 w-16 items-center justify-center rounded-full border-4 border-amber-200 bg-[radial-gradient(circle_at_30%_20%,#fef08a_0%,#f59e0b_48%,#dc2626_100%)] text-center shadow-[0_12px_30px_rgba(217,70,70,0.42)] md:h-24 md:w-24"
       >
         <span className="pointer-events-none absolute inset-[-6px] rounded-full border border-amber-300/70 md:inset-[-8px]" />
         <span className="pointer-events-none absolute inset-[-10px] animate-pulse rounded-full border border-rose-300/40 md:inset-[-12px]" />

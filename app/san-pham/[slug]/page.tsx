@@ -3,7 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getProductBySlug, getNavCategories } from "@/lib/queries"
+import { getProductBySlug, getNavCategories, getAllIndexedProducts } from "@/lib/queries"
 import { normalizeArticleHtml } from "@/lib/html"
 import { NewsLayout } from "@/components/news/news-layout"
 import { ProductGallery } from "@/components/news/product-gallery"
@@ -13,6 +13,13 @@ const ZALO_URL = "http://zalo.me/1461723500320922510?src=qr&f=1"
 
 type ProductDetailPageProps = {
   params: Promise<{ slug: string }>
+}
+
+export async function generateStaticParams() {
+  const products = await getAllIndexedProducts()
+  return products.map((product) => ({
+    slug: product.slug,
+  }))
 }
 
 export async function generateMetadata({
@@ -75,7 +82,7 @@ export default async function ProductDetailPage({
 
   return (
     <NewsLayout navCategories={navCategories}>
-      <article className="space-y-6 bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
+      <article className="space-y-6 bg-white p-6 border border-zinc-200">
         {/* Breadcrumb */}
         <nav className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5">
           <Link href="/" className="hover:text-rose-600 transition">
@@ -107,7 +114,7 @@ export default async function ProductDetailPage({
             href={ZALO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-md hover:shadow-lg"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

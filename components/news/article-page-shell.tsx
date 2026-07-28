@@ -60,6 +60,7 @@ function ArticleAuthorByline({
             width={40}
             height={40}
             sizes="40px"
+            loading="lazy"
             className="size-full object-cover"
           />
         ) : (
@@ -177,7 +178,7 @@ export function ArticlePageShell({
             width={1200}
             height={700}
             className="aspect-[12/7] h-auto w-full border border-zinc-200 object-cover"
-            priority
+            loading="lazy"
           />
 
           <div

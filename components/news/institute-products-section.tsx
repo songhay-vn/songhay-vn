@@ -47,6 +47,7 @@ export function InstituteProductsSection() {
               src={product.src}
               alt={product.alt}
               fill
+              loading="lazy"
               sizes="(max-width: 640px) 25vw, (max-width: 1024px) 20vw, 170px"
               className="object-cover"
             />

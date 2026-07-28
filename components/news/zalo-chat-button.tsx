@@ -58,7 +58,7 @@ export function ZaloChatButton() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat Zalo hỗ trợ"
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-110 active:scale-95"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl"
       >
         <span className="absolute inset-0 animate-ping rounded-full bg-primary opacity-30" />
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="relative h-7 w-7">
