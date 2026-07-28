@@ -79,10 +79,6 @@ export function ProductGallery({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
-        Bộ sưu tập hình ảnh sản phẩm
-      </h2>
-
       {/* Main Carousel Area */}
       <div
         className="group relative aspect-[4/3] sm:aspect-[16/9] w-full max-w-2xl mx-auto overflow-hidden bg-zinc-100 border border-zinc-200 select-none"
