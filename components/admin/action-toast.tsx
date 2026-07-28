@@ -30,6 +30,21 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
     description: "Vui lòng chọn chuyên mục đích để chuyển bài viết trước khi xóa.",
     type: "error",
   },
+  product_created: {
+    title: "Đã tạo sản phẩm",
+    description: "Sản phẩm mới đã được thêm thành công.",
+    type: "success",
+  },
+  product_updated: {
+    title: "Đã cập nhật sản phẩm",
+    description: "Thông tin sản phẩm đã được cập nhật.",
+    type: "success",
+  },
+  product_deleted: {
+    title: "Đã xóa sản phẩm",
+    description: "Sản phẩm đã được xóa khỏi hệ thống.",
+    type: "success",
+  },
   category_reorder_failed: {
     title: "Không thể sắp xếp",
     description: "Thao tác sắp xếp không hợp lệ. Vui lòng thử lại.",

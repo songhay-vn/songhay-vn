@@ -47,10 +47,12 @@ async function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     take: 20,
   })
   const canManageSettings = can(currentUser.role, "create-category")
+  const canManageProducts = can(currentUser.role, "manage-products")
 
   const { contentTabs, settingsTabs } = getVisibleTabs({
     canManageSettings,
     canEditPenNames: canEditPenNames(currentUser.role),
+    canManageProducts,
   })
 
   const [

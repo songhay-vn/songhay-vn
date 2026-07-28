@@ -10,7 +10,8 @@ export function CookieConsentBanner() {
   useEffect(() => {
     const consent = getCookie("cookie_consent")
     if (!consent) {
-      setIsOpen(true)
+      const timer = setTimeout(() => setIsOpen(true), 0)
+      return () => clearTimeout(timer)
     }
   }, [])
 

@@ -19,6 +19,7 @@ export type NavIconName =
   | "globe"
   | "signature"
   | "arrowRightLeft"
+  | "package"
 
 export type NavLeaf = {
   key: string
@@ -27,6 +28,7 @@ export type NavLeaf = {
   description: string
   iconName: NavIconName
   adminOnly?: boolean
+  productsOnly?: boolean
   countKey?: NavCountKey
   href?: string
   activeWhen?: {
@@ -55,6 +57,14 @@ export const OVERVIEW_TAB: NavLeaf = {
 }
 
 export const CONTENT_MANAGEMENT_TABS: NavLeaf[] = [
+  {
+    key: "products",
+    tabKey: "products",
+    label: "Quản lý sản phẩm",
+    description: "Quản lý danh sách sản phẩm hiển thị",
+    iconName: "package",
+    productsOnly: true,
+  },
   {
     key: "media-library",
     tabKey: "media-library",
@@ -246,11 +256,16 @@ type RawSearchParams = {
 export function getVisibleTabs({
   canManageSettings,
   canEditPenNames,
+  canManageProducts,
 }: {
   canManageSettings: boolean
   canEditPenNames: boolean
+  canManageProducts: boolean
 }) {
-  const contentTabs = CONTENT_MANAGEMENT_TABS.filter((item) => (item.adminOnly ? canManageSettings : true))
+  const contentTabs = CONTENT_MANAGEMENT_TABS.filter((item) => {
+    if (item.productsOnly) return canManageProducts
+    return item.adminOnly ? canManageSettings : true
+  })
 
   const settingsTabs = SETTINGS_TABS.filter((item) => {
     if (item.tabKey === "settings-pen-names") {

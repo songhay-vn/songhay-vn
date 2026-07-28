@@ -16,6 +16,7 @@ export type AdminTab =
   | "settings-permissions"
   | "settings-users"
   | "redirects"
+  | "products"
 
 export type PostsFilters = {
   query: string

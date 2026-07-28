@@ -33,3 +33,5 @@ export {
   getRedirectsData,
 } from "@/app/admin/data-loaders/redirects"
 export type { RedirectRow } from "@/app/admin/data-loaders/redirects"
+export { getProductsData } from "@/app/admin/data-loaders/products"
+export type { ProductRow } from "@/app/admin/data-loaders/products"

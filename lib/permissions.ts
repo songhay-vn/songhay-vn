@@ -29,6 +29,7 @@ export type PermissionAction =
   | "create-subordinate-account"
   | "delete-post"
   | "pin-post"
+  | "manage-products"
 
 export const ACTION_LABELS_VI: Record<PermissionAction, string> = {
   "create-category": "Tạo chuyên mục",
@@ -49,6 +50,7 @@ export const ACTION_LABELS_VI: Record<PermissionAction, string> = {
   "create-subordinate-account": "Tạo tài khoản cấp dưới",
   "delete-post": "Xóa bài viết",
   "pin-post": "Ghim bài viết tiêu điểm",
+  "manage-products": "Quản lý sản phẩm",
 }
 
 export const ALL_PERMISSION_ACTIONS: PermissionAction[] = [
@@ -70,6 +72,7 @@ export const ALL_PERMISSION_ACTIONS: PermissionAction[] = [
   "create-subordinate-account",
   "delete-post",
   "pin-post",
+  "manage-products",
 ]
 
 export const ALL_EDITABLE_ROLES: UserRole[] = [
@@ -100,6 +103,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Set<PermissionAction>> = {
     "create-subordinate-account",
     "delete-post",
     "pin-post",
+    "manage-products",
   ]),
   USER: new Set([
     "create-post",
@@ -126,6 +130,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Set<PermissionAction>> = {
     "create-subordinate-account",
     "delete-post",
     "pin-post",
+    "manage-products",
   ]),
   MANAGING_EDITOR: new Set([
     "create-category",

@@ -66,7 +66,7 @@ const EMPTY_BIO_AGE_INSIGHTS: BioAgeInsights = {
 }
 
 export async function getMediaLibraryData(activeTab: AdminTab) {
-  if (activeTab !== "media-library" && activeTab !== "write") {
+  if (activeTab !== "media-library" && activeTab !== "write" && activeTab !== "products") {
     return []
   }
 

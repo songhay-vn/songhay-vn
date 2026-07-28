@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach, spyOn } from "bun:test"
-import { deleteCloudinaryAsset } from "../lib/cloudinary"
+import { deleteCloudinaryAsset, extractCloudinaryPublicId } from "../lib/cloudinary"
 
 describe("Unit: Cloudinary Utilities", () => {
   let originalEnv: NodeJS.ProcessEnv
@@ -61,5 +61,16 @@ describe("Unit: Cloudinary Utilities", () => {
     
     fetchSpy.mockRestore()
     consoleSpy.mockRestore()
+  })
+
+  test("extractCloudinaryPublicId extracts publicId correctly from Cloudinary URLs", () => {
+    const url1 = "https://res.cloudinary.com/demo/image/upload/c_limit,w_1920/v12345/songhay/editor/sample1.jpg"
+    const url2 = "https://res.cloudinary.com/demo/image/upload/v9999/songhay/editor/sample2.png"
+    const url3 = "https://res.cloudinary.com/demo/image/upload/songhay/products/gallery1.webp"
+
+    expect(extractCloudinaryPublicId(url1)).toBe("songhay/editor/sample1")
+    expect(extractCloudinaryPublicId(url2)).toBe("songhay/editor/sample2")
+    expect(extractCloudinaryPublicId(url3)).toBe("songhay/products/gallery1")
+    expect(extractCloudinaryPublicId("https://example.com/other.jpg")).toBeNull()
   })
 })

@@ -37,6 +37,26 @@ export function buildPublicPostUrl({
   return `${getSiteUrl()}/${categorySlug}/${slug}`
 }
 
+export function buildPublicProductUrl(slug: string) {
+  return `${getSiteUrl()}/san-pham/${slug}`
+}
+
+export async function enqueueProductInspection(
+  productSlug: string,
+  options?: { force?: boolean }
+) {
+  const publicUrl = buildPublicProductUrl(productSlug)
+  const dedupeKey = options?.force
+    ? `URL_INSPECTION:product:${productSlug}:${Date.now()}`
+    : `URL_INSPECTION:product:${productSlug}`
+
+  return createQueueJob({
+    type: "URL_INSPECTION",
+    url: publicUrl,
+    dedupeKey,
+  })
+}
+
 export function getSearchConsoleJobErrorMessage(error: unknown) {
   if (error instanceof SearchConsoleApiError) {
     const details =
@@ -51,15 +71,6 @@ export function getSearchConsoleJobErrorMessage(error: unknown) {
   }
 
   return String(error).slice(0, 2000)
-}
-
-function isUniqueConstraintError(error: unknown) {
-  if (!error) return false
-  if (typeof error === "object" && "code" in error && error.code === "P2002") {
-    return true
-  }
-  const msg = String((error as { message?: string })?.message || error)
-  return msg.includes("P2002") || msg.includes("Unique constraint failed")
 }
 
 async function createQueueJob(input: QueueJobInput) {

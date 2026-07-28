@@ -8,6 +8,9 @@ import {
   buildPaginationItems,
   sortCategoriesByTree,
 } from "../app/admin/data-helpers"
+import { formatDateVi, formatDateTimeVi } from "../lib/date-utils"
+import { readCookie, toPaging, toPositiveInt } from "../lib/query-utils"
+import { toMostReadItem } from "../components/news/most-read"
 
 describe("Unit: BMI Calculation", () => {
   test("calculates BMI correctly for male", () => {
@@ -216,10 +219,6 @@ describe("Unit: Admin Data Helpers", () => {
 })
 
 describe("Unit: Refactored Shared Utilities", () => {
-  const { formatDateVi, formatDateTimeVi } = require("../lib/date-utils")
-  const { readCookie, toPaging, toPositiveInt } = require("../lib/query-utils")
-  const { toMostReadItem } = require("../components/news/most-read")
-
   test("formatDateVi and formatDateTimeVi format dates to Vietnamese locale safely", () => {
     const testDate = new Date("2026-07-26T10:30:00Z")
     expect(formatDateVi(testDate)).toMatch(/\d{2}\/\d{2}\/2026/)

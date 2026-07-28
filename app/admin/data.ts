@@ -18,6 +18,8 @@ import {
   getBioAgeInsights,
   getRedirectsData,
   type RedirectRow,
+  getProductsData,
+  type ProductRow,
 } from "@/app/admin/data-loaders/index"
 import { buildPaginationItems } from "@/app/admin/data-helpers"
 import type { GetAdminPageDataInput } from "@/app/admin/data-types"
@@ -110,10 +112,17 @@ export async function getAdminPageData({
   > = []
   let redirectsData: RedirectRow[] = []
   let publishedPostsForRedirect: { slug: string; categorySlug: string; title: string; thumbnailUrl: string | null; path: string }[] = []
+  let productsData: ProductRow[] = []
 
   // Selectively fire only required loaders for the active tab
   const activeTabDataPromise = (async () => {
     switch (activeTab) {
+      case "products":
+        ;[productsData, mediaLibraryData] = await Promise.all([
+          getProductsData(activeTab),
+          getMediaLibraryData(activeTab),
+        ])
+        break
       case "overview":
         ;[overviewAnalytics, bioAgeInsights] = await Promise.all([
           getOverviewAnalytics(activeTab, overviewRange),
@@ -273,5 +282,6 @@ export async function getAdminPageData({
     penNamesSettingsData,
     redirectsData,
     publishedPostsForRedirect,
+    productsData,
   }
 }

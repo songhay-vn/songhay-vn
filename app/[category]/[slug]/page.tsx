@@ -160,7 +160,7 @@ export default async function PostPage({ params }: PostPageProps) {
           "@type": "Organization",
           "@id": `${siteUrl}#organization`,
           name: "Songhay.vn",
-        }) as any,
+        }) as Record<string, string>,
     publisher: {
       "@id": `${siteUrl}#organization`,
       logo: {

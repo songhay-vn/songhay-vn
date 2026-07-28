@@ -91,6 +91,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 10000,
   })
 
+  const products = await prisma.product.findMany({
+    where: { isIndexed: true },
+    select: {
+      slug: true,
+      updatedAt: true,
+      imageUrl: true,
+    },
+    orderBy: { updatedAt: "desc" },
+  })
+
   const sitemapData: MetadataRoute.Sitemap = []
 
   sitemapData.push({
@@ -98,6 +108,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: staticContentLastModified,
     changeFrequency: "hourly",
     priority: 1,
+  })
+
+  sitemapData.push({
+    url: `${siteUrl}/san-pham`,
+    lastModified: products.length > 0 ? products[0].updatedAt : staticContentLastModified,
+    changeFrequency: "daily" as const,
+    priority: 0.8,
   })
 
   staticPages.forEach((item) => {
@@ -115,6 +132,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: category.lastmod,
       changeFrequency: "daily" as const,
       priority: 0.8,
+    })
+  })
+
+  products.forEach((product) => {
+    const rawUrl = product.imageUrl ? toAbsoluteUrl(product.imageUrl) : null
+    const cleanUrl = rawUrl ? rawUrl.split("?")[0] : null
+    const images = cleanUrl ? [cleanUrl] : []
+
+    sitemapData.push({
+      url: `${siteUrl}/san-pham/${product.slug}`,
+      lastModified: product.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+      images,
     })
   })
 

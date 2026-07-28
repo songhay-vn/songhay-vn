@@ -61,6 +61,7 @@ import { SettingsUsersTab } from "@/components/admin/settings-users-tab"
 import { TrashTab } from "@/components/admin/trash-tab"
 import { WriteTab } from "@/components/admin/write-tab"
 import { RedirectsTab } from "@/components/admin/redirects-tab"
+import { ProductsTab } from "@/components/admin/products-tab"
 import { requireCmsUser } from "@/lib/auth"
 import {
   can,
@@ -132,10 +133,12 @@ async function AdminPageContent({
   const canSeeAllPosts = canViewAllPosts(currentUser.role)
   const canManageSettings = can(currentUser.role, "create-category")
   const canManagePenNames = canEditPenNames(currentUser.role)
+  const canManageProducts = can(currentUser.role, "manage-products")
 
   const { visibleTabs } = getVisibleTabs({
     canManageSettings,
     canEditPenNames: canManagePenNames,
+    canManageProducts,
   })
 
   const {
@@ -185,6 +188,7 @@ async function AdminPageContent({
     penNamesSettingsData,
     redirectsData,
     publishedPostsForRedirect,
+    productsData,
   } = await getAdminPageData({
     activeTab,
     overviewRange,
@@ -317,6 +321,13 @@ async function AdminPageContent({
           overviewStats={overviewStats}
           overviewAnalytics={overviewAnalytics}
           bioAgeInsights={bioAgeInsights}
+        />
+      ) : null}
+      {activeTab === "products" ? (
+        <ProductsTab
+          products={productsData}
+          mediaAssets={mediaLibraryData}
+          currentUserId={currentUser.id}
         />
       ) : null}
       {activeTab === "categories" ? (

@@ -204,3 +204,19 @@ export async function deleteCloudinaryAsset(publicId: string, resourceType: Uplo
     console.error(`Error deleting Cloudinary asset ${publicId}:`, error)
   }
 }
+
+export function extractCloudinaryPublicId(url: string): string | null {
+  if (!url || typeof url !== "string" || !url.includes("/upload/")) {
+    return null
+  }
+  const parts = url.split("/upload/")[1]?.split("/")
+  if (!parts || parts.length === 0) {
+    return null
+  }
+  const filtered = parts.filter((p) => !p.includes(",") && !/^v\d+$/.test(p))
+  if (filtered.length === 0) {
+    return null
+  }
+  const fullPath = filtered.join("/")
+  return fullPath.replace(/\.[^/.]+$/, "")
+}

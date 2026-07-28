@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { authCookieName, decodeSession } from "@/lib/auth"
-import { deleteCloudinaryAsset } from "@/lib/cloudinary"
+import { deleteCloudinaryAsset, extractCloudinaryPublicId } from "@/lib/cloudinary"
 import { getMediaUsageByUrl } from "@/lib/media-usage"
 import { canDeleteAnyMedia } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
@@ -63,9 +63,10 @@ export async function DELETE(request: unknown, context: RouteContext) {
     return NextResponse.json({ error: "in_use", usage }, { status: 409 })
   }
 
-  if (asset.publicId) {
+  const publicId = asset.publicId || extractCloudinaryPublicId(asset.url)
+  if (publicId) {
     const resourceType = asset.assetType === "VIDEO" ? "video" : "image"
-    await deleteCloudinaryAsset(asset.publicId, resourceType)
+    await deleteCloudinaryAsset(publicId, resourceType)
   }
 
   await prisma.mediaAsset.delete({ where: { id: asset.id } })

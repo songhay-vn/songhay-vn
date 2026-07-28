@@ -12,7 +12,10 @@ export function ZaloChatButton() {
 
   useEffect(() => {
     const dismissed = localStorage.getItem(DISMISSED_KEY)
-    if (!dismissed) setVisible(true)
+    if (!dismissed) {
+      const timer = setTimeout(() => setVisible(true), 0)
+      return () => clearTimeout(timer)
+    }
   }, [])
 
   function dismiss(e: React.MouseEvent) {

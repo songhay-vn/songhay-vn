@@ -795,3 +795,52 @@ export async function getAllCategorySlugs() {
     select: { slug: true },
   })
 }
+
+// --- Product Queries ---
+
+export async function getProductsForSidebar() {
+  "use cache"
+  cacheTag("products")
+  cacheLife("hours")
+
+  const [products, totalCount] = await Promise.all([
+    prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      take: 5,
+    }),
+    prisma.product.count(),
+  ])
+
+  return { products, totalCount }
+}
+
+export async function getAllIndexedProducts() {
+  "use cache"
+  cacheTag("products")
+  cacheLife("hours")
+
+  return prisma.product.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      imageUrl: true,
+    },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  })
+}
+
+export async function getProductBySlug(slug: string) {
+  "use cache"
+  cacheTag("products")
+  cacheLife("hours")
+
+  return prisma.product.findUnique({ where: { slug } })
+}
+

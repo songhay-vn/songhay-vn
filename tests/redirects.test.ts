@@ -113,7 +113,7 @@ describe("createRedirect action with auto-unpublishing", () => {
     
     // Verify GSC inspection was enqueued for the redirect activation
     expect(mockJobUpsert).toHaveBeenCalled()
-    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
+    expect((mockJobUpsert.mock.calls as unknown as Array<Array<{ create: Record<string, unknown> }>>)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",
@@ -157,7 +157,7 @@ describe("createRedirect action with auto-unpublishing", () => {
     )
     
     expect(mockJobUpsert).toHaveBeenCalled()
-    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
+    expect((mockJobUpsert.mock.calls as unknown as Array<Array<{ create: Record<string, unknown> }>>)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",
@@ -203,7 +203,7 @@ describe("createRedirect action with auto-unpublishing", () => {
     
     // Verify GSC inspection was enqueued
     expect(mockJobUpsert).toHaveBeenCalled()
-    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
+    expect((mockJobUpsert.mock.calls as unknown as Array<Array<{ create: Record<string, unknown> }>>)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",
@@ -248,7 +248,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     // Verify GSC inspection was enqueued for the redirect path
     expect(mockJobUpsert).toHaveBeenCalled()
-    expect((mockJobUpsert.mock.calls as any)[0][0].create).toMatchObject({
+    expect((mockJobUpsert.mock.calls as unknown as Array<Array<{ create: Record<string, unknown> }>>)[0][0].create).toMatchObject({
       type: "URL_INSPECTION",
       postId: "post-123",
       url: "https://songhay.vn/xa-hoi/duplicate-post",

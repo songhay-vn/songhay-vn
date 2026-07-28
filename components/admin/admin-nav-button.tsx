@@ -16,6 +16,7 @@ import {
   Loader2,
   MessageSquareMore,
   Newspaper,
+  Package,
   PenSquare,
   ShieldCheck,
   Signature,
@@ -53,6 +54,7 @@ const navIcons: Record<NavIconName, typeof LayoutDashboard> = {
   globe: Globe,
   signature: Signature,
   arrowRightLeft: ArrowRightLeft,
+  package: Package,
 }
 
 type AdminNavButtonProps = {
