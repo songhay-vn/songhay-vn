@@ -81,7 +81,8 @@ export function ProductGallery({
     >
       {/* Main Carousel Area */}
       <div
-        className="group relative aspect-[4/3] sm:aspect-[16/9] w-full max-w-2xl mx-auto overflow-hidden bg-zinc-100 border border-zinc-200 select-none"
+        className="group relative aspect-[4/3] sm:aspect-[16/9] w-full max-w-2xl mx-auto overflow-hidden bg-zinc-100 border border-zinc-200 select-none cursor-pointer"
+        onClick={() => setIsEnlarged(true)}
         onTouchStart={(e) => handleTouchStart(e.touches[0].clientX)}
         onTouchMove={(e) => handleTouchMove(e.touches[0].clientX)}
         onTouchEnd={handleTouchEnd}
@@ -95,8 +96,7 @@ export function ProductGallery({
           fill
           loading="lazy"
           sizes="(max-width: 768px) 100vw, 768px"
-          className="object-contain p-2 cursor-pointer"
-          onClick={() => setIsEnlarged(true)}
+          className="object-contain p-2"
         />
 
         {/* Zoom Button */}
