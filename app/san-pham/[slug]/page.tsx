@@ -17,6 +17,9 @@ type ProductDetailPageProps = {
 
 export async function generateStaticParams() {
   const products = await getAllIndexedProducts()
+  if (products.length === 0) {
+    return [{ slug: "_placeholder" }]
+  }
   return products.map((product) => ({
     slug: product.slug,
   }))
