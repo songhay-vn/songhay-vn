@@ -6,10 +6,13 @@ mock.module("next/cache", () => ({
 }))
 
 import {
+  buildStaticNavFallback,
   clampPositiveInt,
+  createPublishedSearchWhere,
   getAnalyticsArticlePath,
   getAnalyticsPathname,
   getPopularPostKey,
+  normalizeSearchQuery,
   safeDecodePathSegment,
 } from "@/lib/queries"
 
@@ -48,5 +51,25 @@ describe("Unit: Query Helpers & Analytics Path Parsing", () => {
 
   test("getPopularPostKey formats composite category/slug cache key", () => {
     expect(getPopularPostKey("suc-khoe", "bai-viet-1")).toBe("suc-khoe/bai-viet-1")
+  })
+
+  test("normalizeSearchQuery trims and collapses multiple spaces", () => {
+    expect(normalizeSearchQuery("  tin   tuc   ")).toBe("tin tuc")
+  })
+
+  test("createPublishedSearchWhere constructs Prisma search query object with non-draft filters", () => {
+    const now = new Date("2026-07-30T00:00:00.000Z")
+    const where = createPublishedSearchWhere("thời sự", now)
+    expect(where.isDraft).toBe(false)
+    expect(where.OR).toBeArray()
+    expect(where.OR).toHaveLength(4)
+  })
+
+  test("buildStaticNavFallback constructs navigation categories with children tree", () => {
+    const nav = buildStaticNavFallback()
+    expect(nav.length).toBeGreaterThan(0)
+    expect(nav[0].id).toContain("static-")
+    expect(nav[0].slug).toBeTruthy()
+    expect(nav[0].children).toBeArray()
   })
 })

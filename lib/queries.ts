@@ -233,11 +233,11 @@ async function getPopularPosts({
   })
 }
 
-function normalizeSearchQuery(query: string) {
+export function normalizeSearchQuery(query: string) {
   return query.trim().replace(/\s+/g, " ")
 }
 
-function createPublishedSearchWhere(
+export function createPublishedSearchWhere(
   normalizedQuery: string,
   now: Date
 ): Prisma.PostWhereInput {
@@ -675,7 +675,7 @@ export async function getRecommendedPosts(
   return filtered.slice(0, limit)
 }
 
-function buildStaticNavFallback(): CategoryWithChildren[] {
+export function buildStaticNavFallback(): CategoryWithChildren[] {
   return NAV_CATEGORIES.map((cat, idx) => ({
     id: `static-${idx}`,
     name: cat.name,
