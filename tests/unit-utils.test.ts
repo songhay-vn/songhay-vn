@@ -139,14 +139,14 @@ describe("Unit: HTML Normalization", () => {
     ).toBe("<s>Strike</s>")
   })
 
-  test("filters allowed styles and removes others", () => {
+  test("filters allowed styles and removes un-whitelisted properties like margin-top", () => {
     const input =
       '<p style="text-align: center; color: red; margin-top: 20px; font-size: 16px">Styled Text</p>'
     const output = normalizeArticleHtml(input)
-    expect(output).toContain('style="text-align:center"')
-    expect(output).not.toContain("color")
-    expect(output).not.toContain("font-size")
-    expect(output).not.toContain("margin-top")
+    expect(output).toContain('text-align:center')
+    expect(output).toContain('color:red')
+    expect(output).toContain('font-size:16px')
+    expect(output).not.toContain('margin-top')
   })
 
   test("supports float and layout styles", () => {
@@ -159,15 +159,16 @@ describe("Unit: HTML Normalization", () => {
     expect(output).toContain("max-width:500px")
   })
 
-  test("strips copied source presentation styles", () => {
+  test("strips un-whitelisted copied presentation styles while keeping allowed font and color styles", () => {
     const input =
       '<p style="font-family: Arial, sans-serif; background-color: #fff; background: yellow; color: rgb(0,0,0); font-size: 16px; text-align: center">Text</p>'
     const output = normalizeArticleHtml(input)
-    expect(output).toBe('<p style="text-align:center">Text</p>')
-    expect(output).not.toContain("font-family")
-    expect(output).not.toContain("background")
-    expect(output).not.toContain("color")
-    expect(output).not.toContain("font-size")
+    expect(output).toContain("font-family:arial, sans-serif")
+    expect(output).toContain("background-color:#fff")
+    expect(output).toContain("color:rgb(0,0,0)")
+    expect(output).toContain("font-size:16px")
+    expect(output).toContain("text-align:center")
+    expect(output).not.toContain("background:yellow")
   })
 
   test("preserves images and videos/iframes unaffected", () => {

@@ -1,24 +1,25 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **songhay-vn** (3791 symbols, 8430 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **songhay-vn** (2259 symbols, 6948 relationships, 173 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
-> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+> Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
 ## Always Do
 
-- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
-- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
+- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
+- **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
 - **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
-- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
+- When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
+- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
 
 ## Never Do
 
-- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
+- NEVER edit a function, class, or method without first running `impact` on it.
 - NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
-- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
-- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
+- NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
+- NEVER commit changes without running `detect_changes()` to check affected scope.
 
 ## Resources
 
@@ -454,6 +455,7 @@ Caddy logs like `client disconnected`, `stream closed`, or scanner requests for 
 - **NO "Cheat" Tests**: Tests must execute the actual implementation code (libraries, components, hooks, functions). Never write mock/cheat assertions that bypass the actual logic or assert hardcoded values (e.g., asserting `console.log(2+2)` instead of calling the target function/component to verify `2+2`).
 - **High-Contrast Text for Accessibility**: To ensure readability for elderly readers, never use light gray colors (such as `text-zinc-600` or `text-zinc-700` overrides) for main body copy, lists, disclaimers, headers, or buttons on user-facing pages and widgets. Always use high-contrast dark options like `text-black`, `text-zinc-950`, or `text-zinc-900`.
 ## Safety Rules For Agents
+- **More investigation, less build**: Prefer to run Tests, instead of build, since the project is growing increasingly fast and build time takes too long, might hog the dev environment.
 
 - Keep all responses short, concise, and straight to the point.
 - Prefer `deploy` for application operations; use `root` only for OS, firewall, package, or Docker daemon issues.

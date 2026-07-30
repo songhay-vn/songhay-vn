@@ -1,5 +1,8 @@
 import { expect, test, describe, mock, beforeEach, afterAll } from "bun:test"
 
+mock.module("server-only", () => ({}))
+process.env.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_BASE64 = "test"
+
 // Mocks
 const mockRequireCmsUser = mock(() => Promise.resolve({ id: "user-1", role: "ADMIN" }))
 const mockRedirect = mock()
@@ -49,7 +52,7 @@ mock.module("@/lib/prisma", () => ({
 }))
 
 // Import the module AFTER mock setup
-import { createRedirect, deleteRedirect, toggleRedirect } from "@/app/admin/actions/redirects"
+const { createRedirect, deleteRedirect, toggleRedirect } = await import("@/app/admin/actions/redirects")
 
 describe("createRedirect action with auto-unpublishing", () => {
   beforeEach(() => {

@@ -8,7 +8,7 @@ function readWorkspaceFile(relativePath: string) {
 
 describe("admin posts layout", () => {
   test("posts filter bar sits above a cardless results area", () => {
-    const source = readWorkspaceFile("components/admin/posts-tab/index.tsx")
+    const source = readWorkspaceFile("components/admin/posts-tab/index.tsx").replace(/\r\n/g, "\n")
 
     expect(source).toContain('return (\n    <div className="space-y-4">')
     expect(source).toContain("<PostsFilterBar")

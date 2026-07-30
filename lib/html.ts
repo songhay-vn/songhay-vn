@@ -247,6 +247,27 @@ export function normalizeArticleHtml(rawHtml: string) {
         ) {
           keptRules.push(`${property}:${value}`)
         }
+
+        if (
+          property === "font-size" &&
+          /^(auto|\d+(\.\d+)?(px|pt|em|rem|%)|tiny|small|normal|big|huge|large|x-large|xx-large)$/i.test(value)
+        ) {
+          keptRules.push(`font-size:${value}`)
+        }
+
+        if (
+          property === "font-family" &&
+          /^[a-zA-Z0-9\s,\-"']+$/i.test(value)
+        ) {
+          keptRules.push(`font-family:${value}`)
+        }
+
+        if (
+          (property === "color" || property === "background-color") &&
+          /^(#[0-9a-f]{3,8}|rgba?\(.*?\)|hsla?\(.*?\)|[a-z]+)$/i.test(value)
+        ) {
+          keptRules.push(`${property}:${value}`)
+        }
       }
 
       return keptRules.length ? ` style="${keptRules.join(";")}"` : ""

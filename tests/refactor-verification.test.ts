@@ -1,62 +1,44 @@
 import { describe, expect, test } from "bun:test"
+import { formatDateVi, formatDateTimeVi } from "../lib/date-utils"
 import * as Queries from "../lib/queries"
 import * as Bmi from "../lib/bmi"
 import * as Auth from "../lib/session"
 import * as SeoStore from "../lib/seo-keyword-store"
 
 describe("Types: Distribution & Re-exports", () => {
-  test("lib/queries re-exports expected types", () => {
-    // Testing that these are exported (even if they are just types, we can check their presence if we used named exports)
-    // In TS, named type exports are not available in JS runtime, but we can verify the file is valid and imports don't crash.
-    expect(Queries).toBeDefined()
+  test("lib/queries exports queries module", () => {
+    expect(typeof Queries.getHomepageData).toBe("function")
   })
 
-  test("lib/bmi re-exports BMI types", () => {
-    expect(Bmi).toBeDefined()
+  test("lib/bmi exports BMI calculator functions", () => {
+    expect(typeof Bmi.calculateBmi).toBe("function")
   })
 
-  test("lib/session uses centralized SessionPayload", () => {
-    expect(Auth).toBeDefined()
+  test("lib/session exports session utilities", () => {
+    expect(typeof Auth.decodeSession).toBe("function")
   })
 
-  test("lib/seo-keyword-store uses centralized SEO types", () => {
-    expect(SeoStore).toBeDefined()
+  test("lib/seo-keyword-store exports keyword store functions", () => {
+    expect(typeof SeoStore.resolveSeoKeywordSelection).toBe("function")
   })
 })
 
-describe("Regression: Date Serialization Fix", () => {
-  test("handles ISO string dates (from cache)", () => {
-    const mockPost = {
-      publishedAt: "2024-04-11T09:37:05.000Z",
-      updatedAt: "2024-04-11T10:00:00.000Z"
-    }
-
-    // Logic from app/[category]/[slug]/page.tsx
-    const publishedTime = mockPost.publishedAt ? new Date(mockPost.publishedAt).toISOString() : null
-    const modifiedTime = mockPost.updatedAt ? new Date(mockPost.updatedAt).toISOString() : null
-
-    expect(publishedTime).toBe("2024-04-11T09:37:05.000Z")
-    expect(modifiedTime).toBe("2024-04-11T10:00:00.000Z")
+describe("Regression: Date Formatting Utilities", () => {
+  test("formatDateVi and formatDateTimeVi handle ISO string dates (from cache)", () => {
+    const isoString = "2024-04-11T09:37:05.000Z"
+    expect(formatDateVi(isoString)).toBe("11/04/2024")
+    expect(formatDateTimeVi(isoString)).toContain("11/04/2024")
   })
 
-  test("handles real Date objects (from direct DB query)", () => {
-    const date = new Date()
-    const mockPost = {
-      publishedAt: date,
-      updatedAt: date
-    }
-
-    const publishedTime = mockPost.publishedAt ? new Date(mockPost.publishedAt).toISOString() : null
-    expect(publishedTime).toBe(date.toISOString())
+  test("formatDateVi and formatDateTimeVi handle real Date objects", () => {
+    const date = new Date("2024-04-11T09:37:05.000Z")
+    expect(formatDateVi(date)).toBe("11/04/2024")
+    expect(formatDateTimeVi(date)).toContain("11/04/2024")
   })
 
-  test("handles null dates safely", () => {
-    const mockPost = {
-      publishedAt: null,
-      updatedAt: null
-    }
-
-    const publishedTime = mockPost.publishedAt ? new Date(mockPost.publishedAt).toISOString() : null
-    expect(publishedTime).toBeNull()
+  test("formatDateVi and formatDateTimeVi handle null and invalid dates safely", () => {
+    expect(formatDateVi(null)).toBe("")
+    expect(formatDateTimeVi(undefined)).toBe("")
+    expect(formatDateVi("invalid-date")).toBe("")
   })
 })

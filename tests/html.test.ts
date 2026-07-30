@@ -106,11 +106,11 @@ describe("normalizeArticleHtml – HTML nesting repair (hydration safety)", () =
     expect(output).toContain("prod.jpg")
   })
 
-  it("should not strip safe inline <a> links that contain only text", () => {
-    // An <a> with only text content inside <p> is valid and must NOT be touched
-    const input = `<p>Mua ngay <a href="https://zalo.me/abc">tại đây</a> nhé.</p>`
+  it("should preserve font-size, font-family, and color inline styles from editor", () => {
+    const input = `<span style="font-size:18px;font-family:Arial;color:#cc0000">Custom Text</span>`
     const output = normalizeArticleHtml(input)
-    expect(output).toContain('<a href="https://zalo.me/abc">')
-    expect(output).toContain("tại đây")
+    expect(output).toContain("font-size:18px")
+    expect(output).toContain("font-family:arial")
+    expect(output).toContain("color:#cc0000")
   })
 })

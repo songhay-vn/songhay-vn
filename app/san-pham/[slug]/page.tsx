@@ -82,9 +82,9 @@ export default async function ProductDetailPage({
 
   return (
     <NewsLayout navCategories={navCategories}>
-      <article className="space-y-6 bg-white p-6 border border-zinc-200">
+      <article className="space-y-6 bg-white p-6 border border-zinc-200 font-serif">
         {/* Breadcrumb */}
-        <nav className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5">
+        <nav className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5 font-sans">
           <Link href="/" className="hover:text-rose-600 transition">
             Trang chủ
           </Link>
@@ -97,7 +97,7 @@ export default async function ProductDetailPage({
         </nav>
 
         {/* Product Title */}
-        <h1 className="text-2xl md:text-3xl font-extrabold text-zinc-900 leading-tight">
+        <h1 className="text-4xl leading-tight font-black text-zinc-900">
           {product.name}
         </h1>
 
@@ -114,7 +114,7 @@ export default async function ProductDetailPage({
             href={ZALO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold transition"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold transition font-sans"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -132,9 +132,9 @@ export default async function ProductDetailPage({
         {/* Product Description */}
         {product.description && (
           <div className="space-y-3 border-t border-zinc-200 pt-6">
-            <h2 className="text-lg font-bold text-zinc-900">Mô tả sản phẩm</h2>
+            <h2 className="text-xl font-bold text-zinc-900">Mô tả sản phẩm</h2>
             <div
-              className="ck-content prose prose-zinc max-w-none text-zinc-900 leading-relaxed"
+              className="article-content ck-content max-w-none text-black"
               dangerouslySetInnerHTML={{ __html: normalizeArticleHtml(product.description) }}
             />
           </div>
