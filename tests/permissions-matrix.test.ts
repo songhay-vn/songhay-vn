@@ -15,7 +15,7 @@ import {
   ALL_EDITABLE_ROLES,
 } from "../lib/permissions"
 
-import type { UserRole } from "../generated/prisma/client"
+import type { UserRole } from "@prisma/client"
 
 const ALL_ROLES: UserRole[] = [
   "EDITOR_IN_CHIEF",

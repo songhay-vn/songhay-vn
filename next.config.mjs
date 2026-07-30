@@ -8,6 +8,7 @@ const nextConfig = {
   output: "standalone",
   cacheComponents: true,
   experimental: {
+    cpus: 4,
     serverActions: {
       // Media uploads are handled by a Server Action in /admin, so raise the default 1MB limit.
       bodySizeLimit: "250mb",

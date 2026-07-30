@@ -9,7 +9,7 @@ import {
   can,
 } from "../lib/permissions"
 
-import type { UserRole } from "../generated/prisma/client"
+import type { UserRole } from "@prisma/client"
 import type { PermissionAction } from "../lib/permissions"
 
 describe("role action scopes and dynamic permissions", () => {
@@ -21,8 +21,9 @@ describe("role action scopes and dynamic permissions", () => {
     // Let's hydrate with the defaults for testing.
     const defaultRows: Array<{ role: UserRole; action: string }> = []
     
-    for (const role of Object.keys(DEFAULT_PERMISSIONS) as UserRole[]) {
-      for (const action of DEFAULT_PERMISSIONS[role]) {
+    for (const role of Object.keys(DEFAULT_PERMISSIONS) as unknown as UserRole[]) {
+      const actions = (DEFAULT_PERMISSIONS as Record<string, Set<PermissionAction>>)[role] || new Set()
+      for (const action of actions) {
         defaultRows.push({ role, action })
       }
     }
