@@ -11,17 +11,13 @@ let cacheExpiresAt = 0
 const CACHE_TTL_MS = process.env.NODE_ENV === "development" ? 0 : 5 * 60 * 1000
 
 async function getRedirects(baseUrl: string): Promise<Map<string, string>> {
-  const now = Date.now()
-  if (redirectCache && now < cacheExpiresAt) {
-    return redirectCache
-  }
-
   try {
     const res = await fetch(`${baseUrl}/api/redirects`, {
       // Bypass Next.js data cache in dev (TTL=0); in prod the tag lets
       // admin actions invalidate this via POST /api/redirects/revalidate.
       next: { tags: ["proxy-redirects"] },
     })
+    const now = Date.now()
     if (!res.ok) throw new Error(`/api/redirects returned ${res.status}`)
     const data: RedirectEntry[] = (await res.json()) as RedirectEntry[]
     redirectCache = new Map(data.map((r) => [r.fromPath, r.toPath]))
@@ -38,7 +34,7 @@ async function getRedirects(baseUrl: string): Promise<Map<string, string>> {
 const NR = NextResponse as any
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, origin } = request.nextUrl
 
   // Skip internal Next.js routes, static files, and API routes to avoid loops
   if (
@@ -50,8 +46,18 @@ export async function proxy(request: NextRequest) {
     return NR.next() as Response
   }
 
-  const baseUrl = request.nextUrl.origin
-  const redirects = await getRedirects(baseUrl)
+  if (redirectCache && Date.now() < cacheExpiresAt) {
+    const destination = redirectCache.get(pathname)
+    if (destination) {
+      const url = request.nextUrl.clone()
+      url.pathname = destination
+      url.search = ""
+      return NR.redirect(url, { status: 301 }) as Response
+    }
+    return NR.next() as Response
+  }
+
+  const redirects = await getRedirects(origin)
   const destination = redirects.get(pathname)
 
   if (destination) {

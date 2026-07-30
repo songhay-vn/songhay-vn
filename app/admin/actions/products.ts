@@ -95,6 +95,7 @@ export async function createProduct(formData: FormData) {
 
   revalidatePath("/admin")
   revalidatePath("/san-pham")
+  revalidatePath("/san-pham/[slug]", "page")
   revalidatePath("/")
   updateTag("products")
   revalidateTag("products", "max")
