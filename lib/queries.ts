@@ -803,21 +803,28 @@ export async function getProductsForSidebar() {
   cacheTag("products")
   cacheLife("hours")
 
-  const [products, totalCount] = await Promise.all([
-    prisma.product.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        imageUrl: true,
-      },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-      take: 5,
-    }),
-    prisma.product.count(),
-  ])
+  try {
+    const [products, totalCount] = await Promise.all([
+      prisma.product.findMany({
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          imageUrl: true,
+        },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+        take: 5,
+      }),
+      prisma.product.count(),
+    ])
 
-  return { products, totalCount }
+    return { products, totalCount }
+  } catch (err) {
+    if (isPrismaSchemaMismatchError(err)) {
+      return { products: [], totalCount: 0 }
+    }
+    throw err
+  }
 }
 
 export async function getAllIndexedProducts() {
@@ -825,15 +832,22 @@ export async function getAllIndexedProducts() {
   cacheTag("products")
   cacheLife("hours")
 
-  return prisma.product.findMany({
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      imageUrl: true,
-    },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-  })
+  try {
+    return await prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    })
+  } catch (err) {
+    if (isPrismaSchemaMismatchError(err)) {
+      return []
+    }
+    throw err
+  }
 }
 
 export async function getProductBySlug(slug: string) {
@@ -841,6 +855,13 @@ export async function getProductBySlug(slug: string) {
   cacheTag("products")
   cacheLife("hours")
 
-  return prisma.product.findUnique({ where: { slug } })
+  try {
+    return await prisma.product.findUnique({ where: { slug } })
+  } catch (err) {
+    if (isPrismaSchemaMismatchError(err)) {
+      return null
+    }
+    throw err
+  }
 }
 
