@@ -31,6 +31,23 @@ describe("Unit: Biological age helper", () => {
     })
   })
 
+  test("handles BALANCED and RECOVERY score ranges", () => {
+    const balanced = getBioAgeResult(15)
+    expect(balanced.key).toBe("BALANCED")
+
+    const recovery = getBioAgeResult(22)
+    expect(recovery.key).toBe("RECOVERY")
+  })
+
+  test("handles single-point age ranges where min === max", () => {
+    const estimated = calculateEstimatedBioAge(20, { deltaMin: 5, deltaMax: 5 })
+    expect(estimated).toEqual({
+      min: 25,
+      max: 25,
+      label: "25 tuổi",
+    })
+  })
+
   test("maps ages into CMS insight buckets", () => {
     expect(getAgeGroup(17)).toBe("1-17")
     expect(getAgeGroup(24)).toBe("18-24")
