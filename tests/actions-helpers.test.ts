@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test"
-import { ensurePermission, resolveEditorialFromSubmitAction } from "@/app/admin/actions-helpers"
+import {
+  ensurePermission,
+  getPlainTextFromHtml,
+  resolveEditorialFromSubmitAction,
+  uniqueSlug,
+} from "@/app/admin/actions-helpers"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
 
 describe("Unit: Action Helpers & Prisma Error Utilities", () => {
@@ -33,6 +38,17 @@ describe("Unit: Action Helpers & Prisma Error Utilities", () => {
       isDraft: false,
       isPublished: true,
     })
+  })
+
+  test("getPlainTextFromHtml strips HTML tags and normalizes whitespace", () => {
+    const html = "<p>Bài viết <strong>tin tức</strong> hàng ngày.</p>"
+    expect(getPlainTextFromHtml(html)).toBe("Bài viết tin tức hàng ngày.")
+  })
+
+  test("uniqueSlug generates collision-free slug using lookup callback", async () => {
+    const takenSlugs = new Set(["tin-tuc", "tin-tuc-2"])
+    const slug = await uniqueSlug("Tin Tức", async (candidate) => takenSlugs.has(candidate))
+    expect(slug).toBe("tin-tuc-3")
   })
 
   test("isPrismaSchemaMismatchError identifies P2021 and P2022 error codes", () => {
