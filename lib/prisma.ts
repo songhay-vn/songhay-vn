@@ -9,7 +9,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-function parseRejectUnauthorized(value: string | undefined) {
+export function parseRejectUnauthorized(value: string | undefined) {
   if (!value) {
     return undefined
   }
@@ -17,7 +17,7 @@ function parseRejectUnauthorized(value: string | undefined) {
   return value.toLowerCase() !== "false"
 }
 
-function getDatabaseSslConfig(): ConnectionOptions | undefined {
+export function getDatabaseSslConfig(): ConnectionOptions | undefined {
   const rejectUnauthorized = parseRejectUnauthorized(
     process.env.DATABASE_SSL_REJECT_UNAUTHORIZED
   )
@@ -40,7 +40,7 @@ function getDatabaseSslConfig(): ConnectionOptions | undefined {
   return undefined
 }
 
-function buildPgConnectionString(
+export function buildPgConnectionString(
   connectionString: string,
   ssl: ConnectionOptions | undefined
 ) {

@@ -83,7 +83,7 @@ type AnalyticsArticlePath = {
   views: number
 }
 
-function clampPositiveInt(value: number, fallback: number, max: number) {
+export function clampPositiveInt(value: number, fallback: number, max: number) {
   if (!Number.isFinite(value) || value <= 0) {
     return fallback
   }
@@ -91,7 +91,7 @@ function clampPositiveInt(value: number, fallback: number, max: number) {
   return Math.min(Math.floor(value), max)
 }
 
-function safeDecodePathSegment(segment: string) {
+export function safeDecodePathSegment(segment: string) {
   try {
     return decodeURIComponent(segment)
   } catch {
@@ -99,7 +99,7 @@ function safeDecodePathSegment(segment: string) {
   }
 }
 
-function getAnalyticsPathname(path: string) {
+export function getAnalyticsPathname(path: string) {
   const trimmedPath = path.trim()
   if (!trimmedPath || trimmedPath === "(not set)") {
     return ""
@@ -114,7 +114,7 @@ function getAnalyticsPathname(path: string) {
   }
 }
 
-function getAnalyticsArticlePath(path: string): AnalyticsArticlePath | null {
+export function getAnalyticsArticlePath(path: string): AnalyticsArticlePath | null {
   const parts = getAnalyticsPathname(path)
     .split("/")
     .filter(Boolean)
@@ -132,7 +132,7 @@ function getAnalyticsArticlePath(path: string): AnalyticsArticlePath | null {
   return { categorySlug, slug, views: 0 }
 }
 
-function getPopularPostKey(categorySlug: string, slug: string) {
+export function getPopularPostKey(categorySlug: string, slug: string) {
   return `${categorySlug}/${slug}`
 }
 
