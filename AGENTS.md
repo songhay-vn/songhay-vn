@@ -465,3 +465,14 @@ Caddy logs like `client disconnected`, `stream closed`, or scanner requests for 
 - Never run `docker compose down -v` on production without explicit user confirmation.
 - Before editing app symbols, follow the GitNexus instructions at the top of this file.
 - Before committing, run `npx gitnexus detect-changes --repo songhay-vn`.
+- **MUST create a Prisma migration before adding any new model or column to `prisma/schema.prisma`**. The local DB may be synced via `db push` but the CI pipeline uses `prisma migrate deploy` — without a committed migration file in `prisma/migrations/`, the table will not exist on the VPS at build time, causing `P2021` errors and `EmptyGenerateStaticParamsError` in Next.js static generation. Use `prisma migrate diff` to generate the migration SQL effortlessly:
+  ```powershell
+  # Replace <name> with a descriptive snake_case name e.g. add_products
+  $name = "<name>"
+  $stamp = (Get-Date -Format "yyyyMMddHHmmss")
+  $dir = "prisma\migrations\${stamp}_${name}"
+  New-Item -ItemType Directory -Path $dir
+  bunx --bun prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script | Out-File -Encoding utf8 "$dir\migration.sql"
+  ```
+  Then commit the generated `prisma/migrations/` file before pushing to `main`.
+
