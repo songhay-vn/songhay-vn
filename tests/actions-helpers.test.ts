@@ -1,8 +1,26 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, test, mock } from "bun:test"
+
+mock.module("next/cache", () => ({
+  revalidateTag: () => {},
+  revalidatePath: () => {},
+  updateTag: () => {},
+}))
+
+mock.module("next/server", () => ({
+  after: (task: () => void) => {
+    task()
+  },
+}))
+
 import {
   ensurePermission,
   getPlainTextFromHtml,
+  logPostHistory,
+  revalidatePost,
+  revalidatePostTagsOnly,
   resolveEditorialFromSubmitAction,
+  uniqueCategorySlug,
+  uniquePostSlug,
   uniqueSlug,
 } from "@/app/admin/actions-helpers"
 import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors"
@@ -49,6 +67,42 @@ describe("Unit: Action Helpers & Prisma Error Utilities", () => {
     const takenSlugs = new Set(["tin-tuc", "tin-tuc-2"])
     const slug = await uniqueSlug("Tin Tức", async (candidate) => takenSlugs.has(candidate))
     expect(slug).toBe("tin-tuc-3")
+  })
+
+  test("uniqueCategorySlug and uniquePostSlug generate unique slugs", async () => {
+    const categorySlug = await uniqueCategorySlug("Danh Mục Mới 123")
+    expect(categorySlug).toBe("danh-muc-moi-123")
+
+    const postSlug = await uniquePostSlug("Bài Viết Mới 123")
+    expect(postSlug).toBe("bai-viet-moi-123")
+  })
+
+  test("logPostHistory creates PostHistory record", async () => {
+    await expect(
+      logPostHistory({
+        postId: "test-post-id-non-existent",
+        actorId: "test-actor-id",
+        actionType: "TEST_ACTION",
+        fromStatus: "DRAFT",
+        toStatus: "PENDING_REVIEW",
+      })
+    ).rejects.toThrow()
+  })
+
+  test("revalidatePostTagsOnly executes tag invalidations safely", () => {
+    expect(() => revalidatePostTagsOnly("bai-viet-test")).not.toThrow()
+    expect(() => revalidatePostTagsOnly()).not.toThrow()
+  })
+
+  test("revalidatePost executes cache invalidation options safely", async () => {
+    await expect(
+      revalidatePost("bai-viet-test", undefined, {
+        isVisibilityChange: true,
+        isTrendingChange: true,
+        isFeaturedChange: true,
+        isVideoChange: true,
+      })
+    ).resolves.toBeUndefined()
   })
 
   test("isPrismaSchemaMismatchError identifies P2021 and P2022 error codes", () => {
