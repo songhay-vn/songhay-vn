@@ -210,11 +210,6 @@ export const TOAST_MESSAGES: Record<string, { title: string; description: string
     description: "Bạn không có quyền hoặc media không còn tồn tại.",
     type: "error",
   },
-  password_mock_saved: {
-    title: "Mock đổi mật khẩu",
-    description: "Đã ghi nhận thao tác mock. Chưa có logic đổi mật khẩu thật.",
-    type: "success",
-  },
   account_created: {
     title: "Đã tạo tài khoản",
     description: "Tài khoản cấp dưới đã được tạo thành công.",

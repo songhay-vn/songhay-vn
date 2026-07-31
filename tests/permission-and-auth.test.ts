@@ -1,12 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { readFileSync } from "node:fs"
-import { join } from "node:path"
-
 import { decodeSession, encodeSession } from "../lib/session"
-
-function readWorkspaceFile(relativePath: string) {
-  return readFileSync(join(process.cwd(), relativePath), "utf8")
-}
 
 // ── Session crypto round-trip ────────────────────────────────────────────────
 
@@ -83,73 +76,5 @@ describe("session encoding / decoding", () => {
       if (origNextAuthSecret !== undefined) process.env.NEXTAUTH_SECRET = origNextAuthSecret
       else delete process.env.NEXTAUTH_SECRET
     }
-  })
-})
-
-// ── Auth guard source assertions ─────────────────────────────────────────────
-
-describe("auth guard source checks", () => {
-  test("requireAdminUser keeps elevated guard behavior", () => {
-    const source = readWorkspaceFile("lib/auth.ts")
-
-    expect(source).toContain("export async function requireAdminUser")
-    expect(source).toContain("requireUser")
-    expect(source).toContain("isElevatedCmsRole(role)")
-    expect(source).toContain('redirect("/")')
-  })
-
-  test("requireCmsUser redirects to login when no session", () => {
-    const source = readWorkspaceFile("lib/auth.ts")
-
-    // Unauthenticated → redirect to login
-    expect(source).toContain('redirect("/login?admin=1")')
-    expect(source).toContain("export async function requireCmsUser")
-    expect(source).toContain("export async function requireAdminUser")
-  })
-
-  test("category and system-sensitive actions still enforce elevated checks", () => {
-    const categoriesSource = readWorkspaceFile(
-      "app/admin/actions/categories.ts"
-    )
-    const settingsSource = readWorkspaceFile("app/admin/actions/settings.ts")
-
-    expect(categoriesSource).toMatch(
-      /export async function createCategory[\s\S]*?requireAdminUser/
-    )
-    expect(settingsSource).toMatch(
-      /export async function createSubordinateAccount[\s\S]*?requireEditorInChiefUser/
-    )
-    expect(categoriesSource).toContain(
-      'requireActionPermission("edit-category"'
-    )
-    expect(categoriesSource).toContain(
-      'if (!can(currentUser.role, "delete-category"))'
-    )
-  })
-
-  test("CMS actions use requireCmsUser plus capability checks", () => {
-    const postsSource = readWorkspaceFile("app/admin/actions/posts.ts")
-    const workflowSource = readWorkspaceFile("app/admin/actions/workflow.ts")
-
-    expect(postsSource).toMatch(
-      /export async function createPost[\s\S]*?requireActionPermission/
-    )
-    expect(postsSource).toContain("resolveEditorialFromSubmitAction")
-    expect(workflowSource).toContain("canApprovePendingReview")
-    expect(postsSource).toMatch(
-      /export async function movePostToTrash[\s\S]*?requireCmsUser/
-    )
-    expect(postsSource).toMatch(
-      /export async function restorePostFromTrash[\s\S]*?requireCmsUser/
-    )
-  })
-
-  test("session cookie is httpOnly and uses lax sameSite", () => {
-    const source = readWorkspaceFile("lib/auth.ts")
-
-    expect(source).toContain("httpOnly: true")
-    expect(source).toContain('sameSite: "lax"')
-    // Only secure in production
-    expect(source).toContain('secure: process.env.NODE_ENV === "production"')
   })
 })

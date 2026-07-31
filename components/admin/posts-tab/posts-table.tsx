@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { useState, useTransition } from "react"
 import { BookOpen, Clock, Trash } from "lucide-react"
 
@@ -8,7 +7,6 @@ import { PostThumbnail } from "@/components/admin/post-thumbnail"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import {
   Dialog,
@@ -682,21 +680,6 @@ export function PostsTable({
                 </div>
               </div>
 
-            {/* Hidden block to satisfy automated tests requirements */}
-            <div className="hidden" aria-hidden="true">
-              {/* Keep for tests: RadioGroup, loading="lazy", sizes="112px", Slot {position} */}
-              <RadioGroup value={selectedFeaturedPosition} onValueChange={setSelectedFeaturedPosition}>
-                {featuredSlotPreviews.map(({ position }) => (
-                  <RadioGroupItem
-                    key={position}
-                    id={`featured-slot-${position}`}
-                    value={String(position)}
-                  />
-                ))}
-              </RadioGroup>
-              <Image src="/test.png" alt="" width={112} height={112} loading="lazy" sizes="112px" />
-              <span>Slot {`{position}`}</span>
-            </div>
           </div>
 
           <DialogFooter>
