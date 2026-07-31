@@ -4,7 +4,8 @@ import { after } from "next/server"
 
 import { type EditorialStatus, type UserRole } from "@prisma/client"
 
-import { can, canPublishNow, canSubmitPendingPublish } from "@/lib/permissions"
+import { requireCmsUser } from "@/lib/auth"
+import { can, canPublishNow, canSubmitPendingPublish, type PermissionAction } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
 import { getSiteUrl } from "@/lib/seo"
@@ -13,6 +14,15 @@ export function ensurePermission(condition: boolean, redirectTo: string) {
   if (!condition) {
     redirect(redirectTo)
   }
+}
+
+export async function requireActionPermission(
+  action: PermissionAction,
+  redirectTo: string
+) {
+  const currentUser = await requireCmsUser()
+  ensurePermission(can(currentUser.role, action), redirectTo)
+  return currentUser
 }
 
 export function resolveEditorialFromSubmitAction({

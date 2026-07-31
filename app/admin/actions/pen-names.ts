@@ -3,25 +3,14 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { ensurePermission, revalidatePostTagsOnly } from "@/app/admin/actions-helpers"
-import { requireCmsUser } from "@/lib/auth"
+import { requireActionPermission, revalidatePostTagsOnly } from "@/app/admin/actions-helpers"
 import { deleteCloudinaryAsset, uploadPenNameAvatar } from "@/lib/cloudinary"
 import { clearDataCache } from "@/lib/data-cache"
 import { normalizePenName, toPenNameDisplayName } from "@/lib/pen-names"
-import { canEditPenNames } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 
 const PEN_NAME_TAB_PATH = "/admin?tab=settings-pen-names"
 const MAX_AVATAR_UPLOAD_BYTES = 25 * 1024 * 1024
-
-async function requirePenNameEditor() {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    canEditPenNames(currentUser.role),
-    `${PEN_NAME_TAB_PATH}&toast=pen_name_action_forbidden`
-  )
-  return currentUser
-}
 
 function getAvatarUpload(formData: FormData) {
   const file = formData.get("avatarUpload")
@@ -71,7 +60,7 @@ function revalidateLinkedPosts(
 }
 
 export async function createPenName(formData: FormData) {
-  await requirePenNameEditor()
+  await requireActionPermission("edit-pen-name", `${PEN_NAME_TAB_PATH}&toast=pen_name_action_forbidden`)
 
   const name = toPenNameDisplayName(String(formData.get("name") || ""))
   const normalizedName = normalizePenName(name)
@@ -106,7 +95,7 @@ export async function createPenName(formData: FormData) {
 }
 
 export async function updatePenName(formData: FormData) {
-  await requirePenNameEditor()
+  await requireActionPermission("edit-pen-name", `${PEN_NAME_TAB_PATH}&toast=pen_name_action_forbidden`)
 
   const penNameId = String(formData.get("penNameId") || "").trim()
   const name = toPenNameDisplayName(String(formData.get("name") || ""))
@@ -171,7 +160,7 @@ export async function updatePenName(formData: FormData) {
 }
 
 export async function removePenNameAvatar(formData: FormData) {
-  await requirePenNameEditor()
+  await requireActionPermission("edit-pen-name", `${PEN_NAME_TAB_PATH}&toast=pen_name_action_forbidden`)
 
   const penNameId = String(formData.get("penNameId") || "").trim()
   if (!penNameId) {
@@ -211,7 +200,7 @@ export async function removePenNameAvatar(formData: FormData) {
 }
 
 export async function deletePenName(formData: FormData) {
-  await requirePenNameEditor()
+  await requireActionPermission("edit-pen-name", `${PEN_NAME_TAB_PATH}&toast=pen_name_action_forbidden`)
 
   const penNameId = String(formData.get("penNameId") || "").trim()
   if (!penNameId) {

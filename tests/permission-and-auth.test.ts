@@ -94,7 +94,7 @@ describe("auth guard source checks", () => {
 
     expect(source).toContain("export async function requireAdminUser")
     expect(source).toContain("requireUser")
-    expect(source).toContain("canDeleteAnyMedia(role) || canCreateSubordinateAccount(role)")
+    expect(source).toContain("isElevatedCmsRole(role)")
     expect(source).toContain('redirect("/")')
   })
 
@@ -120,7 +120,7 @@ describe("auth guard source checks", () => {
       /export async function createSubordinateAccount[\s\S]*?requireEditorInChiefUser/
     )
     expect(categoriesSource).toContain(
-      'ensurePermission(can(currentUser.role, "edit-category")'
+      'requireActionPermission("edit-category"'
     )
     expect(categoriesSource).toContain(
       'if (!can(currentUser.role, "delete-category"))'
@@ -132,7 +132,7 @@ describe("auth guard source checks", () => {
     const workflowSource = readWorkspaceFile("app/admin/actions/workflow.ts")
 
     expect(postsSource).toMatch(
-      /export async function createPost[\s\S]*?requireCmsUser/
+      /export async function createPost[\s\S]*?requireActionPermission/
     )
     expect(postsSource).toContain("resolveEditorialFromSubmitAction")
     expect(workflowSource).toContain("canApprovePendingReview")

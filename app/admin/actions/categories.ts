@@ -9,6 +9,7 @@ import { can } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import {
   ensurePermission,
+  requireActionPermission,
   uniqueCategorySlug,
 } from "@/app/admin/actions-helpers"
 
@@ -41,8 +42,7 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "edit-category"), "/admin?tab=categories&toast=post_action_forbidden")
+  await requireActionPermission("edit-category", "/admin?tab=categories&toast=post_action_forbidden")
 
   const categoryId = String(formData.get("categoryId") || "")
   const name = String(formData.get("name") || "").trim()
@@ -81,8 +81,7 @@ export async function updateCategory(formData: FormData) {
 }
 
 export async function reorderCategory(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "edit-category"), "/admin?tab=categories&toast=post_action_forbidden")
+  await requireActionPermission("edit-category", "/admin?tab=categories&toast=post_action_forbidden")
 
   const categoryId = String(formData.get("categoryId") || "")
   const direction = String(formData.get("direction") || "")

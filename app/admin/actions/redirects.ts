@@ -3,11 +3,9 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { requireCmsUser } from "@/lib/auth"
-import { can } from "@/lib/permissions"
-import { prisma } from "@/lib/prisma"
 import { clearDataCache } from "@/lib/data-cache"
-import { ensurePermission, revalidatePost } from "@/app/admin/actions-helpers"
+import { prisma } from "@/lib/prisma"
+import { requireActionPermission, revalidatePost } from "@/app/admin/actions-helpers"
 import {
   enqueuePublishedPostInspection,
   scheduleSearchConsoleDrain,
@@ -125,11 +123,7 @@ async function syncMatchedPostStatus(
 }
 
 export async function createRedirect(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "create-category"),
-    "/admin?tab=redirects&toast=redirect_create_forbidden"
-  )
+  await requireActionPermission("create-category", "/admin?tab=redirects&toast=redirect_create_forbidden")
 
   const fromPath = normalizePath(String(formData.get("fromPath") || ""))
   const toPath = normalizePath(String(formData.get("toPath") || ""))
@@ -167,11 +161,7 @@ export async function createRedirect(formData: FormData) {
 }
 
 export async function deleteRedirect(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "create-category"),
-    "/admin?tab=redirects&toast=redirect_delete_forbidden"
-  )
+  await requireActionPermission("create-category", "/admin?tab=redirects&toast=redirect_delete_forbidden")
 
   const redirectId = String(formData.get("redirectId") || "").trim()
   const republish = formData.get("republish") === "true"
@@ -201,11 +191,7 @@ export async function deleteRedirect(formData: FormData) {
 }
 
 export async function toggleRedirect(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "create-category"),
-    "/admin?tab=redirects&toast=redirect_toggle_failed"
-  )
+  await requireActionPermission("create-category", "/admin?tab=redirects&toast=redirect_toggle_failed")
 
   const redirectId = String(formData.get("redirectId") || "").trim()
   const isActive = formData.get("isActive") === "true"

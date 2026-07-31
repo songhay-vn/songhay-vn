@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import {
   canCreateSubordinateAccount,
-  canDeleteAnyMedia,
+  isElevatedCmsRole,
   hydratePermissionsFromDb,
   ALL_EDITABLE_ROLES,
 } from "@/lib/permissions"
@@ -81,9 +81,7 @@ async function requireUser(check?: (role: UserRole) => boolean) {
 }
 
 export async function requireAdminUser() {
-  return requireUser(
-    (role) => canDeleteAnyMedia(role) || canCreateSubordinateAccount(role)
-  )
+  return requireUser((role) => isElevatedCmsRole(role))
 }
 
 export async function requireEditorInChiefUser() {

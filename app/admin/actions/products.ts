@@ -3,11 +3,9 @@
 import { revalidatePath, revalidateTag, updateTag } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { requireCmsUser } from "@/lib/auth"
-import { can } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
-import { ensurePermission } from "@/app/admin/actions-helpers"
+import { requireActionPermission } from "@/app/admin/actions-helpers"
 import {
   enqueueProductInspection,
   enqueueSitemapSubmit,
@@ -37,11 +35,7 @@ async function uniqueProductSlug(name: string, excludeId?: string): Promise<stri
 }
 
 export async function createProduct(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "manage-products"),
-    "/admin?tab=products&toast=post_action_forbidden"
-  )
+  await requireActionPermission("manage-products", "/admin?tab=products&toast=post_action_forbidden")
 
   const name = String(formData.get("name") || "").trim()
   const imageUrl = String(formData.get("imageUrl") || "").trim()
@@ -104,11 +98,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "manage-products"),
-    "/admin?tab=products&toast=post_action_forbidden"
-  )
+  await requireActionPermission("manage-products", "/admin?tab=products&toast=post_action_forbidden")
 
   const productId = String(formData.get("productId") || "").trim()
   const name = String(formData.get("name") || "").trim()
@@ -187,11 +177,7 @@ export async function updateProduct(formData: FormData) {
 }
 
 export async function deleteProduct(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "manage-products"),
-    "/admin?tab=products&toast=post_action_forbidden"
-  )
+  await requireActionPermission("manage-products", "/admin?tab=products&toast=post_action_forbidden")
 
   const productId = String(formData.get("productId") || "").trim()
   if (!productId) {
@@ -239,11 +225,7 @@ export async function deleteProduct(formData: FormData) {
 }
 
 export async function toggleProductIndex(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "manage-products"),
-    "/admin?tab=products&toast=post_action_forbidden"
-  )
+  await requireActionPermission("manage-products", "/admin?tab=products&toast=post_action_forbidden")
 
   const productId = String(formData.get("productId") || "").trim()
   if (!productId) {

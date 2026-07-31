@@ -20,9 +20,27 @@ import {
   revalidatePostTagsOnly,
 } from "@/app/admin/actions-helpers"
 
-export async function approvePendingPost(formData: FormData) {
+async function requireReviewApprover() {
   const currentUser = await requireCmsUser()
   if (!canApprovePendingReview(currentUser.role)) {
+    throw new Error("POST_ACTION_FORBIDDEN")
+  }
+  return currentUser
+}
+
+async function requirePublishManager() {
+  const currentUser = await requireCmsUser()
+  if (!canPublishNow(currentUser.role)) {
+    throw new Error("POST_ACTION_FORBIDDEN")
+  }
+  return currentUser
+}
+
+export async function approvePendingPost(formData: FormData) {
+  let currentUser
+  try {
+    currentUser = await requireReviewApprover()
+  } catch {
     return { toast: "post_action_forbidden" }
   }
   const shouldPublishNow = canPublishNow(currentUser.role)
@@ -98,8 +116,10 @@ export async function approvePendingPost(formData: FormData) {
 }
 
 export async function rejectPendingPost(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  if (!canApprovePendingReview(currentUser.role)) {
+  let currentUser
+  try {
+    currentUser = await requireReviewApprover()
+  } catch {
     return { toast: "post_action_forbidden" }
   }
 
@@ -257,8 +277,10 @@ export async function promotePostToPendingPublish(formData: FormData) {
 }
 
 export async function returnPostToPendingReview(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  if (!canApprovePendingReview(currentUser.role)) {
+  let currentUser
+  try {
+    currentUser = await requireReviewApprover()
+  } catch {
     return { toast: "post_action_forbidden" }
   }
 
@@ -300,8 +322,10 @@ export async function returnPostToPendingReview(formData: FormData) {
 }
 
 export async function returnPostToPendingPublish(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  if (!canPublishNow(currentUser.role)) {
+  let currentUser
+  try {
+    currentUser = await requirePublishManager()
+  } catch {
     return { toast: "post_action_forbidden" }
   }
 

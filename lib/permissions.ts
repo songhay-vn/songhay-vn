@@ -266,6 +266,10 @@ export function canCreateSubordinateAccount(role: UserRole) {
   return can(role, "create-subordinate-account")
 }
 
+export function isElevatedCmsRole(role: UserRole) {
+  return canDeleteAnyMedia(role) || canCreateSubordinateAccount(role)
+}
+
 export function roleCanCreate(role: UserRole, createdRole: UserRole) {
   if (!canCreateSubordinateAccount(role)) {
     return false

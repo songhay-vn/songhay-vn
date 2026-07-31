@@ -7,8 +7,6 @@ import { type UserRole } from "@prisma/client"
 import { requireCmsUser, requireEditorInChiefUser } from "@/lib/auth"
 import { clearDataCache } from "@/lib/data-cache"
 import {
-  can,
-  canCreateSubordinateAccount,
   roleCanCreate,
   ALL_EDITABLE_ROLES,
   ALL_PERMISSION_ACTIONS,
@@ -19,7 +17,7 @@ import { prisma } from "@/lib/prisma"
 import { hashPassword, verifyPassword } from "@/lib/password"
 import { normalizeModerationText } from "@/lib/moderation"
 import { normalizeKeyword, toKeywordLabel } from "@/lib/seo-keywords"
-import { ensurePermission } from "@/app/admin/actions-helpers"
+import { requireActionPermission } from "@/app/admin/actions-helpers"
 
 export async function updateOwnPassword(formData: FormData) {
   const currentUser = await requireCmsUser()
@@ -45,7 +43,6 @@ export async function updateOwnPassword(formData: FormData) {
 
 export async function resetUserPassword(formData: FormData) {
   const currentUser = await requireEditorInChiefUser()
-  ensurePermission(canCreateSubordinateAccount(currentUser.role), "/admin?tab=settings-password&toast=password_reset_forbidden")
 
   const userId = String(formData.get("userId") || "").trim()
   const newPassword = String(formData.get("newPassword") || "")
@@ -77,7 +74,6 @@ export async function resetUserPassword(formData: FormData) {
 
 export async function createSubordinateAccount(formData: FormData) {
   const currentUser = await requireEditorInChiefUser()
-  ensurePermission(canCreateSubordinateAccount(currentUser.role), "/admin?tab=settings-password&toast=account_create_failed")
 
   const email = String(formData.get("email") || "").trim().toLowerCase()
   const name = String(formData.get("name") || "").trim()
@@ -112,7 +108,6 @@ export async function createSubordinateAccount(formData: FormData) {
 
 export async function updateRolePermissions(formData: FormData) {
   const currentUser = await requireEditorInChiefUser()
-  ensurePermission(canCreateSubordinateAccount(currentUser.role), "/admin?tab=settings-permissions&toast=permissions_update_failed")
 
   const role = String(formData.get("role") || "").trim() as UserRole
   if (!ALL_EDITABLE_ROLES.includes(role)) {
@@ -138,7 +133,6 @@ export async function updateRolePermissions(formData: FormData) {
 
 export async function updateUserRole(formData: FormData) {
   const currentUser = await requireEditorInChiefUser()
-  ensurePermission(canCreateSubordinateAccount(currentUser.role), "/admin?tab=settings-users&toast=user_role_update_failed")
 
   const userId = String(formData.get("userId") || "").trim()
   const newRole = String(formData.get("newRole") || "").trim() as UserRole
@@ -168,7 +162,6 @@ export async function updateUserRole(formData: FormData) {
 
 export async function deleteUser(formData: FormData) {
   const currentUser = await requireEditorInChiefUser()
-  ensurePermission(canCreateSubordinateAccount(currentUser.role), "/admin?tab=settings-users&toast=user_delete_forbidden")
 
   const userId = String(formData.get("userId") || "").trim()
   if (!userId) {
@@ -195,8 +188,7 @@ export async function deleteUser(formData: FormData) {
 }
 
 export async function addForbiddenKeyword(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "moderate-comment"), "/admin?tab=settings-moderation&toast=forbidden_keyword_failed")
+  await requireActionPermission("moderate-comment", "/admin?tab=settings-moderation&toast=forbidden_keyword_failed")
 
   const term = String(formData.get("term") || "").trim()
   if (!term) {
@@ -225,8 +217,7 @@ export async function addForbiddenKeyword(formData: FormData) {
 }
 
 export async function deleteForbiddenKeyword(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "moderate-comment"), "/admin?tab=settings-moderation&toast=forbidden_keyword_failed")
+  await requireActionPermission("moderate-comment", "/admin?tab=settings-moderation&toast=forbidden_keyword_failed")
 
   const forbiddenKeywordId = String(formData.get("forbiddenKeywordId") || "").trim()
   if (!forbiddenKeywordId) {
@@ -241,8 +232,7 @@ export async function deleteForbiddenKeyword(formData: FormData) {
 }
 
 export async function addSeoKeyword(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "create-post"), "/admin?tab=settings-moderation&toast=seo_keyword_failed")
+  await requireActionPermission("create-post", "/admin?tab=settings-moderation&toast=seo_keyword_failed")
 
   const keywordInput = String(formData.get("keyword") || "")
   const keyword = toKeywordLabel(keywordInput)
@@ -268,8 +258,7 @@ export async function addSeoKeyword(formData: FormData) {
 }
 
 export async function deleteSeoKeyword(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "create-post"), "/admin?tab=settings-moderation&toast=seo_keyword_failed")
+  await requireActionPermission("create-post", "/admin?tab=settings-moderation&toast=seo_keyword_failed")
 
   const seoKeywordId = String(formData.get("seoKeywordId") || "").trim()
   if (!seoKeywordId) {

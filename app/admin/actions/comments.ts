@@ -3,15 +3,12 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { requireCmsUser } from "@/lib/auth"
 import { clearDataCache } from "@/lib/data-cache"
-import { can } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
-import { ensurePermission, revalidatePost } from "@/app/admin/actions-helpers"
+import { requireActionPermission, revalidatePost } from "@/app/admin/actions-helpers"
 
 export async function moderateComment(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(can(currentUser.role, "moderate-comment"), "/admin?tab=comments&toast=post_action_forbidden")
+  await requireActionPermission("moderate-comment", "/admin?tab=comments&toast=post_action_forbidden")
 
   const commentId = String(formData.get("commentId") || "")
   const action = String(formData.get("action") || "")

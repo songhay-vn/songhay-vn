@@ -33,16 +33,13 @@ import {
   logPostHistory,
   revalidatePost,
   revalidatePostTagsOnly,
+  requireActionPermission,
 } from "@/app/admin/actions-helpers"
 
 const FEATURED_SLOT_COUNT = 6
 
 export async function createPost(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "create-post"),
-    "/admin?tab=write&toast=post_action_forbidden"
-  )
+  const currentUser = await requireActionPermission("create-post", "/admin?tab=write&toast=post_action_forbidden")
 
   const title = String(formData.get("title") || "").trim()
   const penNameId = String(formData.get("penNameId") || "").trim()
@@ -783,11 +780,7 @@ export async function checkPostIndex(formData: FormData) {
 }
 
 export async function assignFeaturedSlot(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "pin-post"),
-    "/admin?tab=posts&toast=post_action_forbidden"
-  )
+  const currentUser = await requireActionPermission("pin-post", "/admin?tab=posts&toast=post_action_forbidden")
 
   const postId = String(formData.get("postId") || "")
   const featuredPosition = Number.parseInt(
@@ -888,11 +881,7 @@ export async function assignFeaturedSlot(formData: FormData) {
 }
 
 export async function clearFeaturedSlot(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  ensurePermission(
-    can(currentUser.role, "pin-post"),
-    "/admin?tab=posts&toast=post_action_forbidden"
-  )
+  const currentUser = await requireActionPermission("pin-post", "/admin?tab=posts&toast=post_action_forbidden")
 
   const postId = String(formData.get("postId") || "")
 
