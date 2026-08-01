@@ -7,7 +7,16 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-
+import {
+  Attachment,
+  AttachmentGroup,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@/components/ui/attachment"
 import { MediaAsset } from "./types"
 
 type UploadTabProps = {
@@ -134,27 +143,31 @@ export function UploadTab({
           </div>
 
           {files.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[30vh] overflow-y-auto p-1">
+            <AttachmentGroup className="w-full">
               {previews.map((p, i) => (
-                <div key={i} className="relative aspect-video overflow-hidden bg-zinc-100 border shadow-sm group">
-                  {p.file.type.startsWith("video/") ? (
-                    <video src={p.url} className="w-full h-full object-cover" />
-                  ) : (
-                    <Image src={p.url} alt={p.file.name} fill className="object-cover" />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeFile(i)}
-                    className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-[10px] text-white truncate font-medium">
-                    {p.file.name}
-                  </div>
-                </div>
+                <Attachment key={i} className="min-w-64 max-w-72 shrink-0">
+                  <AttachmentMedia variant="image">
+                    {p.file.type.startsWith("video/") ? (
+                      <video src={p.url} className="w-full h-full object-cover" />
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={p.url} alt={p.file.name} className="w-full h-full object-cover" />
+                    )}
+                  </AttachmentMedia>
+                  <AttachmentContent>
+                    <AttachmentTitle>{p.file.name}</AttachmentTitle>
+                    <AttachmentDescription>
+                      {(p.file.size / 1024 / 1024).toFixed(2)} MB
+                    </AttachmentDescription>
+                  </AttachmentContent>
+                  <AttachmentActions>
+                    <AttachmentAction aria-label={`Remove ${p.file.name}`} onClick={() => removeFile(i)}>
+                      <X />
+                    </AttachmentAction>
+                  </AttachmentActions>
+                </Attachment>
               ))}
-            </div>
+            </AttachmentGroup>
           )}
 
           {error && (

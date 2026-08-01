@@ -8,6 +8,11 @@ import { MediaPicker } from "@/components/admin/media-picker"
 import type { MediaAsset } from "@/components/admin/media-picker/types"
 import { ImageCropper } from "./image-cropper"
 import { Crop, Loader2 } from "lucide-react"
+import {
+  Attachment,
+  AttachmentMedia,
+  AttachmentActions,
+} from "@/components/ui/attachment"
 
 type ThumbnailPickerProps = {
   defaultValue?: string
@@ -73,21 +78,24 @@ export function ThumbnailPicker({
         </Button>
       </div>
       {thumbnailUrl && (
-        <div className="mt-2 text-center bg-zinc-50 border p-2 relative group">
-          <Image
-            src={thumbnailUrl}
-            alt="Thumbnail preview"
-            width={400}
-            height={225}
-            className="h-auto max-h-48 mx-auto object-contain"
-          />
-          <div className="mt-2 flex justify-center gap-2">
+        <Attachment orientation="vertical" className="mt-2 w-full max-w-xs mx-auto p-4 items-center bg-zinc-50">
+          <AttachmentMedia variant="image" className="w-full aspect-auto h-auto max-h-48 overflow-visible bg-transparent border-0">
+            <Image
+              src={thumbnailUrl}
+              alt="Thumbnail preview"
+              width={400}
+              height={225}
+              className="h-auto max-h-48 mx-auto object-contain"
+            />
+          </AttachmentMedia>
+          <AttachmentActions className="mt-4 static flex justify-center w-full">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setIsCropperOpen(true)}
               disabled={isUploading}
+              className="w-full"
             >
               {isUploading ? (
                 <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
@@ -96,8 +104,8 @@ export function ThumbnailPicker({
               )}
               Cắt ảnh (1200x700)
             </Button>
-          </div>
-        </div>
+          </AttachmentActions>
+        </Attachment>
       )}
 
       <MediaPicker

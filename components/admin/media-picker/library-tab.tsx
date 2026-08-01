@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useMemo, useState } from "react"
 import { MediaAsset } from "./types"
+import { Attachment, AttachmentMedia, AttachmentTrigger } from "@/components/ui/attachment"
 import { Search, Image as ImageIcon, Video as VideoIcon, User, ChevronLeft, ChevronRight, Filter, Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
@@ -135,42 +136,47 @@ export function LibraryTab({
             const isSelected = selectedAssetIds.includes(asset.id)
 
             return (
-              <button
+              <Attachment
                 key={asset.id}
-                type="button"
-                onClick={() => {
-                  if (selectionMode === "multiple") {
-                    onToggleSelect?.(asset)
-                    return
-                  }
-                  onSelect(asset)
-                }}
+                orientation="vertical"
                 className={cn(
-                  "group relative aspect-square overflow-hidden border border-input bg-muted/20 shadow-sm transition-colors hover:border-zinc-300",
+                  "group overflow-hidden border-input bg-muted/20 shadow-sm transition-colors hover:border-zinc-300 p-0 rounded-lg",
                   isSelected && "border-zinc-900 ring-2 ring-zinc-900/20"
                 )}
               >
-                {asset.assetType === "IMAGE" ? (
-                  <Image src={asset.url} alt={asset.displayName || asset.filename} width={200} height={200} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center p-2 text-center">
-                    <div className="mb-2 p-2 bg-muted text-muted-foreground transition-colors group-hover:bg-muted/80 group-hover:text-foreground">
-                      <VideoIcon className="h-6 w-6" />
+                <AttachmentTrigger
+                  onClick={() => {
+                    if (selectionMode === "multiple") {
+                      onToggleSelect?.(asset)
+                      return
+                    }
+                    onSelect(asset)
+                  }}
+                  aria-label={`Chọn ${asset.displayName || asset.filename}`}
+                />
+                <AttachmentMedia variant="image" className="w-full aspect-square relative rounded-none bg-transparent">
+                  {asset.assetType === "IMAGE" ? (
+                    <Image src={asset.url} alt={asset.displayName || asset.filename} width={200} height={200} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center p-2 text-center">
+                      <div className="mb-2 p-2 bg-muted text-muted-foreground transition-colors group-hover/attachment:bg-muted/80 group-hover/attachment:text-foreground">
+                        <VideoIcon className="h-6 w-6" />
+                      </div>
+                      <span className="line-clamp-2 text-[10px] font-bold text-muted-foreground group-hover/attachment:text-foreground">
+                        {asset.displayName || asset.filename}
+                      </span>
                     </div>
-                    <span className="line-clamp-2 text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-                      {asset.displayName || asset.filename}
-                    </span>
-                  </div>
-                )}
-                <div className="absolute top-2 left-2 rounded bg-black/50 px-1.5 py-0.5 text-[8px] font-bold text-white backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100">
+                  )}
+                </AttachmentMedia>
+                <div className="absolute top-2 left-2 z-20 rounded bg-black/50 px-1.5 py-0.5 text-[8px] font-bold text-white backdrop-blur-sm opacity-0 transition-opacity group-hover/attachment:opacity-100">
                   {asset.uploader?.name || "Ẩn danh"}
                 </div>
                 {selectionMode === "multiple" && isSelected ? (
-                  <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 text-white shadow-sm">
+                  <div className="absolute right-2 top-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 text-white shadow-sm">
                     <Check className="h-3.5 w-3.5" />
                   </div>
                 ) : null}
-              </button>
+              </Attachment>
             )
           })}
 

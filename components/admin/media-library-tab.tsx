@@ -14,6 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { ConfirmActionForm } from "@/components/admin/confirm-action-form"
+import {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentMedia,
+} from "@/components/ui/attachment"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -433,15 +440,13 @@ export function MediaLibraryTab({ isAdmin, rows }: MediaLibraryTabProps) {
 
           <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {items.map((asset) => (
-              <div
+              <Attachment
                 key={asset.id}
-                className="group relative flex aspect-4/3 overflow-hidden rounded-lg border shadow-sm"
+                orientation="vertical"
+                className="w-full cursor-pointer hover:border-blue-500 hover:ring-2 hover:ring-blue-500/20 transition-all p-0 overflow-hidden bg-muted/30"
+                onClick={() => setPreviewAsset(asset)}
               >
-                <button
-                  type="button"
-                  className="h-full w-full bg-muted/30"
-                  onClick={() => setPreviewAsset(asset)}
-                >
+                <AttachmentMedia variant="image" className="w-full aspect-4/3 relative rounded-none bg-transparent">
                   {asset.assetType === "IMAGE" ? (
                     <Image
                       src={asset.url}
@@ -458,18 +463,24 @@ export function MediaLibraryTab({ isAdmin, rows }: MediaLibraryTabProps) {
                       className="h-full w-full bg-black/80 object-contain"
                     />
                   )}
-                </button>
+                </AttachmentMedia>
 
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-lg opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
-                  onClick={() => setDeleteDialogId(asset.id)}
-                  disabled={deletingId === asset.id}
-                  aria-label={`Xóa ${asset.displayName || asset.filename}`}
-                >
-                  <Trash2 className="size-4 text-white" />
-                </button>
-              </div>
+                <AttachmentActions className="absolute right-3 top-3 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/attachment:opacity-100 sm:group-focus-within/attachment:opacity-100">
+                  <AttachmentAction
+                    variant="destructive"
+                    className="rounded-full shadow-lg"
+                    size="icon-xs"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setDeleteDialogId(asset.id)
+                    }}
+                    disabled={deletingId === asset.id}
+                    aria-label={`Xóa ${asset.displayName || asset.filename}`}
+                  >
+                    <Trash2 className="size-4" />
+                  </AttachmentAction>
+                </AttachmentActions>
+              </Attachment>
             ))}
           </div>
 
