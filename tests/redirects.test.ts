@@ -20,6 +20,7 @@ mock.module("next/navigation", () => ({
 }))
 
 mock.module("@/app/admin/actions-helpers", () => ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ensurePermission: (cond: boolean, path: string) => {
     if (!cond) throw new Error("forbidden")
   },
@@ -87,7 +88,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     try {
       await createRedirect(formData)
-    } catch (e) {
+    } catch {
       // ignore redirect call
     }
 
@@ -140,7 +141,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     try {
       await deleteRedirect(formData)
-    } catch (e) {
+    } catch {
       // ignore redirect call
     }
 
@@ -185,7 +186,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     try {
       await toggleRedirect(formData)
-    } catch (e) {
+    } catch {
       // ignore redirect call
     }
 
@@ -230,7 +231,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     try {
       await toggleRedirect(formData)
-    } catch (e) {
+    } catch {
       // ignore redirect call
     }
 
@@ -275,7 +276,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     try {
       await deleteRedirect(formData)
-    } catch (e) {
+    } catch {
       // ignore redirect call
     }
 
@@ -308,7 +309,7 @@ describe("createRedirect action with auto-unpublishing", () => {
 
     try {
       await toggleRedirect(formData)
-    } catch (e) {
+    } catch {
       // ignore redirect call
     }
 

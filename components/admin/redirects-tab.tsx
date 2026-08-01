@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/command"
 import { PendingSubmitButton } from "@/components/admin/pending-submit-button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ConfirmActionForm } from "@/components/admin/confirm-action-form"
+
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   AlertDialog,
@@ -117,11 +117,14 @@ function PostCombobox({
               {selected ? (
                 <>
                   {selected.thumbnailUrl ? (
-                    <img
-                      src={selected.thumbnailUrl}
-                      alt=""
-                      className="size-6 shrink-0 rounded object-cover bg-zinc-100 border border-zinc-200"
-                    />
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={selected.thumbnailUrl}
+                        alt=""
+                        className="size-6 shrink-0 rounded object-cover bg-zinc-100 border border-zinc-200"
+                      />
+                    </>
                   ) : (
                     <div className="size-6 shrink-0 rounded bg-zinc-100 border border-zinc-200" />
                   )}
@@ -153,11 +156,14 @@ function PostCombobox({
                     className="w-full flex items-start gap-2.5 py-2.5 px-3 cursor-pointer"
                   >
                     {post.thumbnailUrl ? (
-                      <img
-                        src={post.thumbnailUrl}
-                        alt=""
-                        className="size-9 shrink-0 rounded object-cover bg-zinc-100 border border-zinc-100"
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={post.thumbnailUrl}
+                          alt=""
+                          className="size-9 shrink-0 rounded object-cover bg-zinc-100 border border-zinc-100"
+                        />
+                      </>
                     ) : (
                       <div className="size-9 shrink-0 rounded bg-zinc-50 border border-zinc-200" />
                     )}

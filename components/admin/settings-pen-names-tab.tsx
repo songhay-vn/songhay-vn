@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { ImageOff, Plus, Save, Trash2, Upload } from "lucide-react"
+import { ImageOff, Plus, Save, Trash2 } from "lucide-react"
 
 import type { PenNameSettingsRow } from "@/app/admin/data-loaders/pen-names"
 import { ConfirmActionForm } from "@/components/admin/confirm-action-form"

@@ -107,7 +107,7 @@ export async function createSubordinateAccount(formData: FormData) {
 }
 
 export async function updateRolePermissions(formData: FormData) {
-  const currentUser = await requireEditorInChiefUser()
+  await requireEditorInChiefUser()
 
   const role = String(formData.get("role") || "").trim() as UserRole
   if (!ALL_EDITABLE_ROLES.includes(role)) {
