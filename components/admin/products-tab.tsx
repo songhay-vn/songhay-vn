@@ -249,7 +249,7 @@ export function ProductsTab({
             <DialogHeader>
               <DialogTitle>Thêm sản phẩm mới</DialogTitle>
               <DialogDescription>
-                Điền thông tin sản phẩm và bộ sưu tập ảnh (Product Gallery).
+                Điền thông tin sản phẩm và bộ sưu tập ảnh
               </DialogDescription>
             </DialogHeader>
 
@@ -301,7 +301,7 @@ export function ProductsTab({
               {/* Gallery Images */}
               <div className="space-y-1.5 border-t border-zinc-100 pt-3">
                 <Label className="text-sm font-semibold">
-                  Bộ sưu tập ảnh bổ sung (Product Gallery)
+                  Bộ sưu tập ảnh bổ sung
                 </Label>
                 <Input
                   type="file"
@@ -559,7 +559,7 @@ export function ProductsTab({
               {/* Gallery Images */}
               <div className="space-y-1.5 border-t border-zinc-100 pt-3">
                 <Label className="text-sm font-semibold">
-                  Bộ sưu tập ảnh bổ sung (Product Gallery)
+                  Bộ sưu tập ảnh bổ sung
                 </Label>
                 <Input
                   type="file"
