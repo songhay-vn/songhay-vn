@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 
 import type { NavIconName, NavLeaf } from "@/app/admin/page-helpers"
+import { useAdminSidebar } from "@/components/admin/admin-sidebar-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -66,6 +67,7 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const { isCollapsed } = useAdminSidebar()
 
   const activeTab = searchParams.get("tab") || "overview"
   const activePostsStatus = searchParams.get("postsStatus")
@@ -94,7 +96,9 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
         <Button
           asChild
           variant="ghost"
-          className={`h-10 w-full justify-start rounded-xl border px-3.5 ${
+          className={`h-10 w-full justify-start rounded-xl border transition-all overflow-hidden ${
+            isCollapsed ? "px-0 justify-center w-10 mx-auto" : "px-3.5"
+          } ${
             isActive
               ? "border-zinc-200 bg-zinc-100 text-zinc-900 hover:bg-zinc-100 hover:text-zinc-900"
               : "border-transparent text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
@@ -103,21 +107,21 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
           <Link
             href={href}
             onClick={handleClick}
-            className="flex w-full items-center gap-2"
+            className={`flex w-full items-center ${isCollapsed ? "justify-center" : "gap-2"}`}
           >
-            <span className="flex min-w-0 flex-1 items-center gap-2.5">
+            <span className={`flex min-w-0 flex-1 items-center ${isCollapsed ? "justify-center" : "gap-2.5"}`}>
               {isPending ? (
                 <Loader2
-                  className={`size-4 animate-spin ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
+                  className={`size-4 shrink-0 animate-spin ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
                 />
               ) : (
                 <TabIcon
-                  className={`size-4 ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
+                  className={`size-4 shrink-0 ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
                 />
               )}
-              <span className="truncate">{tab.label}</span>
+              {!isCollapsed && <span className="truncate">{tab.label}</span>}
             </span>
-            {typeof count === "number" ? (
+            {!isCollapsed && typeof count === "number" ? (
               <Badge
                 variant="secondary"
                 className={`ml-auto h-5 min-w-6 justify-center px-1.5 text-[11px] font-semibold tabular-nums ${
@@ -131,7 +135,16 @@ export function AdminNavButtonInner({ tab, count }: AdminNavButtonProps) {
         </Button>
       </TooltipTrigger>
       <TooltipContent side="right" className="max-w-72">
-        {tab.description}
+        {isCollapsed ? (
+          <div className="flex flex-col gap-1">
+            <span className="font-semibold">{tab.label}</span>
+            {typeof count === "number" && (
+              <span className="text-xs opacity-80">{count.toLocaleString("vi-VN")} mục</span>
+            )}
+          </div>
+        ) : (
+          tab.description
+        )}
       </TooltipContent>
     </Tooltip>
   )
