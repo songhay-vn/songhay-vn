@@ -5,7 +5,7 @@ export type AdminTab =
   | "write"
   | "media-library"
   | "personal-archive"
-  | "history"
+
   | "categories"
   | "comments"
   | "posts"
@@ -64,6 +64,6 @@ export type GetAdminPageDataInput = {
   postsFilters: PostsFilters
   personalArchiveFilters: PersonalArchiveFilters
   trashFilters: TrashFilters
-  historyPage: number
+
   currentUser: AdminCurrentUser
 }

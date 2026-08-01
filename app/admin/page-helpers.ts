@@ -79,13 +79,7 @@ export const CONTENT_MANAGEMENT_TABS: NavLeaf[] = [
     description: "Bài viết theo tài khoản đăng nhập",
     iconName: "userSquare2",
   },
-  {
-    key: "history",
-    tabKey: "history",
-    label: "Lịch sử tác động",
-    description: "Lưu vết hoạt động biên tập",
-    iconName: "timer",
-  },
+
 ]
 
 export const POSTS_SUBMENU_TABS: NavLeaf[] = [
@@ -250,7 +244,7 @@ type RawSearchParams = {
   trashFrom?: string
   trashTo?: string
   trashPage?: string
-  historyPage?: string
+
 }
 
 export function getVisibleTabs({
@@ -348,8 +342,7 @@ export function parseAdminSearchParams(resolvedSearchParams?: RawSearchParams) {
   const rawTrashPage = Number.parseInt(resolvedSearchParams?.trashPage || "1", 10)
   const requestedTrashPage = Number.isFinite(rawTrashPage) && rawTrashPage > 0 ? rawTrashPage : 1
 
-  const rawHistoryPage = Number.parseInt(resolvedSearchParams?.historyPage || "1", 10)
-  const requestedHistoryPage = Number.isFinite(rawHistoryPage) && rawHistoryPage > 0 ? rawHistoryPage : 1
+
 
   return {
     tabFromQuery,
@@ -380,6 +373,6 @@ export function parseAdminSearchParams(resolvedSearchParams?: RawSearchParams) {
       toDate: trashTo,
       requestedPage: requestedTrashPage,
     } as const,
-    historyPage: requestedHistoryPage,
+
   }
 }

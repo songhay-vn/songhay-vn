@@ -15,7 +15,7 @@ mock.module("next/server", () => ({
 import {
   ensurePermission,
   getPlainTextFromHtml,
-  logPostHistory,
+
   revalidatePost,
   revalidatePostTagsOnly,
   resolveEditorialFromSubmitAction,
@@ -77,17 +77,6 @@ describe("Unit: Action Helpers & Prisma Error Utilities", () => {
     expect(postSlug).toBe("bai-viet-moi-123")
   })
 
-  test("logPostHistory creates PostHistory record", async () => {
-    await expect(
-      logPostHistory({
-        postId: "test-post-id-non-existent",
-        actorId: "test-actor-id",
-        actionType: "TEST_ACTION",
-        fromStatus: "DRAFT",
-        toStatus: "PENDING_REVIEW",
-      })
-    ).rejects.toThrow()
-  })
 
   test("revalidatePostTagsOnly executes tag invalidations safely", () => {
     expect(() => revalidatePostTagsOnly("bai-viet-test")).not.toThrow()

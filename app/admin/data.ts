@@ -11,7 +11,7 @@ import {
   getPostsData,
   getTrashedPostsData,
   getUsersData,
-  getHistoryData,
+
   getRolePermissionsData,
   getPenNameOptions,
   getPenNamesSettingsData,
@@ -33,7 +33,7 @@ export async function getAdminPageData({
   postsFilters,
   personalArchiveFilters,
   trashFilters,
-  historyPage,
+
   currentUser,
 }: GetAdminPageDataInput) {
   const adminSnapshotPromise = getAdminSnapshot()
@@ -100,12 +100,7 @@ export async function getAdminPageData({
     seoKeywords: [],
   }
   let usersData: Awaited<ReturnType<typeof getUsersData>> = []
-  let historyLogs: Awaited<ReturnType<typeof getHistoryData>> = {
-    rows: [],
-    totalCount: 0,
-    totalPages: 1,
-    currentPage: 1,
-  }
+
   let permissionsMatrix: Awaited<ReturnType<typeof getRolePermissionsData>> = []
   let penNamesSettingsData: Awaited<
     ReturnType<typeof getPenNamesSettingsData>
@@ -152,9 +147,7 @@ export async function getAdminPageData({
           currentUser
         )
         break
-      case "history":
-        historyLogs = await getHistoryData(activeTab, historyPage)
-        break
+
       case "categories":
         categoriesForManage = await getCategoriesForManage(activeTab)
         break
@@ -238,10 +231,7 @@ export async function getAdminPageData({
     postsData.currentPage,
     postsData.totalPages
   )
-  const historyPaginationItems = buildPaginationItems(
-    historyLogs.currentPage,
-    historyLogs.totalPages
-  )
+
 
   return {
     postCount,
@@ -276,8 +266,7 @@ export async function getAdminPageData({
     bioAgeInsights,
     moderationSettings,
     usersData,
-    historyLogs,
-    historyPaginationItems,
+
     permissionsMatrix,
     penNamesSettingsData,
     redirectsData,

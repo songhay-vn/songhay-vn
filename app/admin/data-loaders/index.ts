@@ -18,7 +18,7 @@ export type { BioAgeInsights } from "@/app/admin/data-loaders/shared"
 
 export { getModerationSettingsData } from "@/app/admin/data-loaders/moderation"
 export { getUsersData } from "@/app/admin/data-loaders/users"
-export { getHistoryData } from "@/app/admin/data-loaders/history"
+
 export { getRolePermissionsData } from "@/app/admin/data-loaders/permissions"
 export {
   getPenNameOptions,

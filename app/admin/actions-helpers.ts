@@ -114,38 +114,7 @@ export async function uniquePostSlug(baseTitle: string, currentId?: string) {
   })
 }
 
-export async function logPostHistory({
-  postId,
-  actorId,
-  actionType,
-  fromStatus,
-  toStatus,
-  snapshotTitle,
-  snapshotExcerpt,
-  snapshotContent,
-}: {
-  postId: string
-  actorId: string
-  actionType: string
-  fromStatus?: EditorialStatus | null
-  toStatus?: EditorialStatus | null
-  snapshotTitle?: string | null
-  snapshotExcerpt?: string | null
-  snapshotContent?: string | null
-}) {
-  await prisma.postHistory.create({
-    data: {
-      postId,
-      actorId,
-      actionType,
-      fromStatus,
-      toStatus,
-      snapshotTitle,
-      snapshotExcerpt,
-      snapshotContent,
-    },
-  })
-}
+
 
 const ROUTE_WARM_TIMEOUT_MS = 10_000
 

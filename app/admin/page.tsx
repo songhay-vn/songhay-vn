@@ -44,7 +44,7 @@ import {
 } from "@/app/admin/page-helpers"
 import { CategoriesTab } from "@/components/admin/categories-tab"
 import { CommentsTab } from "@/components/admin/comments-tab"
-import { HistoryTab } from "@/components/admin/history-tab"
+
 import { MediaLibraryTab } from "@/components/admin/media-library-tab"
 import { OverviewTab } from "@/components/admin/overview-tab"
 import { PersonalArchiveTab } from "@/components/admin/personal-archive-tab"
@@ -149,7 +149,7 @@ async function AdminPageContent({
     postsFilters,
     personalArchiveFilters,
     trashFilters,
-    historyPage,
+
   } = parseAdminSearchParams(searchParams)
 
   const activeTab: AdminTab = visibleTabs.some(
@@ -182,8 +182,7 @@ async function AdminPageContent({
     bioAgeInsights,
     moderationSettings,
     usersData,
-    historyLogs,
-    historyPaginationItems,
+
     permissionsMatrix,
     penNamesSettingsData,
     redirectsData,
@@ -195,7 +194,7 @@ async function AdminPageContent({
     postsFilters,
     personalArchiveFilters,
     trashFilters,
-    historyPage,
+
     currentUser: {
       id: currentUser.id,
       role: currentUser.role,
@@ -364,12 +363,7 @@ async function AdminPageContent({
           filters={personalArchiveFilters}
         />
       ) : null}
-      {activeTab === "history" ? (
-        <HistoryTab
-          historyData={historyLogs}
-          paginationItems={historyPaginationItems}
-        />
-      ) : null}
+
       {activeTab === "comments" ? (
         <CommentsTab
           pendingComments={pendingComments}

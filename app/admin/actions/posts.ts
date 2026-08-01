@@ -30,7 +30,6 @@ import {
   getPlainTextFromHtml,
   resolveEditorialFromSubmitAction,
   uniquePostSlug,
-  logPostHistory,
   revalidatePost,
   revalidatePostTagsOnly,
   requireActionPermission,
@@ -197,16 +196,6 @@ export async function createPost(formData: FormData) {
 
   await syncPostSeoKeywords(post.id, keywordIds)
 
-  await logPostHistory({
-    postId: post.id,
-    actorId: currentUser.id,
-    actionType: "CREATED",
-    toStatus: post.editorialStatus,
-    snapshotTitle: post.title,
-    snapshotExcerpt: post.excerpt,
-    snapshotContent: post.content,
-  })
-
   // Only do heavy revalidation (ISR writes) if the post is actually going public
   if (isPublished) {
     await revalidatePost(post.slug, post.category?.slug, {
@@ -362,16 +351,6 @@ export async function createPostForPreview(
 
   await syncPostSeoKeywords(post.id, keywordIds)
 
-  await logPostHistory({
-    postId: post.id,
-    actorId: currentUser.id,
-    actionType: previewPostId && post ? "UPDATED" : "CREATED",
-    toStatus: post.editorialStatus,
-    snapshotTitle: post.title,
-    snapshotExcerpt: post.excerpt,
-    snapshotContent: post.content,
-  })
-
   // Preview creation: no revalidation needed as it's not public and doesn't affect lists
   return { postId: post.id }
 }
@@ -429,12 +408,6 @@ export async function updatePostFlags(formData: FormData) {
       seoDescription,
     },
     include: { category: true },
-  })
-
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "UPDATED",
   })
 
   await revalidatePost(updatedPost.slug, updatedPost.category?.slug, {
@@ -497,13 +470,6 @@ export async function movePostToTrash(formData: FormData) {
     },
   })
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "TRASHED",
-    fromStatus: existingPost.editorialStatus,
-  })
-
   // moveToTrash: post becomes non-public, so refresh public caches and sitemaps.
   await revalidatePost(existingPost.slug, existingPost.category?.slug, { isVisibilityChange: true })
   if (existingPost.isPublished && existingPost.category?.slug) {
@@ -546,13 +512,6 @@ export async function restorePostFromTrash(formData: FormData) {
       isDeleted: false,
       deletedAt: null,
     },
-  })
-
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "RESTORED",
-    toStatus: existingPost.editorialStatus,
   })
 
   // Restored from trash but still has its old editorialStatus (likely DRAFT)
@@ -685,58 +644,7 @@ export async function bulkTrashPosts(formData: FormData) {
   clearDataCache()
 }
 
-export async function restorePostVersion(formData: FormData) {
-  const currentUser = await requireCmsUser()
-  const logId = String(formData.get("logId") || "")
-  if (!logId) return { error: "missing_log_id" }
 
-  const historyLog = await prisma.postHistory.findUnique({
-    where: { id: logId },
-  })
-
-  if (!historyLog || !historyLog.snapshotContent) {
-    return { error: "log_or_content_not_found" }
-  }
-
-  const existingPost = await prisma.post.findUnique({
-    where: { id: historyLog.postId },
-    include: { category: { select: { slug: true } } },
-  })
-
-  if (!existingPost) {
-    return { error: "post_not_found" }
-  }
-
-  if (!canTrashOrDeletePost(currentUser.role, existingPost.authorId, currentUser.id, existingPost.editorialStatus)) {
-    return { error: "action_forbidden" }
-  }
-
-  await prisma.post.update({
-    where: { id: historyLog.postId },
-    data: {
-      title: historyLog.snapshotTitle || existingPost.title,
-      excerpt: historyLog.snapshotExcerpt || existingPost.excerpt,
-      content: historyLog.snapshotContent,
-    },
-  })
-
-  await logPostHistory({
-    postId: historyLog.postId,
-    actorId: currentUser.id,
-    actionType: "RESTORED",
-    toStatus: existingPost.editorialStatus,
-    snapshotTitle: historyLog.snapshotTitle,
-    snapshotExcerpt: historyLog.snapshotExcerpt,
-    snapshotContent: historyLog.snapshotContent,
-  })
-
-  await revalidatePost(existingPost.slug, existingPost.category?.slug, {
-    isVisibilityChange: existingPost.isPublished,
-  })
-  clearDataCache()
-
-  redirect("/admin?tab=history&toast=post_restored")
-}
 
 export async function checkPostIndex(formData: FormData) {
   const currentUser = await requireCmsUser()
@@ -849,22 +757,6 @@ export async function assignFeaturedSlot(formData: FormData) {
     }),
   ])
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "UPDATED",
-    snapshotTitle: `Assigned featured slot ${featuredPosition}`,
-  })
-
-  if (replacedPost) {
-    await logPostHistory({
-      postId: replacedPost.id,
-      actorId: currentUser.id,
-      actionType: "UPDATED",
-      snapshotTitle: `Removed featured slot ${featuredPosition} by replacement`,
-    })
-  }
-
   await Promise.all([
     revalidatePost(updated.slug, updated.category?.slug, {
       isFeaturedChange: true,
@@ -908,13 +800,6 @@ export async function clearFeaturedSlot(formData: FormData) {
       isFeatured: false,
       featuredPosition: null,
     },
-  })
-
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "UPDATED",
-    snapshotTitle: "Cleared featured slot",
   })
 
   await revalidatePost(existingPost.slug, existingPost.category?.slug, {

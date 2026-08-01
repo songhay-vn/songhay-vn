@@ -15,7 +15,6 @@ import {
   scheduleSearchConsoleDrain,
 } from "@/lib/search-console-queue"
 import {
-  logPostHistory,
   revalidatePost,
   revalidatePostTagsOnly,
 } from "@/app/admin/actions-helpers"
@@ -67,14 +66,6 @@ export async function approvePendingPost(formData: FormData) {
       approvedAt: new Date(),
       publishedAt: shouldPublishNow ? new Date() : undefined,
     },
-  })
-
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
   })
 
   if (existingPost.authorId && existingPost.authorId !== currentUser.id) {
@@ -146,14 +137,6 @@ export async function rejectPendingPost(formData: FormData) {
     },
   })
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
-  })
-
   if (existingPost.authorId && existingPost.authorId !== currentUser.id) {
     await prisma.notification.create({
       data: {
@@ -207,13 +190,7 @@ export async function submitPostToPendingReview(formData: FormData) {
     },
   })
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
-  })
+
 
   // PENDING_REVIEW: not public yet — tag-only
   revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
@@ -249,14 +226,6 @@ export async function promotePostToPendingPublish(formData: FormData) {
       approvedAt: new Date(),
       publishedAt: undefined,
     },
-  })
-
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
   })
 
   if (existingPost.authorId && existingPost.authorId !== currentUser.id) {
@@ -307,13 +276,7 @@ export async function returnPostToPendingReview(formData: FormData) {
     },
   })
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
-  })
+
 
   // Returned to PENDING_REVIEW: not public — tag-only
   revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
@@ -350,13 +313,7 @@ export async function returnPostToPendingPublish(formData: FormData) {
     },
   })
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
-  })
+
 
   // Returned to PENDING_PUBLISH: not public yet — tag-only
   revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)
@@ -398,13 +355,7 @@ export async function returnPostToDraft(formData: FormData) {
     },
   })
 
-  await logPostHistory({
-    postId,
-    actorId: currentUser.id,
-    actionType: "STATUS_CHANGED",
-    fromStatus: existingPost.editorialStatus,
-    toStatus: updatedPost.editorialStatus,
-  })
+
 
   // Returned to DRAFT: not public — tag-only
   revalidatePostTagsOnly(existingPost.slug, existingPost.category?.slug)

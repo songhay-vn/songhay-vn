@@ -38,7 +38,6 @@ import {
 import { normalizeKeyword, splitLegacySeoKeywords } from "@/lib/seo-keywords"
 import {
   getPlainTextFromHtml,
-  logPostHistory,
   resolveEditorialFromSubmitAction,
   revalidatePost,
   revalidatePostTagsOnly,
@@ -289,16 +288,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
     await syncPostSeoKeywords(postId, keywordIds)
 
-    await logPostHistory({
-      postId,
-      actorId: currentUser.id,
-      actionType: isSaveChanges ? "UPDATED" : "STATUS_CHANGED",
-      fromStatus: currentPost.editorialStatus,
-      toStatus: editorialStatus,
-      snapshotTitle: title,
-      snapshotExcerpt: excerpt,
-      snapshotContent: content,
-    })
+
 
     // Heavy revalidation (ISR writes) only if the post IS or IS BECOMING public
     if (isPublished || currentPost.isPublished) {

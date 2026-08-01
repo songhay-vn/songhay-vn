@@ -82,7 +82,6 @@ model User {
   approvedPosts   Post[]         @relation("PostApprover")
   lastEditedPosts Post[]         @relation("PostLastEditor")
   mediaAssets     MediaAsset[]
-  postHistories   PostHistory[]  @relation("UserPostHistory")
   notifications   Notification[]
 }
 
@@ -153,7 +152,6 @@ model Post {
   approver              User?                    @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
   lastEditor            User?                    @relation("PostLastEditor", fields: [lastEditorId], references: [id], onDelete: SetNull)
   comments              Comment[]
-  history               PostHistory[]
   seoKeywordLinks       PostSeoKeyword[]
   notifications         Notification[]
   searchConsoleStatuses SearchConsoleUrlStatus[]
@@ -310,25 +308,6 @@ model ForbiddenKeyword {
   updatedAt      DateTime @updatedAt
 
   @@index([term])
-}
-
-model PostHistory {
-  id              String           @id @default(cuid())
-  postId          String
-  actorId         String
-  actionType      String
-  fromStatus      EditorialStatus?
-  toStatus        EditorialStatus?
-  snapshotTitle   String?
-  snapshotExcerpt String?
-  snapshotContent String?
-  createdAt       DateTime         @default(now())
-
-  post  Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  actor User @relation("UserPostHistory", fields: [actorId], references: [id], onDelete: Restrict)
-
-  @@index([postId, createdAt])
-  @@index([actorId])
 }
 
 model Redirect {
