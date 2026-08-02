@@ -347,11 +347,13 @@ model Product {
   galleryUrls   String[] @default([])
   description   String?
   isIndexed     Boolean  @default(true)
+  showOnSidebar Boolean  @default(false)
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([isIndexed])
+  @@index([showOnSidebar, sortOrder])
   @@index([sortOrder, createdAt(sort: Desc)])
 }
 

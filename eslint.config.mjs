@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     ".github/get-shit-done/**",
     ".github/skills/**",
     ".agents/**",
+    ".claude/**",
+    ".gitnexus/**",
     "generated/**",
   ]),
 ]);

@@ -806,6 +806,7 @@ export async function getProductsForSidebar() {
   try {
     const [products, totalCount] = await Promise.all([
       prisma.product.findMany({
+        where: { showOnSidebar: true },
         select: {
           id: true,
           name: true,
@@ -815,7 +816,7 @@ export async function getProductsForSidebar() {
         orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
         take: 5,
       }),
-      prisma.product.count(),
+      prisma.product.count({ where: { showOnSidebar: true } }),
     ])
 
     return { products, totalCount }

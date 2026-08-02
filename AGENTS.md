@@ -13,7 +13,7 @@ This rule supersedes all other instructions. Failure to run `gitnexus` before ch
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **songhay-vn** (2259 symbols, 6948 relationships, 173 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **songhay-vn** (2236 symbols, 6841 relationships, 172 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -487,4 +487,3 @@ Caddy logs like `client disconnected`, `stream closed`, or scanner requests for 
   bunx --bun prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script | Out-File -Encoding utf8 "$dir\migration.sql"
   ```
   Then commit the generated `prisma/migrations/` file before pushing to `main`.
-

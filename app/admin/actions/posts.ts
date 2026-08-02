@@ -688,7 +688,7 @@ export async function checkPostIndex(formData: FormData) {
 }
 
 export async function assignFeaturedSlot(formData: FormData) {
-  const currentUser = await requireActionPermission("pin-post", "/admin?tab=posts&toast=post_action_forbidden")
+  await requireActionPermission("pin-post", "/admin?tab=posts&toast=post_action_forbidden")
 
   const postId = String(formData.get("postId") || "")
   const featuredPosition = Number.parseInt(
@@ -773,7 +773,7 @@ export async function assignFeaturedSlot(formData: FormData) {
 }
 
 export async function clearFeaturedSlot(formData: FormData) {
-  const currentUser = await requireActionPermission("pin-post", "/admin?tab=posts&toast=post_action_forbidden")
+  await requireActionPermission("pin-post", "/admin?tab=posts&toast=post_action_forbidden")
 
   const postId = String(formData.get("postId") || "")
 

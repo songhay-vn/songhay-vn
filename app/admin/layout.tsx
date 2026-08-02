@@ -8,15 +8,10 @@ import "ckeditor5/ckeditor5-content.css"
 import { getAdminSnapshot } from "@/app/admin/data-loaders/index"
 import {
   getVisibleTabs,
-  OVERVIEW_TAB,
-  POSTS_SUBMENU_TABS,
   type NavCountKey,
 } from "@/app/admin/page-helpers"
 import { AdminActionToast } from "@/components/admin/action-toast"
-import { AdminNavButton } from "@/components/admin/admin-nav-button"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { requireCmsUser, clearSessionCookie } from "@/lib/auth"
 import { can, canEditPenNames, ROLE_LABELS_VI } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"

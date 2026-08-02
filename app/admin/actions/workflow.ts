@@ -56,7 +56,7 @@ export async function approvePendingPost(formData: FormData) {
 
   if (!existingPost) return
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: shouldPublishNow ? "PUBLISHED" : "PENDING_PUBLISH",
@@ -126,7 +126,7 @@ export async function rejectPendingPost(formData: FormData) {
 
   if (!existingPost) return
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: "REJECTED",
@@ -178,7 +178,7 @@ export async function submitPostToPendingReview(formData: FormData) {
     return { toast: "post_action_forbidden" }
   }
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: "PENDING_REVIEW",
@@ -216,7 +216,7 @@ export async function promotePostToPendingPublish(formData: FormData) {
 
   if (!existingPost) return
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: "PENDING_PUBLISH",
@@ -246,9 +246,8 @@ export async function promotePostToPendingPublish(formData: FormData) {
 }
 
 export async function returnPostToPendingReview(formData: FormData) {
-  let currentUser
   try {
-    currentUser = await requireReviewApprover()
+    await requireReviewApprover()
   } catch {
     return { toast: "post_action_forbidden" }
   }
@@ -265,7 +264,7 @@ export async function returnPostToPendingReview(formData: FormData) {
 
   if (!existingPost) return
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: "PENDING_REVIEW",
@@ -285,9 +284,8 @@ export async function returnPostToPendingReview(formData: FormData) {
 }
 
 export async function returnPostToPendingPublish(formData: FormData) {
-  let currentUser
   try {
-    currentUser = await requirePublishManager()
+    await requirePublishManager()
   } catch {
     return { toast: "post_action_forbidden" }
   }
@@ -304,7 +302,7 @@ export async function returnPostToPendingPublish(formData: FormData) {
 
   if (!existingPost) return
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: "PENDING_PUBLISH",
@@ -343,7 +341,7 @@ export async function returnPostToDraft(formData: FormData) {
     return { toast: "post_action_forbidden" }
   }
 
-  const updatedPost = await prisma.post.update({
+  await prisma.post.update({
     where: { id: postId },
     data: {
       editorialStatus: "DRAFT",

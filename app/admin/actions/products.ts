@@ -262,3 +262,27 @@ export async function toggleProductIndex(formData: FormData) {
 
   redirect("/admin?tab=products&toast=product_updated")
 }
+
+export async function updateBulkSidebarSettings(formData: FormData) {
+  await requireActionPermission("manage-products", "/admin?tab=products&toast=post_action_forbidden")
+  
+  const productIds = formData.getAll("productIds") as string[]
+  if (!productIds.length) redirect("/admin?tab=products")
+
+  await prisma.$transaction(
+    productIds.map(id => {
+      const showOnSidebar = formData.get(`visibility_${id}`) === "true"
+      const sortOrderStr = formData.get(`order_${id}`) as string
+      const sortOrder = parseInt(sortOrderStr, 10) || 0
+      
+      return prisma.product.update({
+        where: { id },
+        data: { showOnSidebar, sortOrder }
+      })
+    })
+  )
+
+  updateTag("products")
+  revalidateTag("products", "max")
+  redirect("/admin?tab=products&toast=product_updated")
+}
