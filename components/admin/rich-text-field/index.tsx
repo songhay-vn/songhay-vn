@@ -184,6 +184,9 @@ export function RichTextField({
           color: #111827;
           resize: vertical;
           overflow-y: auto;
+          overflow-x: hidden;
+          word-break: break-word;
+          overflow-wrap: break-word;
         }
 
         .ck-content figure.image {

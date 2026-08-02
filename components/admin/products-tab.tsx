@@ -267,7 +267,7 @@ export function ProductsTab({
             </DialogTrigger>
           </div>
           <DialogContent
-            className="sm:max-w-[760px] max-h-[95vh] overflow-y-auto"
+            className="sm:max-w-[900px] max-h-[95vh] overflow-y-auto overflow-x-hidden"
             onInteractOutside={(e) => e.preventDefault()}
           >
             <DialogHeader>
@@ -531,7 +531,7 @@ export function ProductsTab({
           }}
         >
           <DialogContent
-            className="sm:max-w-[760px] max-h-[95vh] overflow-y-auto"
+            className="sm:max-w-[900px] max-h-[95vh] overflow-y-auto overflow-x-hidden"
             onInteractOutside={(e) => e.preventDefault()}
           >
             <DialogHeader>
