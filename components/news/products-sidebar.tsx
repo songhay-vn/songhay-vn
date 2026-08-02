@@ -26,16 +26,14 @@ export async function ProductsSidebar() {
           </div>
         ))}
       </div>
-      {totalCount > 5 && (
-        <div className="pt-2 text-center border-t border-zinc-100">
-          <Link
-            href="/san-pham"
-            className="inline-block text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline transition"
-          >
-            Xem thêm tất cả sản phẩm →
-          </Link>
-        </div>
-      )}
+      <div className="pt-2 text-center border-t border-zinc-100">
+        <Link
+          href="/san-pham"
+          className="inline-block text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline transition"
+        >
+          Xem thêm tất cả sản phẩm →
+        </Link>
+      </div>
     </section>
   )
 }

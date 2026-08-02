@@ -33,7 +33,7 @@ export async function SiteHeader({ defaultSearchQuery, navCategories: propNavCat
       </div>
 
       <nav className="hidden border-t border-red-800 bg-red-700 md:block">
-        <ul className="mx-auto flex w-full max-w-[1100px] flex-wrap items-center gap-x-6 gap-y-3 px-4 py-2.5 text-base font-bold text-white md:px-6">
+        <ul className="mx-auto flex w-full max-w-[1100px] items-center justify-between gap-x-2 gap-y-3 px-4 py-2.5 text-sm lg:text-[15px] font-bold text-white md:px-6">
           {navCategories.map((item) => (
             <li key={item.slug} className="group relative">
               <Link

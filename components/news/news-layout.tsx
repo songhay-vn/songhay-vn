@@ -23,6 +23,7 @@ type NewsLayoutProps = {
   showSidebar?: boolean
   showZalo?: boolean
   showDontMissSection?: boolean
+  showInstituteProducts?: boolean
   showBottomCategorySections?: boolean
   latestPosts?: PostListItem[]
 }
@@ -38,6 +39,7 @@ export function NewsLayout({
   showSidebar = true,
   showZalo = true,
   showDontMissSection = true,
+  showInstituteProducts = true,
   showBottomCategorySections = false,
   latestPosts,
 }: NewsLayoutProps) {
@@ -60,7 +62,7 @@ export function NewsLayout({
                   <SectionHeading title="Đừng bỏ lỡ!" />
                   <DontMissWidget />
                 </section>
-                <InstituteProductsSection />
+                {showInstituteProducts && <InstituteProductsSection />}
               </>
             ) : null}
             {showBottomCategorySections ? (

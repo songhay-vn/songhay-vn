@@ -74,6 +74,7 @@ export default async function HomePage() {
       <NewsLayout
         navCategories={navCategories}
         showBottomCategorySections
+        showInstituteProducts={false}
         mainBanner={
           <Image
             src="/site-header-hero.png"

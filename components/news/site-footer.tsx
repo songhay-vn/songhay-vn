@@ -54,7 +54,7 @@ export async function SiteFooter({
     <footer className="border-t border-zinc-200 bg-zinc-100">
       {navCategories && navCategories.length > 0 && (
         <nav className="border-b border-zinc-200 bg-red-700">
-          <ul className="mx-auto grid w-full max-w-[1100px] grid-cols-2 gap-x-3 gap-y-2 px-4 py-4 text-sm font-bold text-white sm:text-base md:flex md:flex-wrap md:items-center md:gap-6 md:px-6 md:py-3">
+          <ul className="mx-auto grid w-full max-w-[1100px] grid-cols-2 gap-x-3 gap-y-2 px-4 py-4 text-sm font-bold text-white sm:text-base md:flex md:items-center md:justify-between md:gap-x-2 md:px-6 md:py-3 md:text-sm lg:text-[15px]">
             {navCategories.map((item) => (
               <li key={`footer-nav-${item.slug}`}>
                 <Link

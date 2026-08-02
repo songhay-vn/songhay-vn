@@ -706,10 +706,20 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
     }
 
     const roots = allCats.filter((c) => !c.parentId)
-    return roots.map((root) => ({
+    const result = roots.map((root) => ({
       ...root,
       children: allCats.filter((c) => c.parentId === root.id),
     }))
+
+    result.push({
+      id: "san-pham",
+      name: "Sản phẩm khoa học",
+      slug: "san-pham",
+      parentId: null,
+      children: [],
+    })
+
+    return result
   } catch (error) {
     console.error(
       "Failed to fetch nav categories from DB, falling back to static:",
