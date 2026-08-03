@@ -169,29 +169,41 @@ export default async function AboutPage() {
 
         <section className="space-y-4 border-t border-zinc-200 pt-6">
           <h2 className="text-2xl font-black text-zinc-900">Liên hệ</h2>
-          <p>
-            Nếu bạn cần làm rõ nội dung hoặc phản hồi liên quan đến bài viết,
-            vui lòng gửi email tới{" "}
-            <a
-              href="mailto:lienhesonghay@gmail.com"
-              className="font-semibold text-rose-700 underline underline-offset-2 hover:text-rose-800"
-            >
-              lienhesonghay@gmail.com
-            </a>
-            .
+          <p className="mb-4">
+            Hãy đồng hành cùng Sống Hay để có thêm kiến thức để sống khỏe và đồng hành để kết nối với những sản phẩm khoa học uy tín.
           </p>
+          <div className="space-y-1.5 border border-zinc-200 bg-zinc-50 p-4 text-sm rounded-lg">
+            <p>
+              <span className="font-semibold">Hotline:</span>{" "}
+              <a href="tel:0967402295" className="text-rose-700 hover:underline">
+                0967.402.295
+              </a>
+            </p>
+            <p>
+              <span className="font-semibold">Website:</span>{" "}
+              <a href="https://songhay.vn/" className="text-rose-700 hover:underline">
+                https://songhay.vn/
+              </a>
+            </p>
+            <p>
+              <span className="font-semibold">Fanpage FB:</span>{" "}
+              <a href="https://www.facebook.com/profile.php?id=61575740829845" target="_blank" rel="noreferrer" className="text-rose-700 hover:underline break-all">
+                https://www.facebook.com/profile.php?id=61575740829845
+              </a>
+            </p>
+            <p>
+              <span className="font-semibold">Email:</span>{" "}
+              <a href="mailto:lienhesonghay@gmail.com" className="text-rose-700 hover:underline">
+                lienhesonghay@gmail.com
+              </a>
+            </p>
+            <p><span className="font-semibold">Địa chỉ:</span> Số 275, Tổ 11, xã Thư Lâm, Thành phố Hà Nội.</p>
+          </div>
           <p>
-            Chúng tôi luôn cố gắng chọn lọc và cung cấp thông tin từ các nguồn
-            đáng tin cậy, nhưng không tránh khỏi khả năng có thông tin chưa thật
-            sự chính xác. Nếu bạn phát hiện bất kỳ thông tin không chính xác nào
-            hoặc bạn có bất kỳ góp ý nào về thông tin mà chúng tôi cung cấp, rất
-            mong bạn liên hệ với chúng tôi để chúng tôi có thể sửa đổi và cập
-            nhật thông tin đó.
+            Chúng tôi luôn cố gắng chọn lọc và cung cấp thông tin từ các nguồn đáng tin cậy, nhưng không tránh khỏi khả năng có thông tin chưa thật sự chính xác. Nếu bạn phát hiện bất kỳ thông tin không chính xác nào hoặc bạn có bất kỳ góp ý nào về thông tin mà chúng tôi cung cấp, rất mong bạn liên hệ với chúng tôi để chúng tôi có thể sửa đổi và cập nhật thông tin đó.
           </p>
           <p className="font-semibold text-zinc-900">
-            Khi nói đến sức khỏe của bạn, sự chính xác, lòng tin và tính xác
-            thực là vô cùng quan trọng, và bạn xứng đáng được hưởng những điều
-            tốt đẹp nhất.
+            Khi nói đến sức khỏe của bạn, sự chính xác, lòng tin và tính xác thực là vô cùng quan trọng, và bạn xứng đáng được hưởng những điều tốt đẹp nhất.
           </p>
         </section>
 
