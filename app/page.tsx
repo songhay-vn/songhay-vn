@@ -86,6 +86,7 @@ export default async function HomePage() {
           />
         }
         latestPosts={latestRest}
+        latestPostsLimit={6}
       >
         <JsonLd data={homepageJsonLd} />
         <section className="flex flex-col gap-6">

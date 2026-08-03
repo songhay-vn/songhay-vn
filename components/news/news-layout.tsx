@@ -26,6 +26,7 @@ type NewsLayoutProps = {
   showInstituteProducts?: boolean
   showBottomCategorySections?: boolean
   latestPosts?: PostListItem[]
+  latestPostsLimit?: number
 }
 
 export function NewsLayout({
@@ -42,6 +43,7 @@ export function NewsLayout({
   showInstituteProducts = true,
   showBottomCategorySections = false,
   latestPosts,
+  latestPostsLimit,
 }: NewsLayoutProps) {
   return (
     <div className={`min-h-screen bg-zinc-50 text-zinc-900 ${className || ""}`}>
@@ -72,7 +74,7 @@ export function NewsLayout({
                     <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
                   }
                 >
-                  <LatestArticleSection posts={latestPosts} />
+                  <LatestArticleSection posts={latestPosts} limit={latestPostsLimit} />
                 </Suspense>
                 <Suspense
                   fallback={
