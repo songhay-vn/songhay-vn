@@ -160,6 +160,12 @@
   }
 
   .article-content.ck-content p,
+  .article-content.ck-content div,
+  .article-content.ck-content figure {
+    max-width: 100% !important;
+  }
+
+  .article-content.ck-content p,
   .article-content.ck-content div:not(.video-wrap) {
     margin: 1rem 0 !important;
   }
@@ -202,8 +208,12 @@
 
   .article-content.ck-content table {
     width: 100% !important;
+    max-width: 100% !important;
     border-collapse: collapse !important;
     margin: 1.25rem 0 !important;
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   .article-content.ck-content :is(th, td) {

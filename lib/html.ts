@@ -255,12 +255,13 @@ export function normalizeArticleHtml(rawHtml: string) {
           keptRules.push(`font-size:${value}`)
         }
 
-        if (
-          property === "font-family" &&
-          /^[a-zA-Z0-9\s,\-"']+$/i.test(value)
-        ) {
-          keptRules.push(`font-family:${value}`)
-        }
+        // We no longer keep font-family to ensure pasted content uses the global font (e.g. font-serif for articles)
+        // if (
+        //   property === "font-family" &&
+        //   /^[a-zA-Z0-9\s,\-"']+$/i.test(value)
+        // ) {
+        //   keptRules.push(`font-family:${value}`)
+        // }
 
         if (
           (property === "color" || property === "background-color") &&

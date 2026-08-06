@@ -87,7 +87,7 @@ export default async function ProductDetailPage({
     <NewsLayout navCategories={navCategories}>
       <article className="space-y-6 bg-white p-6 border border-zinc-200 font-serif">
         {/* Breadcrumb */}
-        <nav className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5 font-sans">
+        <nav className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5">
           <Link href="/" className="hover:text-rose-600 transition">
             Trang chủ
           </Link>
@@ -117,7 +117,7 @@ export default async function ProductDetailPage({
             href={ZALO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold transition font-sans"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
