@@ -269,7 +269,7 @@
   .article-content.ck-content img,
   .article-content.ck-content iframe,
   .article-content.ck-content video {
-    @apply h-auto max-w-full mx-auto;
+    @apply block h-auto max-w-full mx-auto;
   }
 
   .article-content.ck-content iframe {
