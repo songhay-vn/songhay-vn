@@ -135,7 +135,6 @@ export default async function ProductDetailPage({
         {/* Product Description */}
         {product.description && (
           <div className="space-y-3 border-t border-zinc-200 pt-6">
-            <h2 className="text-xl font-bold text-zinc-900">Mô tả sản phẩm</h2>
             <div
               className="article-content ck-content max-w-none text-black"
               dangerouslySetInnerHTML={{ __html: normalizeArticleHtml(product.description) }}
