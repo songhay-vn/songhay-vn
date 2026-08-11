@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import TurndownService from 'turndown';
 
 export async function GET(request: NextRequest) {
+  const path = request.headers.get('x-markdown-path') || '/';
   const port = process.env.PORT || 3000;
   // Fetch locally to avoid routing loops and DNS/Firewall issues inside the VPS/Docker container
   const targetUrl = new URL(path, `http://127.0.0.1:${port}`);
