@@ -1,6 +1,7 @@
+import { NextRequest } from 'next/server';
 import TurndownService from 'turndown';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { protocol, host } = new URL(request.url);
   const path = request.headers.get('x-markdown-path') || '/';
 
