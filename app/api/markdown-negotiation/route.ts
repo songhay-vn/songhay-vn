@@ -2,13 +2,21 @@ import { NextRequest } from 'next/server';
 import TurndownService from 'turndown';
 
 export async function GET(request: NextRequest) {
-  const { protocol, host } = new URL(request.url);
-  const path = request.headers.get('x-markdown-path') || '/';
+  const port = process.env.PORT || 3000;
+  // Fetch locally to avoid routing loops and DNS/Firewall issues inside the VPS/Docker container
+  const targetUrl = new URL(path, `http://127.0.0.1:${port}`);
 
-  // We construct the target URL using the incoming request's protocol and host.
-  const targetUrl = new URL(path, `${protocol}//${host}`);
+  const headers = new Headers();
+  // Only forward essential headers to avoid Next.js/Node fetch issues (like gzip decoding bugs)
+  const forwardHeaders = ['cookie', 'user-agent', 'x-forwarded-proto', 'x-forwarded-for'];
+  forwardHeaders.forEach((h) => {
+    if (request.headers.has(h)) headers.set(h, request.headers.get(h)!);
+  });
+  
+  if (request.headers.has('host')) {
+    headers.set('host', request.headers.get('host')!);
+  }
 
-  const headers = new Headers(request.headers);
   // Remove the text/markdown accept header to prevent infinite loops,
   // and request standard HTML instead.
   headers.set('accept', 'text/html,application/xhtml+xml,application/xml;q=0.9');
