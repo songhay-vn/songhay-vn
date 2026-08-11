@@ -46,6 +46,22 @@ export async function proxy(request: NextRequest) {
     return NR.next() as Response
   }
 
+  // Intercept requests expecting markdown
+  const accept = request.headers.get("accept") || ""
+  if (accept.includes("text/markdown")) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/api/markdown-negotiation"
+    
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set("x-markdown-path", request.nextUrl.pathname + request.nextUrl.search)
+    
+    return NR.rewrite(url, {
+      request: {
+        headers: requestHeaders,
+      },
+    }) as Response
+  }
+
   if (redirectCache && Date.now() < cacheExpiresAt) {
     const destination = redirectCache.get(pathname)
     if (destination) {

@@ -106,11 +106,11 @@ describe("normalizeArticleHtml – HTML nesting repair (hydration safety)", () =
     expect(output).toContain("prod.jpg")
   })
 
-  it("should preserve font-size, font-family, and color inline styles from editor", () => {
+  it("should preserve font-size and color inline styles from editor while stripping font-family", () => {
     const input = `<span style="font-size:18px;font-family:Arial;color:#cc0000">Custom Text</span>`
     const output = normalizeArticleHtml(input)
     expect(output).toContain("font-size:18px")
-    expect(output).toContain("font-family:arial")
+    expect(output).not.toContain("font-family")
     expect(output).toContain("color:#cc0000")
   })
 })

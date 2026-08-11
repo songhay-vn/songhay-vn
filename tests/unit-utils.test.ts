@@ -159,11 +159,11 @@ describe("Unit: HTML Normalization", () => {
     expect(output).toContain("max-width:500px")
   })
 
-  test("strips un-whitelisted copied presentation styles while keeping allowed font and color styles", () => {
+  test("strips un-whitelisted copied presentation styles while keeping allowed font-size and color styles", () => {
     const input =
       '<p style="font-family: Arial, sans-serif; background-color: #fff; background: yellow; color: rgb(0,0,0); font-size: 16px; text-align: center">Text</p>'
     const output = normalizeArticleHtml(input)
-    expect(output).toContain("font-family:arial, sans-serif")
+    expect(output).not.toContain("font-family")
     expect(output).toContain("background-color:#fff")
     expect(output).toContain("color:rgb(0,0,0)")
     expect(output).toContain("font-size:16px")
