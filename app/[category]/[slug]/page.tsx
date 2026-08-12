@@ -195,7 +195,7 @@ export default async function PostPage({ params }: PostPageProps) {
       commentFormMode="live"
       mainBanner={
         <Image
-          src="/site-header-hero.png"
+          src="/site-header-hero-v2.png"
           alt="Sống Hay Hero"
           width={1100}
           height={200}
