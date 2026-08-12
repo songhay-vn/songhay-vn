@@ -85,9 +85,9 @@ export default async function ProductDetailPage({
 
   return (
     <NewsLayout navCategories={navCategories}>
-      <article className="space-y-6 bg-white p-6 border border-zinc-200 font-serif">
+      <article className="space-y-6 bg-white p-4 sm:p-6 border border-zinc-200 font-serif overflow-hidden break-words">
         {/* Breadcrumb */}
-        <nav className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5">
+        <nav className="text-xs font-semibold text-zinc-500 flex flex-wrap items-center gap-1.5">
           <Link href="/" className="hover:text-rose-600 transition">
             Trang chủ
           </Link>
@@ -100,7 +100,7 @@ export default async function ProductDetailPage({
         </nav>
 
         {/* Product Title */}
-        <h1 className="text-4xl leading-tight font-black text-zinc-900">
+        <h1 className="text-3xl sm:text-4xl leading-tight font-black text-zinc-900 break-words">
           {product.name}
         </h1>
 

@@ -74,6 +74,7 @@ export default async function HomePage() {
       <NewsLayout
         navCategories={navCategories}
         showBottomCategorySections
+        showLatestPosts={false}
         showInstituteProducts={false}
         mainBanner={
           <Image
@@ -142,7 +143,7 @@ export default async function HomePage() {
                 showExcerpt={false}
                 aspectRatio="12/7"
                 commentCount={post._count.comments}
-                className="lg:flex-col"
+                className="md:flex-col lg:flex-col"
                 variant="horizontal"
                 prefetch={true}
               />

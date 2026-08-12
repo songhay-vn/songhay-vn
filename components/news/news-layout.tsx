@@ -25,6 +25,7 @@ type NewsLayoutProps = {
   showDontMissSection?: boolean
   showInstituteProducts?: boolean
   showBottomCategorySections?: boolean
+  showLatestPosts?: boolean
   latestPosts?: PostListItem[]
   latestPostsLimit?: number
 }
@@ -42,6 +43,7 @@ export function NewsLayout({
   showDontMissSection = true,
   showInstituteProducts = true,
   showBottomCategorySections = false,
+  showLatestPosts = true,
   latestPosts,
   latestPostsLimit,
 }: NewsLayoutProps) {
@@ -69,13 +71,15 @@ export function NewsLayout({
             ) : null}
             {showBottomCategorySections ? (
               <>
-                <Suspense
-                  fallback={
-                    <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
-                  }
-                >
-                  <LatestArticleSection posts={latestPosts} limit={latestPostsLimit} />
-                </Suspense>
+                {showLatestPosts && (
+                  <Suspense
+                    fallback={
+                      <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />
+                    }
+                  >
+                    <LatestArticleSection posts={latestPosts} limit={latestPostsLimit} />
+                  </Suspense>
+                )}
                 <Suspense
                   fallback={
                     <div className="h-60 animate-pulse rounded-lg bg-zinc-100" />

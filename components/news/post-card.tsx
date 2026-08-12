@@ -55,7 +55,8 @@ export function PostCard({
         className={cn(
           "flex h-full w-full", 
           isHorizontal ? "flex-row items-start gap-4 md:gap-6" : "flex-col",
-          // If the article is forced to flex-col on LG via className, the Link must follow
+          // If the article is forced to flex-col on MD or LG via className, the Link must follow
+          className?.includes("md:flex-col") && "md:flex-col md:gap-3",
           className?.includes("lg:flex-col") && "lg:flex-col lg:gap-3"
         )}
       >
@@ -63,10 +64,11 @@ export function PostCard({
         <div
           className={cn(
             "relative overflow-hidden bg-zinc-100 flex-shrink-0",
-            resolveAspectRatio(aspectRatio),
+            !isOverlay && resolveAspectRatio(aspectRatio),
             isOverlay && "absolute inset-0 h-full w-full",
             isHorizontal && "w-32 sm:w-48 lg:w-64",
-            // If the article is forced to flex-col on LG, the thumbnail should be full width
+            // If the article is forced to flex-col on MD/LG, the thumbnail should be full width
+            className?.includes("md:flex-col") && "md:w-full",
             className?.includes("lg:flex-col") && "lg:w-full"
           )}
         >
@@ -94,6 +96,7 @@ export function PostCard({
               ? "relative z-10 justify-end p-6 text-white"
               : isHorizontal ? "py-0 justify-start" : "py-3",
             // Responsive py-3 for vertical state
+            className?.includes("md:flex-col") && "md:py-3",
             className?.includes("lg:flex-col") && "lg:py-3"
           )}
         >
@@ -101,11 +104,13 @@ export function PostCard({
           
           {/* Metadata for layout other than horizontal (Category on top) */}
           {/* Show on top if vertical or overlay, hide if horizontal list */}
-          {(categoryName && !isOverlay && (!isHorizontal || className?.includes("lg:flex-col"))) && (
+          {(categoryName && !isOverlay && (!isHorizontal || className?.includes("lg:flex-col") || className?.includes("md:flex-col"))) && (
             <span className={cn(
               "mb-1 text-[10px] font-bold uppercase tracking-wider text-rose-600",
               isHorizontal && "lg:block",
-              !className?.includes("lg:flex-col") && isHorizontal && "hidden"
+              !className?.includes("lg:flex-col") && !className?.includes("md:flex-col") && isHorizontal && "hidden",
+              className?.includes("md:flex-col") && isHorizontal && "max-md:hidden md:block",
+              className?.includes("lg:flex-col") && !className?.includes("md:flex-col") && isHorizontal && "max-lg:hidden lg:block"
             )}>
               {categoryName}
             </span>
@@ -114,9 +119,10 @@ export function PostCard({
           <h3
             className={cn(
               "font-bold leading-tight tracking-tight group-hover:text-rose-600 transition-colors",
-              isOverlay ? "text-1xl md:text-1xl text-white group-hover:text-white lg:text-4xl" : 
-              isHorizontal ? "text-lg md:text-xl lg:text-1xl text-zinc-900" : "text-base md:text-lg text-zinc-900",
+              isOverlay ? "text-2xl md:text-3xl text-white group-hover:text-white lg:text-4xl" : 
+              isHorizontal ? "text-lg md:text-xl lg:text-2xl text-zinc-900" : "text-base md:text-lg text-zinc-900",
               // Responsive text size for vertical state
+              className?.includes("md:flex-col") && "md:text-lg",
               className?.includes("lg:flex-col") && "lg:text-lg"
             )}
           >
@@ -127,6 +133,7 @@ export function PostCard({
           {isHorizontal && (
             <div className={cn(
               "mt-2 flex items-center gap-2 text-xs font-semibold",
+              className?.includes("md:flex-col") && "md:hidden",
               className?.includes("lg:flex-col") && "lg:hidden"
             )}>
               <span className="text-primary font-bold">{categoryName}</span>
@@ -152,6 +159,7 @@ export function PostCard({
                 "mt-2 line-clamp-2 text-sm leading-relaxed",
                 isOverlay ? "text-zinc-200" : isHorizontal ? "text-black md:text-base lg:line-clamp-3" : "text-black",
                 // Hide excerpt on PC if forced to vertical and in a small space
+                className?.includes("md:flex-col") && "md:hidden",
                 className?.includes("lg:flex-col") && "lg:hidden"
               )}
             >
@@ -159,12 +167,14 @@ export function PostCard({
             </p>
           )}
 
-          {!compact && (date || hasComments) && (!isHorizontal || className?.includes("lg:flex-col")) && (
+          {!compact && (date || hasComments) && (!isHorizontal || className?.includes("lg:flex-col") || className?.includes("md:flex-col")) && (
             <div className={cn(
               "mt-3 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider",
               isOverlay ? "text-zinc-300" : "text-black",
               isHorizontal && "hidden lg:flex",
-              !className?.includes("lg:flex-col") && isHorizontal && "hidden"
+              !className?.includes("lg:flex-col") && !className?.includes("md:flex-col") && isHorizontal && "hidden",
+              className?.includes("md:flex-col") && isHorizontal && "max-md:hidden md:flex",
+              className?.includes("lg:flex-col") && !className?.includes("md:flex-col") && isHorizontal && "max-lg:hidden lg:flex"
             )}>
               {date && <span>{new Date(date).toLocaleDateString("vi-VN")}</span>}
               {hasComments ? (
