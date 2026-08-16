@@ -172,6 +172,28 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     const thumbnailUpload = formData.get("thumbnailUpload")
     const thumbnailUrlInput = String(formData.get("thumbnailUrl") || "").trim()
 
+    const currentPost = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { category: true },
+    })
+
+    if (!currentPost) {
+      return
+    }
+
+    if (new Date(currentPost.updatedAt).toISOString() !== lastUpdatedAt) {
+      redirect(`/admin/edit/${postId}?toast=post_concurrent_modification`)
+    }
+
+    const canSeeAllPostsAction = canViewAllPosts(currentUser.role)
+    if (!canSeeAllPostsAction && currentPost.authorId !== currentUser.id) {
+      redirect("/admin?tab=personal-archive&toast=post_action_forbidden")
+    }
+
+    if (!canEditByStatus(currentUser.role, currentPost.editorialStatus)) {
+      redirect("/admin?tab=personal-archive&toast=post_action_forbidden")
+    }
+
     const selectedPenName = penNameId
       ? await prisma.penName.findUnique({
           where: { id: penNameId },
@@ -184,7 +206,11 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
       redirect(`/admin/edit/${postId}?toast=missing_fields`)
     }
 
-    if (submitAction !== "save-draft" && (!excerpt || !plainContent || !categoryId)) {
+    const isDraftTarget =
+      submitAction === "save-draft" ||
+      (submitAction === "save-changes" && currentPost.editorialStatus === "DRAFT")
+
+    if (!isDraftTarget && (!excerpt || !plainContent || !categoryId)) {
       redirect(`/admin/edit/${postId}?toast=missing_fields`)
     }
 
@@ -210,28 +236,6 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     }
 
     const ogImage = thumbnailUrl || manualOgImage
-
-    const currentPost = await prisma.post.findUnique({
-      where: { id: postId },
-      include: { category: true },
-    })
-
-    if (!currentPost) {
-      return
-    }
-
-    if (new Date(currentPost.updatedAt).toISOString() !== lastUpdatedAt) {
-      redirect(`/admin/edit/${postId}?toast=post_concurrent_modification`)
-    }
-
-    const canSeeAllPostsAction = canViewAllPosts(currentUser.role)
-    if (!canSeeAllPostsAction && currentPost.authorId !== currentUser.id) {
-      redirect("/admin?tab=personal-archive&toast=post_action_forbidden")
-    }
-
-    if (!canEditByStatus(currentUser.role, currentPost.editorialStatus)) {
-      redirect("/admin?tab=personal-archive&toast=post_action_forbidden")
-    }
 
     const isSaveChanges = submitAction === "save-changes"
     let editorialStatus = currentPost.editorialStatus

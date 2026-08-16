@@ -103,6 +103,7 @@ export function RichTextField({
 
   return (
     <div className="space-y-4">
+      <input type="hidden" name={name} value={html} />
       <div className={cn("overflow-hidden rounded-md border border-zinc-200 bg-white", className)}>
         <div className="flex flex-row items-center justify-between px-3 py-1.5 border-b border-zinc-200 bg-zinc-50/50">
           <Tabs value={mode} onValueChange={(v) => setMode(v as EditorMode)} className="w-auto">
