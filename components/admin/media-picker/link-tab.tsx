@@ -55,14 +55,14 @@ export function LinkTab({ onSelect }: LinkTabProps) {
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="h-11 pl-10 rounded-xl"
+                  className="h-9 pl-9 rounded-md"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
               <p className="text-[10px] text-muted-foreground font-medium px-1">Chèn ảnh hoặc video từ các nguồn bên ngoài (Cloudinary, Imgur, v.v.)</p>
             </div>
             {url && (
-              <div className="relative w-full aspect-video overflow-hidden bg-black/5 flex items-center justify-center border shadow-inner mt-4">
+              <div className="relative w-full aspect-video overflow-hidden bg-zinc-50 flex items-center justify-center border border-zinc-200 rounded-md mt-3">
                 {assetType === "VIDEO" ? (
                   <video src={url} className="max-h-full max-w-full object-contain" controls />
                 ) : (
@@ -81,8 +81,8 @@ export function LinkTab({ onSelect }: LinkTabProps) {
               <Label
                 htmlFor="type-image"
                 className={cn(
-                  "flex flex-col items-center justify-center gap-3 rounded-xl border-2 p-6 cursor-pointer transition-all hover:bg-muted/50",
-                  assetType === "IMAGE" ? "border-primary bg-muted/30" : "border-muted"
+                  "flex flex-col items-center justify-center gap-2 rounded-md border p-4 cursor-pointer transition-colors hover:bg-muted/50",
+                  assetType === "IMAGE" ? "border-zinc-900 bg-zinc-50" : "border-zinc-200"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -96,8 +96,8 @@ export function LinkTab({ onSelect }: LinkTabProps) {
               <Label
                 htmlFor="type-video"
                 className={cn(
-                  "flex flex-col items-center justify-center gap-3 rounded-xl border-2 p-6 cursor-pointer transition-all hover:bg-muted/50",
-                  assetType === "VIDEO" ? "border-primary bg-muted/30" : "border-muted"
+                  "flex flex-col items-center justify-center gap-2 rounded-md border p-4 cursor-pointer transition-colors hover:bg-muted/50",
+                  assetType === "VIDEO" ? "border-zinc-900 bg-zinc-50" : "border-zinc-200"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -122,7 +122,7 @@ export function LinkTab({ onSelect }: LinkTabProps) {
         <Button
           type="button"
           onClick={handleInsert}
-          className="w-full h-12 rounded-xl font-bold shadow-md transition-all mt-4"
+          className="w-full h-10 rounded-md font-semibold text-sm mt-4"
         >
           <CheckCircle2 className="mr-2 h-4 w-4" />
           Xác nhận chèn vào nội dung

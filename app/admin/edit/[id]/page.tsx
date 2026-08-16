@@ -328,258 +328,273 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   }
 
   return (
-    <main className="container mx-auto p-4 md:p-8">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Chỉnh sửa bài viết</h1>
-          <p className="mt-1 text-muted-foreground">
-            Cập nhật nội dung bài viết hiện tại.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/admin?tab=posts">
-            <Button variant="outline">
-              <ArrowLeft className="size-4 mr-1.5" />
-              Quay lại Kho bài
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <form action={updatePost} className="space-y-6">
+    <main className="min-h-screen bg-zinc-100">
+      <form action={updatePost} className="space-y-4">
         <EditFormDirtyTracker postId={post.id} />
         <input type="hidden" name="postId" value={post.id} />
         <input type="hidden" name="lastUpdatedAt" value={new Date(post.updatedAt).toISOString()} />
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="postTitle">Tên bài viết</Label>
-            <Input
-              id="postTitle"
-              name="title"
-              defaultValue={post.title}
-              placeholder="Nhập tiêu đề"
-              required
-            />
+        {/* ── Sticky Top Action Bar ── */}
+        <div className="sticky top-0 z-20 px-4 md:px-6 xl:px-8 py-3 bg-white border-b border-zinc-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Link href="/admin?tab=posts">
+              <Button variant="outline" size="sm" className="h-8 text-xs font-medium gap-1.5">
+                <ArrowLeft className="size-3.5" />
+                Kho bài
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-bold text-zinc-950 truncate max-w-[280px] sm:max-w-md">
+                {post.title || "Chỉnh sửa bài viết"}
+              </h1>
+              <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold bg-zinc-100 text-zinc-700">
+                {post.editorialStatus}
+              </span>
+            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="postPenNameId">Bút danh</Label>
-            <PenNameSelect
-              options={penNameOptions}
-              defaultValue={post.penNameId}
-            />
-          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <PendingSubmitButton
+              type="submit"
+              name="submitAction"
+              value="save-changes"
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-medium"
+              pendingText="Đang lưu..."
+            >
+              <Save className="size-3.5 mr-1 text-zinc-600" />
+              {post.editorialStatus === "DRAFT" ? "Lưu nháp" : "Lưu thay đổi"}
+            </PendingSubmitButton>
 
-          <div className="space-y-1.5">            <Label htmlFor="postExcerpt">Trích dẫn</Label>
-            <Textarea
-              id="postExcerpt"
-              name="excerpt"
-              defaultValue={post.excerpt}
-              className="min-h-20"
-              placeholder="Mô tả ngắn bài viết"
-            />
+            <PreviewButton postId={post.id} />
+
+            {post.editorialStatus !== "DRAFT" && (post.editorialStatus !== "PUBLISHED" || canPublish) ? (
+              <ConfirmSubmitButton
+                type="submit"
+                name="submitAction"
+                value="save-draft"
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs font-medium text-amber-700 hover:bg-amber-50"
+                confirmMessage="Chuyển bài viết này về nháp? Bài sẽ không còn nằm trong hàng duyệt/xuất bản hiện tại."
+                confirmText="Chuyển về nháp"
+                pendingText="Đang chuyển về nháp..."
+              >
+                <Save className="size-3.5 mr-1" />
+                Chuyển về nháp
+              </ConfirmSubmitButton>
+            ) : null}
+
+            <PendingSubmitButton
+              type="submit"
+              name="submitAction"
+              value="submit-review"
+              variant="destructive"
+              size="sm"
+              className="h-8 text-xs font-semibold"
+              pendingText="Đang gửi duyệt..."
+            >
+              <Send className="size-3.5 mr-1" />
+              Gửi chờ duyệt
+            </PendingSubmitButton>
+
+            {canSubmitPendingPublish(currentUser.role) ? (
+              <PendingSubmitButton
+                type="submit"
+                name="submitAction"
+                value="submit-publish"
+                variant="secondary"
+                size="sm"
+                className="h-8 text-xs font-medium"
+                pendingText="Đang chuyển kho..."
+              >
+                <SendToBack className="size-3.5 mr-1" />
+                Gửi chờ xuất bản
+              </PendingSubmitButton>
+            ) : null}
+
+            {canPublish ? (
+              <PendingSubmitButton
+                type="submit"
+                name="submitAction"
+                value="publish"
+                size="sm"
+                className="h-8 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white"
+                pendingText="Đang xuất bản..."
+              >
+                <Globe className="size-3.5 mr-1" />
+                Xuất bản
+              </PendingSubmitButton>
+            ) : null}
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-          <div className="space-y-6">
-            <div className="space-y-1.5">
-              <Label>Nội dung</Label>
-              <RichTextField
-                name="content"
-                defaultValue={post.content}
-                mediaAssets={mediaAssets}
-                currentUserId={currentUser.id}
-              />
-            </div>
-
-            <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-              <legend className="px-1 text-sm font-semibold">Thao tác xuất bản</legend>
-              <div className="grid gap-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <PendingSubmitButton
-                    type="submit"
-                    name="submitAction"
-                    value="save-changes"
-                    variant="outline"
-                    size="lg"
-                    pendingText="Đang lưu..."
-                  >
-                    <Save className="size-4 mr-1.5" />
-                    {post.editorialStatus === "DRAFT" ? "Lưu nháp" : "Cập nhật thay đổi"}
-                  </PendingSubmitButton>
-                  <PreviewButton postId={post.id} />
-                </div>
-
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {post.editorialStatus !== "DRAFT" && (post.editorialStatus !== "PUBLISHED" || canPublish) ? (
-                    <ConfirmSubmitButton
-                      type="submit"
-                      name="submitAction"
-                      value="save-draft"
-                      variant="outline"
-                      size="lg"
-                      confirmMessage="Chuyển bài viết này về nháp? Bài sẽ không còn nằm trong hàng duyệt/xuất bản hiện tại."
-                      confirmText="Chuyển về nháp"
-                      pendingText="Đang chuyển về nháp..."
-                    >
-                      <Save className="size-4 mr-1.5" />
-                      Chuyển về nháp
-                    </ConfirmSubmitButton>
-                  ) : null}
-
-                  <PendingSubmitButton
-                    type="submit"
-                    name="submitAction"
-                    value="submit-review"
-                    className="w-full"
-                    variant="destructive"
-                    size="lg"
-                    pendingText="Đang gửi duyệt..."
-                  >
-                    <Send className="size-4 mr-1.5" />
-                    Gửi chờ duyệt
-                  </PendingSubmitButton>
-
-                  {canSubmitPendingPublish(currentUser.role) ? (
-                    <PendingSubmitButton
-                      type="submit"
-                      name="submitAction"
-                      value="submit-publish"
-                      className="w-full"
-                      variant="secondary"
-                      size="lg"
-                      pendingText="Đang chuyển kho..."
-                    >
-                      <SendToBack className="size-4 mr-1.5" />
-                      Gửi chờ xuất bản
-                    </PendingSubmitButton>
-                  ) : null}
-
-                  {canPublish ? (
-                    <PendingSubmitButton
-                      type="submit"
-                      name="submitAction"
-                      value="publish"
-                      className="w-full"
-                      size="lg"
-                      pendingText="Đang xuất bản..."
-                    >
-                      <Globe className="size-4 mr-1.5" />
-                      Xuất bản
-                    </PendingSubmitButton>
-                  ) : null}
-                </div>
-                {canPublish && (
-                  <div className="mt-4 border-t pt-4 space-y-1.5">
-                    <Label htmlFor="scheduledPublishAt">Hẹn giờ xuất bản</Label>
-                    <Input
-                      type="datetime-local"
-                      id="scheduledPublishAt"
-                      name="scheduledPublishAt"
-                      defaultValue={post.scheduledPublishAt ? new Date(post.scheduledPublishAt.getTime() - post.scheduledPublishAt.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
-                    />
-                  </div>
-                )}
-              </div>
-            </fieldset>
-          </div>
-
-          <div className="space-y-4">
-            <div className="sticky top-4 space-y-4">
-              <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-                <legend className="px-1 text-sm font-semibold">Phân loại & Cấu hình</legend>
-                <CategorySelector
-                  categories={categories}
-                  defaultCategoryId={post.categoryId}
-                />
-                <div className="flex items-center gap-2 pt-2">
-                  <Checkbox
-                    id="isSensitiveEdit"
-                    name="isSensitive"
-                    defaultChecked={post.isSensitive}
-                    value="on"
-                  />
-                  <Label htmlFor="isSensitiveEdit">Nội dung nhạy cảm</Label>
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t mt-2">
-                  <Checkbox
-                    id="isSponsoredEdit"
-                    name="isSponsored"
-                    defaultChecked={post.isSponsored}
-                    value="on"
-                  />
-                  <Label htmlFor="isSponsoredEdit">Nội dung được tài trợ (Quảng cáo)</Label>
-                </div>
-              </fieldset>
-
-              <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-                <legend className="px-1 text-sm font-semibold">Đa phương tiện</legend>
-                <div className="space-y-2">
-                  <Label htmlFor="thumbnailUrl">Ảnh đại diện</Label>
-                  <ThumbnailPicker
-                    defaultValue={post.thumbnailUrl || ""}
-                    mediaAssets={mediaAssets}
-                    currentUserId={currentUser.id}
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  OG image sẽ tự đồng bộ theo ảnh đại diện.
-                </p>
-
-                <div className="mt-3 border-t pt-3 space-y-1.5">
-                  <Label htmlFor="videoEmbed">Video embed URL</Label>
+        {/* ── Main Layout: Editor & Inspector Panel ── */}
+        <div className="p-4 md:p-6 xl:p-8">
+          <div className="grid gap-6 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px] items-start">
+            {/* Left Main Content: Single Unified Document Canvas */}
+            <div className="rounded-md border border-zinc-200 bg-white divide-y divide-zinc-200 overflow-hidden">
+              <div className="p-4 md:p-5 space-y-3.5 bg-white">
+                <div className="space-y-1.5">
+                  <Label htmlFor="postTitle" className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                    Tiêu đề bài viết <span className="text-red-500">*</span>
+                  </Label>
                   <Input
-                    id="videoEmbed"
-                    name="videoEmbedUrl"
-                    defaultValue={post.videoEmbedUrl || ""}
-                    placeholder="https://www.youtube.com/embed/..."
+                    id="postTitle"
+                    name="title"
+                    defaultValue={post.title}
+                    placeholder="Nhập tiêu đề..."
+                    required
+                    className="text-base font-semibold border-zinc-200"
                   />
                 </div>
-              </fieldset>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="postPenNameId" className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                    Bút danh <span className="text-red-500">*</span>
+                  </Label>
+                  <PenNameSelect
+                    options={penNameOptions}
+                    defaultValue={post.penNameId}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="postExcerpt" className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                    Trích dẫn tóm tắt (Sapo)
+                  </Label>
+                  <Textarea
+                    id="postExcerpt"
+                    name="excerpt"
+                    defaultValue={post.excerpt}
+                    className="min-h-20 text-sm border-zinc-200"
+                    placeholder="Mô tả ngắn bài viết..."
+                  />
+                </div>
+              </div>
 
               <div className="bg-white">
-                <SeoFields
-                  defaultSeoTitle={post.seoTitle || ""}
-                  defaultSeoDescription={post.seoDescription || ""}
-                  defaultCanonicalUrl={post.canonicalUrl || ""}
-                  initialTitle={post.title}
-                  initialExcerpt={post.excerpt}
-                  initialContent={post.content}
-                >
-                  <SeoKeywordPicker
-                    options={seoKeywordOptions}
-                    initialSelectedIds={[...selectedSeoKeywordIds]}
-                    initialCustomKeywords={initialCustomSeoKeywords}
-                  />
-                </SeoFields>
+                <RichTextField
+                  name="content"
+                  defaultValue={post.content}
+                  mediaAssets={mediaAssets}
+                  currentUserId={currentUser.id}
+                  className="border-0 rounded-none"
+                />
               </div>
+            </div>
 
-              {canPublish ? (
-                <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-                  <legend className="px-1 text-sm font-semibold">Lịch xuất bản</legend>
-                  <div className="space-y-2">
-                    <Label htmlFor="scheduledPublishAt">Hẹn giờ xuất bản</Label>
-                    <Input
-                      id="scheduledPublishAt"
-                      name="scheduledPublishAt"
-                      type="datetime-local"
-                      defaultValue={
-                        post.scheduledPublishAt
-                          ? new Date(post.scheduledPublishAt.getTime() - post.scheduledPublishAt.getTimezoneOffset() * 60000)
-                            .toISOString()
-                            .slice(0, 16)
-                          : ""
-                      }
+            {/* Right Sidebar Inspector */}
+            <div className="space-y-4">
+              <div className="sticky top-20 space-y-4">
+                <div className="rounded-md border border-zinc-200 bg-white divide-y divide-zinc-200">
+                  {/* Category Section */}
+                  <div className="p-4 space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                      Phân loại chuyên mục
+                    </h3>
+                    <CategorySelector
+                      categories={categories}
+                      defaultCategoryId={post.categoryId}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Bỏ trống nếu muốn xuất bản ngay khi bấm nút.
-                    </p>
-                  </div>
-                </fieldset>
-              ) : null}
 
+                    <div className="space-y-2 pt-2">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="isSensitiveEdit"
+                          name="isSensitive"
+                          defaultChecked={post.isSensitive}
+                          value="on"
+                        />
+                        <Label htmlFor="isSensitiveEdit" className="text-xs text-zinc-700">Nội dung nhạy cảm</Label>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="isSponsoredEdit"
+                          name="isSponsored"
+                          defaultChecked={post.isSponsored}
+                          value="on"
+                        />
+                        <Label htmlFor="isSponsoredEdit" className="text-xs text-zinc-700">Nội dung được tài trợ (Quảng cáo)</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media Section */}
+                  <div className="p-4 space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                      Đa phương tiện
+                    </h3>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="thumbnailUrl" className="text-xs text-zinc-600">Ảnh đại diện (Thumbnail / OG)</Label>
+                      <ThumbnailPicker
+                        defaultValue={post.thumbnailUrl || ""}
+                        mediaAssets={mediaAssets}
+                        currentUserId={currentUser.id}
+                      />
+                    </div>
+
+                    <div className="pt-1 space-y-1.5">
+                      <Label htmlFor="videoEmbed" className="text-xs text-zinc-600">Video embed URL</Label>
+                      <Input
+                        id="videoEmbed"
+                        name="videoEmbedUrl"
+                        defaultValue={post.videoEmbedUrl || ""}
+                        placeholder="https://www.youtube.com/embed/..."
+                        className="text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* SEO Section */}
+                  <div className="p-4 space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                      Cấu hình SEO
+                    </h3>
+                    <SeoFields
+                      defaultSeoTitle={post.seoTitle || ""}
+                      defaultSeoDescription={post.seoDescription || ""}
+                      defaultCanonicalUrl={post.canonicalUrl || ""}
+                      initialTitle={post.title}
+                      initialExcerpt={post.excerpt}
+                      initialContent={post.content}
+                    >
+                      <SeoKeywordPicker
+                        options={seoKeywordOptions}
+                        initialSelectedIds={[...selectedSeoKeywordIds]}
+                        initialCustomKeywords={initialCustomSeoKeywords}
+                      />
+                    </SeoFields>
+                  </div>
+
+                  {/* Scheduling Section */}
+                  {canPublish ? (
+                    <div className="p-4 space-y-2">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                        Lịch xuất bản
+                      </h3>
+                      <Input
+                        id="scheduledPublishAt"
+                        name="scheduledPublishAt"
+                        type="datetime-local"
+                        className="text-xs"
+                        defaultValue={
+                          post.scheduledPublishAt
+                            ? new Date(post.scheduledPublishAt.getTime() - post.scheduledPublishAt.getTimezoneOffset() * 60000)
+                              .toISOString()
+                              .slice(0, 16)
+                            : ""
+                        }
+                      />
+                      <p className="text-[11px] text-zinc-500">
+                        Bỏ trống để xuất bản ngay khi bấm nút.
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
         </div>

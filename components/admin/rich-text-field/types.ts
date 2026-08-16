@@ -18,6 +18,7 @@ export type RichTextFieldProps = {
   defaultValue?: string
   mediaAssets?: MediaAsset[]
   currentUserId?: string
+  className?: string
 }
 
 export type EditorMode = "classic" | "code"

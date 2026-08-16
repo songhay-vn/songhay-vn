@@ -188,10 +188,10 @@ export function PostsTable({
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-16 text-center">
-        <div className="rounded-full bg-zinc-100 p-4">
-          <BookOpen className="size-8 text-zinc-300" />
+        <div className="rounded-md bg-zinc-100 p-3">
+          <BookOpen className="size-8 text-zinc-400" />
         </div>
-        <p className="text-sm font-medium text-zinc-500">
+        <p className="text-sm font-medium text-zinc-600">
           Không tìm thấy bài viết phù hợp
         </p>
       </div>
@@ -201,11 +201,11 @@ export function PostsTable({
   return (
     <div className="space-y-4">
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-indigo-800 shadow-sm">
-          <span className="text-sm font-medium">Đã chọn {selectedIds.size} bài viết</span>
+        <div className="flex items-center justify-between rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900">
+          <span className="text-sm font-semibold">Đã chọn {selectedIds.size} bài viết</span>
           <div className="flex items-center gap-2">
             <Select
-              className="h-8 rounded-md border border-indigo-200 bg-white px-2 text-xs font-medium text-indigo-700 outline-none w-auto"
+              className="h-8 rounded-md border border-zinc-300 bg-white px-2 text-xs font-medium text-zinc-800 outline-none w-auto"
               onChange={(e) => {
                 if (e.target.value) handleBulkStatus(e.target.value)
                 e.target.value = ""
@@ -231,9 +231,9 @@ export function PostsTable({
           </div>
         </div>
       )}
-      <div className="max-h-[calc(100vh-14rem)] overflow-x-auto overflow-y-auto rounded-xl border border-zinc-200">
+      <div className="max-h-[calc(100vh-14rem)] overflow-x-auto overflow-y-auto rounded-md border border-zinc-200">
         <table className="w-full caption-bottom text-sm">
-          <TableHeader className="sticky top-0 z-20 bg-zinc-50 shadow-sm before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-zinc-200">
+          <TableHeader className="sticky top-0 z-20 bg-zinc-50 border-b border-zinc-200">
             <TableRow className="bg-transparent hover:bg-transparent">
               <TableHead className="w-12 px-4 py-2.5 text-center">
                 <Checkbox
@@ -312,7 +312,7 @@ export function PostsTable({
                         </span>
                         <span
                           className={cn(
-                            "inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] font-medium",
+                            "inline-flex shrink-0 items-center gap-1 rounded border px-1.5 py-0.5 text-[11px] font-medium",
                             cfg.badgeClass
                           )}
                         >
@@ -507,31 +507,31 @@ export function PostsTable({
                             setSelectedFeaturedPosition("1")
                           }}
                           className={cn(
-                            "group relative rounded-xl border-4 overflow-hidden text-left transition-all duration-200 cursor-pointer select-none h-[280px] [&_h3]:text-sm [&_h3]:lg:text-sm",
+                            "group relative rounded-md border-2 overflow-hidden text-left transition-colors cursor-pointer select-none h-[280px] [&_h3]:text-sm [&_h3]:lg:text-sm",
                             isSelected
-                              ? "border-rose-500 ring-4 ring-rose-500/20 shadow-lg scale-[1.01]"
-                              : "border-zinc-200 hover:border-zinc-300 hover:shadow-md"
+                              ? "border-rose-600"
+                              : "border-zinc-200 hover:border-zinc-400"
                           )}
                         >
                           {/* Floating Indicator/Badge */}
-                          <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/85 backdrop-blur-sm rounded-lg px-2 py-0.5 text-white shadow-md border border-white/10 pointer-events-none">
+                          <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-zinc-950 rounded px-2 py-0.5 text-white border border-zinc-800 pointer-events-none">
                             <span className="text-[10px] font-bold tracking-wide uppercase text-zinc-300">
                               Slot 1 (Tin lớn)
                             </span>
                             {source === "selected" ? (
-                              <Badge className="bg-rose-600 text-white font-semibold text-[9px] px-1 py-0 h-3.5 leading-none border-none">
+                              <Badge className="bg-rose-600 text-white font-semibold text-[9px] px-1.5 py-0 h-4 leading-none border-none">
                                 Sẽ ghim
                               </Badge>
                             ) : source === "assigned" ? (
-                              <Badge className="bg-slate-600 text-white font-semibold text-[9px] px-1 py-0 h-3.5 leading-none border-none">
+                              <Badge className="bg-zinc-700 text-white font-semibold text-[9px] px-1.5 py-0 h-4 leading-none border-none">
                                 Đang ghim
                               </Badge>
                             ) : source === "fallback" ? (
-                              <Badge variant="outline" className="bg-zinc-150/90 text-zinc-700 border-zinc-200 font-semibold text-[9px] px-1 py-0 h-3.5 leading-none">
+                              <Badge variant="outline" className="bg-zinc-800 text-zinc-300 border-zinc-700 font-semibold text-[9px] px-1.5 py-0 h-4 leading-none">
                                 Tự fill
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-zinc-200 text-zinc-400 border-zinc-200 font-semibold text-[9px] px-1 py-0 h-3.5 leading-none">
+                              <Badge variant="outline" className="bg-zinc-900 text-zinc-400 border-zinc-800 font-semibold text-[9px] px-1.5 py-0 h-4 leading-none">
                                 Trống
                               </Badge>
                             )}
@@ -570,31 +570,31 @@ export function PostsTable({
                             setSelectedFeaturedPosition(String(pos))
                           }}
                           className={cn(
-                            "group relative rounded-xl border-4 overflow-hidden text-left transition-all duration-200 cursor-pointer select-none bg-white h-[134px] [&_h3]:text-xs [&_h3]:lg:text-xs [&_a>div.flex-shrink-0]:!w-24 [&_a]:p-2.5 [&_a]:items-center [&_a]:h-full [&_a]:gap-3",
+                            "group relative rounded-md border-2 overflow-hidden text-left transition-colors cursor-pointer select-none bg-white h-[134px] [&_h3]:text-xs [&_h3]:lg:text-xs [&_a>div.flex-shrink-0]:!w-24 [&_a]:p-2.5 [&_a]:items-center [&_a]:h-full [&_a]:gap-3",
                             isSelected
-                              ? "border-rose-500 ring-4 ring-rose-500/20 shadow-lg scale-[1.01]"
-                              : "border-zinc-200 hover:border-zinc-300 hover:shadow-md"
+                              ? "border-rose-600"
+                              : "border-zinc-200 hover:border-zinc-400"
                           )}
                         >
                           {/* Floating Indicator/Badge */}
-                          <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/85 backdrop-blur-sm rounded-lg px-2 py-0.5 text-white shadow-md border border-white/10 pointer-events-none">
+                          <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-zinc-950 rounded px-2 py-0.5 text-white border border-zinc-800 pointer-events-none">
                             <span className="text-[10px] font-bold tracking-wide uppercase text-zinc-300">
                               Slot {pos}
                             </span>
                             {source === "selected" ? (
-                              <Badge className="bg-rose-600 text-white font-semibold text-[9px] px-1 py-0 h-3.5 leading-none border-none">
+                              <Badge className="bg-rose-600 text-white font-semibold text-[9px] px-1.5 py-0 h-4 leading-none border-none">
                                 Sẽ ghim
                               </Badge>
                             ) : source === "assigned" ? (
-                              <Badge className="bg-slate-600 text-white font-semibold text-[9px] px-1 py-0 h-3.5 leading-none border-none">
+                              <Badge className="bg-zinc-700 text-white font-semibold text-[9px] px-1.5 py-0 h-4 leading-none border-none">
                                 Đang ghim
                               </Badge>
                             ) : source === "fallback" ? (
-                              <Badge variant="outline" className="bg-zinc-150/90 text-zinc-700 border-zinc-200 font-semibold text-[9px] px-1 py-0 h-3.5 leading-none">
+                              <Badge variant="outline" className="bg-zinc-800 text-zinc-300 border-zinc-700 font-semibold text-[9px] px-1.5 py-0 h-4 leading-none">
                                 Tự fill
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-zinc-200 text-zinc-400 border-zinc-200 font-semibold text-[9px] px-1 py-0 h-3.5 leading-none">
+                              <Badge variant="outline" className="bg-zinc-900 text-zinc-400 border-zinc-800 font-semibold text-[9px] px-1.5 py-0 h-4 leading-none">
                                 Trống
                               </Badge>
                             )}
@@ -633,31 +633,31 @@ export function PostsTable({
                           setSelectedFeaturedPosition(String(pos))
                         }}
                         className={cn(
-                          "group relative rounded-xl border-4 overflow-hidden text-left transition-all duration-200 cursor-pointer select-none bg-white h-[134px] [&_h3]:text-xs [&_h3]:lg:text-xs [&_a>div.flex-shrink-0]:!w-24 [&_a]:p-2.5 [&_a]:items-center [&_a]:h-full [&_a]:gap-3",
+                          "group relative rounded-md border-2 overflow-hidden text-left transition-colors cursor-pointer select-none bg-white h-[134px] [&_h3]:text-xs [&_h3]:lg:text-xs [&_a>div.flex-shrink-0]:!w-24 [&_a]:p-2.5 [&_a]:items-center [&_a]:h-full [&_a]:gap-3",
                           isSelected
-                            ? "border-rose-500 ring-4 ring-rose-500/20 shadow-lg scale-[1.01]"
-                            : "border-zinc-200 hover:border-zinc-300 hover:shadow-md"
+                            ? "border-rose-600"
+                            : "border-zinc-200 hover:border-zinc-400"
                         )}
                       >
                         {/* Floating Indicator/Badge */}
-                        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/85 backdrop-blur-sm rounded-lg px-2 py-0.5 text-white shadow-md border border-white/10 pointer-events-none">
+                        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-zinc-950 rounded px-2 py-0.5 text-white border border-zinc-800 pointer-events-none">
                           <span className="text-[10px] font-bold tracking-wide uppercase text-zinc-300">
                             Slot {pos}
                           </span>
                           {source === "selected" ? (
-                            <Badge className="bg-rose-600 text-white font-semibold text-[9px] px-1 py-0 h-3.5 leading-none border-none">
+                            <Badge className="bg-rose-600 text-white font-semibold text-[9px] px-1.5 py-0 h-4 leading-none border-none">
                               Sẽ ghim
                             </Badge>
                           ) : source === "assigned" ? (
-                            <Badge className="bg-slate-600 text-white font-semibold text-[9px] px-1 py-0 h-3.5 leading-none border-none">
+                            <Badge className="bg-zinc-700 text-white font-semibold text-[9px] px-1.5 py-0 h-4 leading-none border-none">
                               Đang ghim
                             </Badge>
                           ) : source === "fallback" ? (
-                            <Badge variant="outline" className="bg-zinc-150/90 text-zinc-700 border-zinc-200 font-semibold text-[9px] px-1 py-0 h-3.5 leading-none">
+                            <Badge variant="outline" className="bg-zinc-800 text-zinc-300 border-zinc-700 font-semibold text-[9px] px-1.5 py-0 h-4 leading-none">
                               Tự fill
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="bg-zinc-200 text-zinc-400 border-zinc-200 font-semibold text-[9px] px-1 py-0 h-3.5 leading-none">
+                            <Badge variant="outline" className="bg-zinc-900 text-zinc-400 border-zinc-800 font-semibold text-[9px] px-1.5 py-0 h-4 leading-none">
                               Trống
                             </Badge>
                           )}

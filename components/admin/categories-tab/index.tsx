@@ -107,16 +107,16 @@ export function CategoriesTab({
           </form>
         </section>
 
-        <div className="grid grid-cols-2 gap-3 rounded-xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
-          <div className="rounded-lg bg-white p-3 text-center shadow-sm ring-1 ring-zinc-200">
-            <p className="text-2xl font-bold text-zinc-800">
+        <div className="grid grid-cols-2 gap-3 rounded-md border border-zinc-200 bg-white p-3">
+          <div className="rounded border border-zinc-100 bg-zinc-50/60 p-2.5 text-center">
+            <p className="text-2xl font-bold text-zinc-900">
               {rootCategories.length}
             </p>
-            <p className="text-xs text-zinc-500">Danh mục gốc</p>
+            <p className="text-xs text-zinc-600">Danh mục gốc</p>
           </div>
-          <div className="rounded-lg bg-white p-3 text-center shadow-sm ring-1 ring-zinc-200">
-            <p className="text-2xl font-bold text-zinc-800">{childCount}</p>
-            <p className="text-xs text-zinc-500">Danh mục con</p>
+          <div className="rounded border border-zinc-100 bg-zinc-50/60 p-2.5 text-center">
+            <p className="text-2xl font-bold text-zinc-900">{childCount}</p>
+            <p className="text-xs text-zinc-600">Danh mục con</p>
           </div>
         </div>
       </div>
@@ -125,14 +125,13 @@ export function CategoriesTab({
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-zinc-100 p-1.5 text-zinc-600">
+            <div className="rounded-md bg-zinc-100 p-1.5 text-zinc-700">
               <FolderOpen className="size-4" />
             </div>
             <div>
-              <h2 className="text-base font-semibold">Tất cả chuyên mục</h2>
-              <p className="text-xs text-muted-foreground">
-                {categoriesForManage.length} chuyên mục · Hover để sắp xếp · ✏️
-                để sửa
+              <h2 className="text-base font-semibold text-zinc-950">Tất cả chuyên mục</h2>
+              <p className="text-xs text-zinc-600">
+                {categoriesForManage.length} chuyên mục · Kéo hoặc chọn mũi tên để sắp xếp
               </p>
             </div>
           </div>
@@ -144,7 +143,7 @@ export function CategoriesTab({
         <div className="space-y-3">
           {categoriesForManage.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-12 text-center">
-              <div className="rounded-full bg-zinc-100 p-4">
+              <div className="rounded-md bg-zinc-100 p-3">
                 <Folder className="size-8 text-zinc-400" />
               </div>
               <p className="text-sm font-medium text-zinc-600">

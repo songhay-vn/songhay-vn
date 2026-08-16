@@ -350,7 +350,7 @@ export function MediaLibraryTab({ isAdmin, rows }: MediaLibraryTabProps) {
 
         <TabsContent
           value="upload"
-          className="m-0 overflow-hidden rounded-2xl border bg-zinc-50/50 shadow-sm"
+          className="m-0 overflow-hidden rounded-md border border-zinc-200 bg-white"
         >
           <UploadTab
             hideSaveToLibrary
@@ -366,7 +366,7 @@ export function MediaLibraryTab({ isAdmin, rows }: MediaLibraryTabProps) {
         <TabsContent value="library" className="m-0 space-y-4">
           <form
             onSubmit={handleSearchSubmit}
-            className="grid gap-2 rounded-lg border p-3 md:grid-cols-[180px_1fr_auto] md:items-end lg:grid-cols-[180px_260px_1fr_auto]"
+            className="grid gap-2 rounded-md border border-zinc-200 bg-white p-3 md:grid-cols-[180px_1fr_auto] md:items-end lg:grid-cols-[180px_260px_1fr_auto]"
           >
             <div className="space-y-1.5">
               <Label htmlFor="mediaFilterType">Lọc loại media</Label>
@@ -438,49 +438,54 @@ export function MediaLibraryTab({ isAdmin, rows }: MediaLibraryTabProps) {
             </p>
           ) : null}
 
-          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-3">
             {items.map((asset) => (
-              <Attachment
+              <div
                 key={asset.id}
-                orientation="vertical"
-                className="w-full cursor-pointer hover:border-blue-500 hover:ring-2 hover:ring-blue-500/20 transition-all p-0 overflow-hidden bg-muted/30"
+                className="group relative mb-3 block break-inside-avoid overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 text-left transition-colors hover:border-zinc-400 cursor-pointer"
                 onClick={() => setPreviewAsset(asset)}
               >
-                <AttachmentMedia variant="image" className="w-full aspect-4/3 relative rounded-none bg-transparent">
-                  {asset.assetType === "IMAGE" ? (
-                    <Image
-                      src={asset.url}
-                      alt={asset.displayName || asset.filename}
-                      width={200}
-                      height={150}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <video
-                      src={asset.url}
-                      controls
-                      preload="metadata"
-                      className="h-full w-full bg-black/80 object-contain"
-                    />
-                  )}
-                </AttachmentMedia>
+                {asset.assetType === "IMAGE" ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={asset.url}
+                    alt={asset.displayName || asset.filename}
+                    loading="lazy"
+                    className="w-full h-auto block object-cover"
+                  />
+                ) : (
+                  <video
+                    src={asset.url}
+                    controls
+                    preload="metadata"
+                    className="w-full h-auto bg-black/80 object-contain"
+                  />
+                )}
 
-                <AttachmentActions className="absolute right-3 top-3 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/attachment:opacity-100 sm:group-focus-within/attachment:opacity-100">
-                  <AttachmentAction
-                    variant="destructive"
-                    className="rounded-full shadow-lg"
-                    size="icon-xs"
+                {/* Flat hover overlay with filename */}
+                <div className="absolute inset-x-0 bottom-0 z-10 bg-zinc-950/90 px-2.5 py-1.5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none">
+                  <p className="truncate text-xs font-medium text-white">
+                    {asset.displayName || asset.filename}
+                  </p>
+                </div>
+
+                {/* Delete button on hover */}
+                <div className="absolute top-2 right-2 z-20 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    type="button"
+                    className="flex size-7 items-center justify-center rounded-md bg-rose-600 text-white hover:bg-rose-700 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation()
                       setDeleteDialogId(asset.id)
                     }}
                     disabled={deletingId === asset.id}
                     aria-label={`Xóa ${asset.displayName || asset.filename}`}
+                    title="Xóa tệp này"
                   >
-                    <Trash2 className="size-4" />
-                  </AttachmentAction>
-                </AttachmentActions>
-              </Attachment>
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
 

@@ -115,7 +115,7 @@ export function UploadTab({
       {/* Scrollable area for the main content */}
       <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-start sm:justify-center">
         <div className="w-full max-w-2xl space-y-6">
-          <div className="border-2 border-dashed border-zinc-200 rounded-2xl p-8 text-center hover:border-zinc-400 hover:bg-zinc-50/50 transition-all relative group">
+          <div className="border-2 border-dashed border-zinc-200 rounded-md p-6 text-center hover:border-zinc-400 hover:bg-zinc-50/50 transition-colors relative group">
             <input
               type="file"
               multiple
@@ -129,15 +129,15 @@ export function UploadTab({
               }}
               accept="image/gif,image/png,image/jpeg,image/webp,image/avif,video/*"
             />
-            <div className="space-y-4 pointer-events-none">
-              <div className="mx-auto w-14 h-14 bg-zinc-50 rounded-2xl flex items-center justify-center text-zinc-400 group-hover:text-zinc-900 group-hover:bg-zinc-100 transition-all shadow-sm">
-                <UploadCloud className="w-7 h-7" />
+            <div className="space-y-3 pointer-events-none">
+              <div className="mx-auto w-12 h-12 bg-zinc-100 rounded-md flex items-center justify-center text-zinc-500 group-hover:text-zinc-900 group-hover:bg-zinc-200 transition-colors">
+                <UploadCloud className="w-6 h-6" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <p className="text-sm font-bold text-zinc-900 px-4">
                   Kéo thả nhiều tệp hoặc nhấp để chọn
                 </p>
-                <p className="text-xs text-zinc-400 font-medium">Hỗ trợ GIF, PNG, JPG, WEBP, AVIF và Video (Tối đa 200MB/tệp)</p>
+                <p className="text-xs text-zinc-500 font-medium">Hỗ trợ GIF, PNG, JPG, WEBP, AVIF và Video (Tối đa 200MB/tệp)</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export function UploadTab({
           {files.length > 0 && (
             <AttachmentGroup className="w-full">
               {previews.map((p, i) => (
-                <Attachment key={i} className="min-w-64 max-w-72 shrink-0">
+                <Attachment key={i} className="min-w-64 max-w-72 shrink-0 rounded-md">
                   <AttachmentMedia variant="image">
                     {p.file.type.startsWith("video/") ? (
                       <video src={p.url} className="w-full h-full object-cover" />
@@ -180,16 +180,16 @@ export function UploadTab({
       </div>
 
       {/* Sticky footer for checkbox and confirm button */}
-      <div className="border-t border-zinc-100 bg-zinc-50/50 px-6 py-4 flex flex-col items-center">
-        <div className="w-full max-w-2xl space-y-4">
+      <div className="border-t border-zinc-200 bg-white px-6 py-4 flex flex-col items-center">
+        <div className="w-full max-w-2xl space-y-3">
           {!hideSaveToLibrary ? (
-            <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3">
+            <div className="flex items-center gap-3 rounded-md border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5">
               <Checkbox
                 id="save-to-library"
                 checked={shouldSaveToLibrary}
                 onCheckedChange={(checked) => setSaveToLibrary(checked === true)}
               />
-              <Label htmlFor="save-to-library" className="cursor-pointer text-sm font-medium text-zinc-700">
+              <Label htmlFor="save-to-library" className="cursor-pointer text-sm font-medium text-zinc-800">
                 Lưu vào kho media dùng chung
               </Label>
             </div>
@@ -199,7 +199,7 @@ export function UploadTab({
             type="button"
             disabled={files.length === 0 || isUploading}
             onClick={handleUpload}
-            className="w-full h-12 rounded-xl font-bold shadow-md transition-all"
+            className="w-full h-10 rounded-md font-semibold text-sm"
           >
             {isUploading ? (
               <>

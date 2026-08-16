@@ -30,7 +30,7 @@ export function PostsFilterBar({
     <form
       method="get"
       onSubmit={onSubmit}
-      className="sticky top-4 z-30 flex flex-wrap items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 shadow-sm"
+      className="sticky top-4 z-30 flex flex-wrap items-center gap-2 rounded-md border border-zinc-200 bg-white p-2.5"
     >
       <input type="hidden" name="tab" value="posts" />
       <input type="hidden" name="postsPage" value="1" />

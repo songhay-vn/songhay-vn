@@ -38,7 +38,7 @@ export function SeoFields({
   initialContent = "",
   children,
 }: SeoFieldsProps) {
-  const fieldsetRef = useRef<HTMLFieldSetElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [fallbackSeoTitle, setFallbackSeoTitle] = useState(() =>
     buildAutoSeoTitle({ title: initialTitle })
   )
@@ -51,7 +51,7 @@ export function SeoFields({
   )
 
   useEffect(() => {
-    const form = fieldsetRef.current?.closest("form")
+    const form = containerRef.current?.closest("form")
     if (!form) {
       return
     }
@@ -82,56 +82,54 @@ export function SeoFields({
   }, [initialContent, initialExcerpt, initialTitle])
 
   return (
-    <fieldset ref={fieldsetRef} className="space-y-3 rounded-lg border p-3">
-      <legend className="px-1 text-sm font-semibold">SEO</legend>
+    <div ref={containerRef} className="space-y-3">
       <div className="space-y-1.5">
-        <Label htmlFor="seoTitle">Tiêu đề SEO</Label>
+        <Label htmlFor="seoTitle" className="text-xs text-zinc-700 font-semibold">Tiêu đề SEO</Label>
         <Input
           id="seoTitle"
           name="seoTitle"
           defaultValue={defaultSeoTitle || ""}
+          className="text-xs"
           placeholder={
             fallbackSeoTitle || "Hệ thống sẽ tự tạo từ tiêu đề bài viết"
           }
         />
-        <p className="text-xs text-muted-foreground">
-          Để trống, hệ thống sẽ tự tạo:{" "}
-          {fallbackSeoTitle || "SEO title sẽ lấy theo tiêu đề bài viết"}
+        <p className="text-[11px] text-zinc-500">
+          Để trống, hệ thống sẽ tự tạo từ tiêu đề bài viết.
         </p>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="seoDescription">Mô tả SEO</Label>
+        <Label htmlFor="seoDescription" className="text-xs text-zinc-700 font-semibold">Mô tả SEO</Label>
         <Textarea
           id="seoDescription"
           name="seoDescription"
           defaultValue={defaultSeoDescription || ""}
-          className="min-h-20"
+          className="min-h-16 text-xs"
           placeholder={
             fallbackSeoDescription || "Hệ thống sẽ tự tạo từ trích dẫn bài viết"
           }
         />
-        <p className="text-xs text-muted-foreground">
-          Để trống, hệ thống sẽ tự tạo:{" "}
-          {fallbackSeoDescription ||
-            "SEO description sẽ lấy từ trích dẫn hoặc nội dung"}
+        <p className="text-[11px] text-zinc-500">
+          Để trống, hệ thống sẽ tự tạo từ trích dẫn hoặc nội dung.
         </p>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="seoKeywords">Từ khóa SEO</Label>
+        <Label htmlFor="seoKeywords" className="text-xs text-zinc-700 font-semibold">Từ khóa SEO</Label>
         {children}
       </div>
-      <div className="space-y-1.5 mt-3 pt-3 border-t">
-        <Label htmlFor="canonicalUrl">Canonical URL (Tuỳ chọn)</Label>
+      <div className="space-y-1.5 pt-1">
+        <Label htmlFor="canonicalUrl" className="text-xs text-zinc-700 font-semibold">Canonical URL (Tuỳ chọn)</Label>
         <Input
           id="canonicalUrl"
           name="canonicalUrl"
           defaultValue={defaultCanonicalUrl || ""}
+          className="text-xs"
           placeholder="https://example.com/original-post"
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[11px] text-zinc-500">
           Dùng khi copy bài từ nguồn khác để tránh lỗi trùng lặp nội dung.
         </p>
       </div>
-    </fieldset>
+    </div>
   )
 }

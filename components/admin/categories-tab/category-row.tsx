@@ -46,11 +46,11 @@ export function CategoryRow({
   return (
     <div
       className={cn(
-        "group relative rounded-xl border bg-white transition-all duration-300",
-        isChild ? "border-l-4 border-l-rose-200 shadow-none" : "shadow-sm",
+        "group relative rounded-md border bg-white transition-colors duration-150",
+        isChild ? "border-zinc-200 bg-zinc-50/40" : "border-zinc-200",
         isJustMoved
           ? "border-rose-400 ring-2 ring-rose-200"
-          : "border-zinc-200 hover:border-zinc-300"
+          : "hover:border-zinc-300"
       )}
     >
       {/* ── Main row ── */}
@@ -58,8 +58,8 @@ export function CategoryRow({
         {/* Icon */}
         <div
           className={cn(
-            "shrink-0 rounded-lg p-1.5",
-            isChild ? "bg-rose-50 text-rose-500" : "bg-zinc-100 text-zinc-500"
+            "shrink-0 rounded-md p-1.5",
+            isChild ? "bg-rose-50 text-rose-600" : "bg-zinc-100 text-zinc-600"
           )}
         >
           {isChild ? <FileText className="size-4" /> : <Folder className="size-4" />}

@@ -363,7 +363,7 @@ export function ProductsTab({
                         <button
                           type="button"
                           onClick={() => removeAddGalleryImage(idx)}
-                          className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-full opacity-90 hover:opacity-100 transition"
+                          className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-sm opacity-90 hover:opacity-100 transition"
                           title="Xóa ảnh này"
                         >
                           <X className="w-3 h-3" />
@@ -415,8 +415,8 @@ export function ProductsTab({
       </div>
 
       {products.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-zinc-200">
-          <p className="text-zinc-500">Chưa có sản phẩm nào được thêm.</p>
+        <div className="text-center py-12 bg-white rounded-md border border-zinc-200">
+          <p className="text-zinc-600 font-medium">Chưa có sản phẩm nào được thêm.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -634,7 +634,7 @@ export function ProductsTab({
                         <button
                           type="button"
                           onClick={() => removeEditExistingGalleryImage(idx)}
-                          className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-full opacity-90 hover:opacity-100 transition"
+                          className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-sm opacity-90 hover:opacity-100 transition"
                           title="Xóa ảnh này"
                         >
                           <X className="w-3 h-3" />
@@ -653,7 +653,7 @@ export function ProductsTab({
                         <button
                           type="button"
                           onClick={() => removeEditNewGalleryImage(idx)}
-                          className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-full opacity-90 hover:opacity-100 transition"
+                          className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-sm opacity-90 hover:opacity-100 transition"
                           title="Xóa ảnh này"
                         >
                           <X className="w-3 h-3" />

@@ -230,11 +230,11 @@ export function SeoKeywordPicker({
         />
 
         {open ? (
-          <div className="absolute z-30 mt-2 w-full rounded-md border bg-popover p-1 shadow-lg">
+          <div className="absolute z-30 mt-1 w-full rounded-md border border-zinc-300 bg-white p-1">
             {canCreateQueryKeyword ? (
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-zinc-100"
                 onClick={() => addCustomKeyword(query)}
               >
                 <Plus className="size-4" />
@@ -250,7 +250,7 @@ export function SeoKeywordPicker({
                   <button
                     key={item.id}
                     type="button"
-                    className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+                    className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-zinc-100"
                     onClick={() => selectSuggestion(item.id)}
                   >
                     <Check className="size-4 text-muted-foreground" />
@@ -271,11 +271,11 @@ export function SeoKeywordPicker({
 
       <div className="flex flex-wrap gap-2">
         {selectedOptions.map((item) => (
-          <Badge key={item.id} variant="outline" className="gap-1.5 pr-1">
+          <Badge key={item.id} variant="outline" className="gap-1.5 pr-1 rounded">
             {item.keyword}
             <button
               type="button"
-              className="inline-flex size-4 items-center justify-center rounded-full hover:bg-muted"
+              className="inline-flex size-4 items-center justify-center rounded-sm hover:bg-zinc-200"
               onClick={() => removeKeyword(item.keyword)}
               aria-label={`Bỏ chọn ${item.keyword}`}
             >
@@ -287,12 +287,12 @@ export function SeoKeywordPicker({
           <Badge
             key={`custom-${item}`}
             variant="secondary"
-            className="gap-1.5 pr-1"
+            className="gap-1.5 pr-1 rounded"
           >
             {item}
             <button
               type="button"
-              className="inline-flex size-4 items-center justify-center rounded-full hover:bg-muted"
+              className="inline-flex size-4 items-center justify-center rounded-sm hover:bg-zinc-200"
               onClick={() => removeKeyword(item)}
               aria-label={`Xóa từ khóa ${item}`}
             >

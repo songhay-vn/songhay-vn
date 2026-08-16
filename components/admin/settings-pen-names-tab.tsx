@@ -101,7 +101,7 @@ function PenNameRow({
           <div className="flex min-h-9 flex-wrap items-center gap-2 lg:justify-end">
             <Badge
               variant="secondary"
-              className="flex h-9 items-center rounded-full px-3"
+              className="flex h-9 items-center rounded-md px-3 font-semibold text-zinc-900"
             >
               {row._count.posts.toLocaleString("vi-VN")} bài
             </Badge>

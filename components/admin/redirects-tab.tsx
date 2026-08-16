@@ -359,9 +359,9 @@ export function RedirectsTab({
 
       {/* Empty state */}
       {redirects.length === 0 && (
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-16 text-center">
+        <div className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 py-12 text-center">
           <ArrowRight className="mx-auto size-10 text-zinc-300" />
-          <p className="mt-3 font-medium text-zinc-500">Chưa có redirect nào</p>
+          <p className="mt-3 font-medium text-zinc-600">Chưa có redirect nào</p>
           <p className="mt-1 text-sm text-zinc-400">
             Thêm redirect để gom link juice về bài Pillar SEO
           </p>
@@ -372,7 +372,7 @@ export function RedirectsTab({
       {grouped.length > 0 && (
         <div className="space-y-4">
           {grouped.map(({ toPath, items }) => (
-            <Card key={toPath} className="overflow-hidden border-zinc-200 bg-white shadow-sm">
+            <Card key={toPath} className="overflow-hidden border-zinc-200 bg-white rounded-md">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 bg-zinc-50/75 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">

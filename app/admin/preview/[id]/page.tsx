@@ -72,8 +72,8 @@ export default async function AdminPreviewPage({ params }: PreviewPageProps) {
             </span>
             <span className="text-amber-800">
               {post.isPublished
-                ? "Bài đã xuất bản, đây là bản render trong CMS để so nhanh layout news."
-                : "Bài viết này chưa được xuất bản, nên đang mở ở chế độ preview với layout news thật."}
+                ? "Bài đã xuất bản"
+                : "Bài viết này chưa được xuất bản"}
             </span>
           </div>
           <Link

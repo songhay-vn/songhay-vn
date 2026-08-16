@@ -213,7 +213,7 @@ async function AdminPageContent({
       value: postCount,
       note: "Bài gần nhất trong hệ thống",
       icon: Newspaper,
-      tone: "text-sky-600",
+      tone: "text-zinc-900",
     },
     {
       key: "categories",
@@ -221,7 +221,7 @@ async function AdminPageContent({
       value: categoryCount,
       note: "Danh mục đang hoạt động",
       icon: FolderKanban,
-      tone: "text-violet-600",
+      tone: "text-zinc-900",
     },
     {
       key: "comments",
@@ -237,7 +237,7 @@ async function AdminPageContent({
       value: totalPostViews,
       note: "screenPageViews trong 30 ngày",
       icon: Activity,
-      tone: "text-emerald-600",
+      tone: "text-zinc-900",
     },
     {
       key: "gsc-indexed",
@@ -245,7 +245,7 @@ async function AdminPageContent({
       value: indexedPostCount,
       note: "Bài published có URL Inspection PASS",
       icon: Search,
-      tone: "text-emerald-600",
+      tone: indexedPostCount > 0 ? "text-emerald-600" : "text-zinc-900",
     },
     {
       key: "gsc-not-indexed",
@@ -253,7 +253,7 @@ async function AdminPageContent({
       value: notIndexedPostCount,
       note: "Bài published bị FAIL hoặc Excluded",
       icon: Search,
-      tone: "text-zinc-700",
+      tone: notIndexedPostCount > 0 ? "text-amber-600" : "text-zinc-700",
     },
     {
       key: "gsc-pending",
@@ -261,7 +261,7 @@ async function AdminPageContent({
       value: pendingInspectionCount,
       note: "Job inspection đang chờ hoặc đang chạy",
       icon: Clock,
-      tone: "text-sky-600",
+      tone: "text-zinc-700",
     },
     {
       key: "gsc-failed",
@@ -280,7 +280,7 @@ async function AdminPageContent({
       tone:
         todayInspectionUsage >= inspectionSoftLimit
           ? "text-amber-600"
-          : "text-sky-600",
+          : "text-zinc-900",
     },
   ]
 

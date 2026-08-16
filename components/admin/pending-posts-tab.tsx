@@ -38,7 +38,7 @@ export function PendingPostsTab({
 }: PendingPostsTabProps) {
   if (rows.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-lg border bg-white text-zinc-500">
+      <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-zinc-300 bg-white text-zinc-600 font-medium">
         Không có bài viết nào đang chờ duyệt.
       </div>
     )
@@ -69,7 +69,7 @@ export function PendingPostsTab({
                     className="mt-0.5"
                   />
                   <div>
-                    <p className="font-semibold">{post.title}</p>
+                    <p className="font-semibold text-zinc-950">{post.title}</p>
                     <p className="text-xs text-muted-foreground">
                       /{post.category.slug}/{post.slug}
                     </p>

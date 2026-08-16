@@ -75,7 +75,7 @@ export function MediaPicker({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl h-[90vh] min-h-0 !flex flex-col p-0 gap-0 overflow-hidden sm:max-w-4xl">
+      <DialogContent className="max-w-6xl w-[95vw] h-[90vh] min-h-0 !flex flex-col p-0 gap-0 overflow-hidden sm:max-w-6xl">
         <DialogHeader className="px-6 py-4 border-b bg-zinc-50/50 flex-row items-center gap-3">
           <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
             <ImageIcon className="w-5 h-5" />

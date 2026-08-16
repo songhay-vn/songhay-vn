@@ -40,10 +40,10 @@ export function SettingsUsersTab({
   return (
     <div className="space-y-8">
       {canCreateSubordinateAccount && (
-        <section className="space-y-4 rounded-xl border border-zinc-200 bg-muted/10 p-4">
+        <section className="space-y-4 rounded-md border border-zinc-200 bg-white p-4">
           <div>
-            <h3 className="text-lg font-medium">Tạo tài khoản mới</h3>
-            <p className="text-sm text-zinc-500">
+            <h3 className="text-base font-bold text-zinc-950">Tạo tài khoản mới</h3>
+            <p className="text-xs text-zinc-600">
               Cấp quyền truy cập cho thành viên mới của ban biên tập.
             </p>
           </div>
@@ -102,7 +102,7 @@ export function SettingsUsersTab({
         <div>
           <p className="text-sm font-semibold">Danh sách người dùng</p>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-zinc-200">
+        <div className="overflow-x-auto rounded-md border border-zinc-200">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/30">

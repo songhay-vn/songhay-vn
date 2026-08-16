@@ -45,7 +45,7 @@ export function AdminNotifications({ notifications }: { notifications: Notificat
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700"
+              className="h-auto p-0 text-xs font-semibold text-zinc-900 hover:text-zinc-700 underline"
               onClick={async () => {
                 await markAllNotificationsAsRead()
               }}
@@ -57,7 +57,7 @@ export function AdminNotifications({ notifications }: { notifications: Notificat
         </div>
         <ScrollArea className="h-80">
           {notifications.length === 0 ? (
-            <div className="flex h-full items-center justify-center p-4 text-sm text-zinc-500">
+            <div className="flex h-full items-center justify-center p-4 text-sm text-zinc-600">
               Không có thông báo nào.
             </div>
           ) : (
@@ -65,8 +65,8 @@ export function AdminNotifications({ notifications }: { notifications: Notificat
               {notifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`flex flex-col gap-1 border-b p-4 text-sm ${
-                    !n.isRead ? "bg-blue-50/50" : "bg-white"
+                  className={`flex flex-col gap-1 border-b p-4 text-sm cursor-pointer transition-colors ${
+                    !n.isRead ? "bg-zinc-100/70 hover:bg-zinc-100" : "bg-white hover:bg-zinc-50"
                   }`}
                   onClick={async () => {
                     if (!n.isRead) {
@@ -77,10 +77,10 @@ export function AdminNotifications({ notifications }: { notifications: Notificat
                     }
                   }}
                 >
-                  <p className={`${!n.isRead ? "font-medium text-zinc-900" : "text-zinc-600"}`}>
+                  <p className={`${!n.isRead ? "font-semibold text-zinc-950" : "text-zinc-800"}`}>
                     {n.message}
                   </p>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-zinc-500 font-medium">
                     {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: vi })}
                   </span>
                 </div>

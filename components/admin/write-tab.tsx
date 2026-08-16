@@ -96,227 +96,248 @@ export function WriteTab({
   }, [])
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm font-semibold">Viết bài mới</p>
-      <form
-        ref={formRef}
-        action={createPost}
-        className="grid gap-6 lg:grid-cols-[3fr_2fr]"
-      >
-        {previewPostId && (
-          <input type="hidden" name="previewPostId" value={previewPostId} />
-        )}
-        <EditFormDirtyTracker />
+    <form ref={formRef} action={createPost} className="space-y-4">
+      {previewPostId && (
+        <input type="hidden" name="previewPostId" value={previewPostId} />
+      )}
+      <EditFormDirtyTracker />
 
-        {/* Main 60% Column */}
-        <div className="space-y-6">
-          <div className="space-y-4">
+      {/* ── Sticky Top Action Bar ── */}
+      <div className="sticky top-0 z-20 -mx-4 md:-mx-6 xl:-mx-8 px-4 md:px-6 xl:px-8 py-3 bg-white border-b border-zinc-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-base font-bold text-zinc-950">Viết bài mới</h2>
+          <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold bg-zinc-100 text-zinc-700">
+            Bản nháp
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <PendingSubmitButton
+            type="submit"
+            name="submitAction"
+            value="save-draft"
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs font-medium"
+            pendingText="Đang lưu..."
+          >
+            <Save className="size-3.5 mr-1 text-zinc-600" />
+            Lưu nháp
+          </PendingSubmitButton>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs font-medium text-zinc-700"
+            onClick={handlePreview}
+            disabled={isPreviewing}
+          >
+            <Eye className="size-3.5 mr-1 text-zinc-600" />
+            {isPreviewing ? "Đang lưu..." : "Xem trước"}
+          </Button>
+
+          {canSubmitPendingPublish ? (
+            <PendingSubmitButton
+              type="submit"
+              name="submitAction"
+              value="submit-publish"
+              variant="secondary"
+              size="sm"
+              className="h-8 text-xs font-medium"
+              pendingText="Đang chuyển kho..."
+            >
+              <SendToBack className="size-3.5 mr-1" />
+              Gửi chờ xuất bản
+            </PendingSubmitButton>
+          ) : null}
+
+          <PendingSubmitButton
+            type="submit"
+            name="submitAction"
+            value="submit-review"
+            variant="destructive"
+            size="sm"
+            className="h-8 text-xs font-semibold"
+            pendingText="Đang gửi duyệt..."
+          >
+            <Send className="size-3.5 mr-1" />
+            Gửi chờ duyệt
+          </PendingSubmitButton>
+
+          {canPublishNow ? (
+            <PendingSubmitButton
+              type="submit"
+              name="submitAction"
+              value="publish"
+              size="sm"
+              className="h-8 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white"
+              pendingText="Đang xuất bản..."
+            >
+              <Globe className="size-3.5 mr-1" />
+              Xuất bản
+            </PendingSubmitButton>
+          ) : null}
+        </div>
+      </div>
+
+      {/* ── Main Layout: Content Editor + Inspector Panel ── */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px] items-start">
+        {/* Main Editor Column: Single Unified Document Canvas */}
+        <div className="rounded-md border border-zinc-200 bg-white divide-y divide-zinc-200 overflow-hidden">
+          <div className="p-4 md:p-5 space-y-3.5 bg-white">
             <div className="space-y-1.5">
-              <Label htmlFor="postTitle">Tên bài viết</Label>
+              <Label htmlFor="postTitle" className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                Tiêu đề bài viết <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="postTitle"
                 name="title"
-                placeholder="Nhập tiêu đề"
+                placeholder="Nhập tiêu đề bài viết..."
                 required
+                className="text-base font-semibold border-zinc-200"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="postPenNameId">Bút danh</Label>
+              <Label htmlFor="postPenNameId" className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                Bút danh <span className="text-red-500">*</span>
+              </Label>
               <PenNameSelect options={penNameOptions} />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="postExcerpt">Trích dẫn</Label>
+              <Label htmlFor="postExcerpt" className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                Trích dẫn tóm tắt (Sapo)
+              </Label>
               <Textarea
                 id="postExcerpt"
                 name="excerpt"
-                className="min-h-20"
-                placeholder="Mô tả ngắn bài viết"
+                className="min-h-20 text-sm border-zinc-200"
+                placeholder="Mô tả ngắn hiển thị ở trang chủ và kết quả tìm kiếm..."
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Nội dung</Label>
+          <div className="bg-white">
             <RichTextField
               name="content"
               placeholder="Viết nội dung bài báo tại đây..."
               mediaAssets={mediaAssets}
               currentUserId={currentUserId}
+              className="border-0 rounded-none"
             />
           </div>
-
-          <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-            <legend className="px-1 text-sm font-semibold">
-              Thao tác xuất bản
-            </legend>
-            <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2">
-                <PendingSubmitButton
-                  type="submit"
-                  name="submitAction"
-                  value="save-draft"
-                  variant="outline"
-                  size="lg"
-                  pendingText="Đang lưu..."
-                >
-                  <Save className="size-4 mr-1.5" />
-                  Lưu nháp
-                </PendingSubmitButton>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="lg"
-                  onClick={handlePreview}
-                  disabled={isPreviewing}
-                >
-                  <Eye className="size-4 mr-1.5" />
-                  {isPreviewing ? "Đang lưu..." : "Xem trước"}
-                </Button>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-2">
-                <PendingSubmitButton
-                  type="submit"
-                  name="submitAction"
-                  value="submit-review"
-                  className="w-full"
-                  variant="destructive"
-                  size="lg"
-                  pendingText="Đang gửi duyệt..."
-                >
-                  <Send className="size-4 mr-1.5" />
-                  Gửi chờ duyệt
-                </PendingSubmitButton>
-
-                {canSubmitPendingPublish ? (
-                  <PendingSubmitButton
-                    type="submit"
-                    name="submitAction"
-                    value="submit-publish"
-                    className="w-full"
-                    variant="secondary"
-                    size="lg"
-                    pendingText="Đang chuyển kho..."
-                  >
-                    <SendToBack className="size-4 mr-1.5" />
-                    Gửi chờ xuất bản
-                  </PendingSubmitButton>
-                ) : null}
-
-                {canPublishNow ? (
-                  <PendingSubmitButton
-                    type="submit"
-                    name="submitAction"
-                    value="publish"
-                    className="w-full"
-                    size="lg"
-                    pendingText="Đang xuất bản..."
-                  >
-                    <Globe className="size-4 mr-1.5" />
-                    Xuất bản
-                  </PendingSubmitButton>
-                ) : null}
-              </div>
-            </div>
-          </fieldset>
         </div>
 
-        {/* Sidebar Column */}
+        {/* Sidebar Inspector Column */}
         <div className="space-y-4">
-          <div className="sticky top-4 space-y-4">
-            <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-              <legend className="px-1 text-sm font-semibold">Phân loại & Cấu hình</legend>
-              <CategorySelector categories={categoriesForWrite} />
+          <div className="sticky top-16 space-y-4">
+            <div className="rounded-md border border-zinc-200 bg-white divide-y divide-zinc-200">
+              {/* Category & Tags Section */}
+              <div className="p-4 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                  Phân loại chuyên mục
+                </h3>
+                <CategorySelector categories={categoriesForWrite} />
 
-              <div className="flex items-center gap-2 pt-2">
-                <Checkbox
-                  id="isSensitive"
-                  checked={isSensitive}
-                  onCheckedChange={(checked) => setIsSensitive(checked === true)}
-                />
-                <Label htmlFor="isSensitive">Nội dung nhạy cảm</Label>
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="isSensitive"
+                      checked={isSensitive}
+                      onCheckedChange={(checked) => setIsSensitive(checked === true)}
+                    />
+                    <Label htmlFor="isSensitive" className="text-xs text-zinc-700">Nội dung nhạy cảm</Label>
+                  </div>
+                  {isSensitive ? (
+                    <input type="hidden" name="isSensitive" value="on" />
+                  ) : null}
+
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="isSponsored"
+                      checked={isSponsored}
+                      onCheckedChange={(checked) => setIsSponsored(checked === true)}
+                    />
+                    <Label htmlFor="isSponsored" className="text-xs text-zinc-700">Nội dung được tài trợ (Quảng cáo)</Label>
+                  </div>
+                  {isSponsored ? (
+                    <input type="hidden" name="isSponsored" value="on" />
+                  ) : null}
+                </div>
               </div>
-              {isSensitive ? (
-                <input type="hidden" name="isSensitive" value="on" />
-              ) : null}
 
-              <div className="flex items-center gap-2 pt-2 border-t mt-2">
-                <Checkbox
-                  id="isSponsored"
-                  checked={isSponsored}
-                  onCheckedChange={(checked) => setIsSponsored(checked === true)}
-                />
-                <Label htmlFor="isSponsored">Nội dung được tài trợ (Quảng cáo)</Label>
-              </div>
-              {isSponsored ? (
-                <input type="hidden" name="isSponsored" value="on" />
-              ) : null}
-            </fieldset>
-
-            <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-              <legend className="px-1 text-sm font-semibold">Đa phương tiện</legend>
-              <div className="space-y-2">
-                <Label htmlFor="thumbnailUrl">Ảnh đại diện</Label>
-                <ThumbnailPicker
-                  mediaAssets={mediaAssets}
-                  currentUserId={currentUserId}
-                />
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Hệ thống tự động dùng ảnh này làm OG image khi share.
-              </p>
-
-              <div className="mt-4 border-t pt-4 flex items-center gap-2">
-                <Checkbox
-                  id="hasVideo"
-                  checked={hasVideo}
-                  onCheckedChange={(checked) => setHasVideo(checked === true)}
-                />
-                <Label htmlFor="hasVideo">Bài báo này có chứa video</Label>
-              </div>
-              {hasVideo ? <input type="hidden" name="hasVideo" value="on" /> : null}
-
-              {hasVideo ? (
+              {/* Multimedia Section */}
+              <div className="p-4 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                  Đa phương tiện
+                </h3>
                 <div className="space-y-1.5">
-                  <Label htmlFor="videoEmbed">Video embed URL</Label>
-                  <Input
-                    id="videoEmbed"
-                    name="videoEmbedUrl"
-                    placeholder="https://www.youtube.com/embed/..."
+                  <Label htmlFor="thumbnailUrl" className="text-xs text-zinc-600">Ảnh đại diện (Thumbnail / OG)</Label>
+                  <ThumbnailPicker
+                    mediaAssets={mediaAssets}
+                    currentUserId={currentUserId}
                   />
                 </div>
-              ) : null}
-            </fieldset>
 
-            <div className="bg-white">
-              <SeoFields>
-                <SeoKeywordPicker options={seoKeywordOptions} />
-              </SeoFields>
-            </div>
+                <div className="pt-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="hasVideo"
+                      checked={hasVideo}
+                      onCheckedChange={(checked) => setHasVideo(checked === true)}
+                    />
+                    <Label htmlFor="hasVideo" className="text-xs text-zinc-700">Bài viết chứa video</Label>
+                  </div>
+                  {hasVideo ? <input type="hidden" name="hasVideo" value="on" /> : null}
 
-            {canPublishNow ? (
-              <fieldset className="space-y-3 rounded-lg border bg-white p-4">
-                <legend className="px-1 text-sm font-semibold">Lịch xuất bản</legend>
-                <div className="space-y-2">
-                  <Label htmlFor="scheduledPublishAt">Hẹn giờ xuất bản</Label>
+                  {hasVideo ? (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="videoEmbed" className="text-xs text-zinc-600">Video embed URL</Label>
+                      <Input
+                        id="videoEmbed"
+                        name="videoEmbedUrl"
+                        placeholder="https://www.youtube.com/embed/..."
+                        className="text-xs"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* SEO Section */}
+              <div className="p-4 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                  Cấu hình SEO
+                </h3>
+                <SeoFields>
+                  <SeoKeywordPicker options={seoKeywordOptions} />
+                </SeoFields>
+              </div>
+
+              {/* Publish Scheduling (if permission granted) */}
+              {canPublishNow ? (
+                <div className="p-4 space-y-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-600">
+                    Lịch xuất bản
+                  </h3>
                   <Input
                     id="scheduledPublishAt"
                     name="scheduledPublishAt"
                     type="datetime-local"
+                    className="text-xs"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Bỏ trống nếu muốn xuất bản ngay khi bấm nút.
+                  <p className="text-[11px] text-zinc-500">
+                    Bỏ trống để xuất bản ngay khi duyệt/đăng.
                   </p>
                 </div>
-              </fieldset>
-            ) : null}
-
+              ) : null}
+            </div>
           </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   )
 }
 

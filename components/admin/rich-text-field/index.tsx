@@ -18,7 +18,7 @@ import { Plus, FileText, Code as CodeIcon, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Card, CardHeader } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 function toPlainText(html: string) {
   return html
@@ -53,6 +53,7 @@ export function RichTextField({
   defaultValue = "",
   mediaAssets = [],
   currentUserId,
+  className,
 }: RichTextFieldProps) {
   const [mode, setMode] = useState<EditorMode>("classic")
   const [html, setHtml] = useState(defaultValue)
@@ -102,18 +103,16 @@ export function RichTextField({
 
   return (
     <div className="space-y-4">
-      <input type="hidden" name={name} value={html} />
-
-      <Card className="overflow-hidden border-zinc-200 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2 border-b bg-zinc-50/50">
+      <div className={cn("overflow-hidden rounded-md border border-zinc-200 bg-white", className)}>
+        <div className="flex flex-row items-center justify-between px-3 py-1.5 border-b border-zinc-200 bg-zinc-50/50">
           <Tabs value={mode} onValueChange={(v) => setMode(v as EditorMode)} className="w-auto">
-            <TabsList variant="line" className="h-9 bg-transparent p-0 border-0">
-              <TabsTrigger value="classic" className="px-4 py-2 font-bold data-active:text-primary data-[variant=line]:data-active:after:-bottom-2.25">
-                <FileText className="mr-2 h-4 w-4" />
+            <TabsList variant="line" className="h-8 bg-transparent p-0 border-0">
+              <TabsTrigger value="classic" className="px-3 py-1.5 text-xs font-bold data-active:text-primary data-[variant=line]:data-active:after:-bottom-1.5">
+                <FileText className="mr-1.5 h-3.5 w-3.5" />
                 Trình soạn thảo
               </TabsTrigger>
-              <TabsTrigger value="code" className="px-4 py-2 font-bold data-active:text-primary data-[variant=line]:data-active:after:-bottom-2.25">
-                <CodeIcon className="mr-2 h-4 w-4" />
+              <TabsTrigger value="code" className="px-3 py-1.5 text-xs font-bold data-active:text-primary data-[variant=line]:data-active:after:-bottom-1.5">
+                <CodeIcon className="mr-1.5 h-3.5 w-3.5" />
                 Mã HTML
               </TabsTrigger>
             </TabsList>
@@ -124,12 +123,12 @@ export function RichTextField({
             variant="default"
             size="sm"
             onClick={() => setShowMediaPicker(true)}
-            className="font-bold border-zinc-200"
+            className="h-7 text-xs font-bold bg-zinc-900 text-white"
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-1 h-3.5 w-3.5" />
             Thêm media
           </Button>
-        </CardHeader>
+        </div>
 
         <div className="bg-white">
           {mode === "classic" ? (
@@ -146,7 +145,7 @@ export function RichTextField({
             />
           )}
         </div>
-      </Card>
+      </div>
 
       <MediaPicker
         isOpen={showMediaPicker}
@@ -195,8 +194,7 @@ export function RichTextField({
 
         .ck-content figure.image img {
           max-width: 100%;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          border-radius: 4px;
         }
 
         .ck-content figure.image figcaption {

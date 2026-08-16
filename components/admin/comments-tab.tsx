@@ -43,7 +43,7 @@ export function CommentsTab({
                   /{comment.post.category.slug}/{comment.post.slug}
                 </Badge>
               </div>
-              <p className="mt-2 text-sm text-zinc-700">{comment.content}</p>
+              <p className="mt-2 text-sm text-zinc-900 leading-relaxed">{comment.content}</p>
               <div className="mt-3 flex gap-2">
                 <form action={moderateComment}>
                   <input type="hidden" name="commentId" value={comment.id} />

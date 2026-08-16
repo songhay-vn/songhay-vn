@@ -164,13 +164,13 @@ export function OverviewTab({
               <p className="text-xs font-medium text-muted-foreground">
                 Tuổi trung bình
               </p>
-              <p className="mt-2 text-3xl font-black text-rose-600">
+              <p className="mt-2 text-3xl font-black text-zinc-950">
                 {formatCompactNumber(bioAgeInsights.averageAge)}
               </p>
             </div>
             <div className="bg-white p-4">
               <p className="text-xs font-medium text-muted-foreground">Nam</p>
-              <p className="mt-2 text-3xl font-black text-sky-600">
+              <p className="mt-2 text-3xl font-black text-zinc-950">
                 {formatNumber(
                   bioAgeInsights.genders.find((item) => item.key === "MALE")
                     ?.count || 0
@@ -179,7 +179,7 @@ export function OverviewTab({
             </div>
             <div className="bg-white p-4">
               <p className="text-xs font-medium text-muted-foreground">Nữ</p>
-              <p className="mt-2 text-3xl font-black text-fuchsia-600">
+              <p className="mt-2 text-3xl font-black text-zinc-950">
                 {formatNumber(
                   bioAgeInsights.genders.find((item) => item.key === "FEMALE")
                     ?.count || 0
@@ -212,8 +212,8 @@ export function OverviewTab({
                         const percent =
                           bioAgeInsights.totalCount > 0
                             ? Math.round(
-                              (item.count / bioAgeInsights.totalCount) * 100
-                            )
+                                (item.count / bioAgeInsights.totalCount) * 100
+                              )
                             : 0
 
                         return (
@@ -226,9 +226,9 @@ export function OverviewTab({
                                 {formatNumber(item.count)} · {percent}%
                               </span>
                             </div>
-                            <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+                            <div className="h-2 overflow-hidden rounded-sm bg-zinc-100">
                               <div
-                                className="h-full rounded-full bg-rose-600"
+                                className="h-full rounded-sm bg-zinc-900"
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
