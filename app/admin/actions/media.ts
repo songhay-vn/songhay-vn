@@ -46,6 +46,7 @@ export async function uploadMediaAsset(formData: FormData) {
           filename: file.name,
           mimeType: file.type || "image/jpeg",
           folder: "songhay/editor",
+          transformation: "c_limit,w_1920",
         })
       : await uploadVideoToCloudinary({
           buffer,

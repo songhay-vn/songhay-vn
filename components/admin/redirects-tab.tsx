@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ChevronsUpDown,
 } from "lucide-react"
+import { getOptimizedImageUrl } from "@/lib/cloudinary"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -120,8 +121,9 @@ function PostCombobox({
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={selected.thumbnailUrl}
+                        src={getOptimizedImageUrl(selected.thumbnailUrl, { width: 48, height: 48, crop: "fill" })}
                         alt=""
+                        loading="lazy"
                         className="size-6 shrink-0 rounded object-cover bg-zinc-100 border border-zinc-200"
                       />
                     </>
@@ -159,8 +161,9 @@ function PostCombobox({
                       <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={post.thumbnailUrl}
+                          src={getOptimizedImageUrl(post.thumbnailUrl, { width: 72, height: 72, crop: "fill" })}
                           alt=""
+                          loading="lazy"
                           className="size-9 shrink-0 rounded object-cover bg-zinc-100 border border-zinc-100"
                         />
                       </>

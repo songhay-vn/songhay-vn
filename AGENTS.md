@@ -13,7 +13,7 @@ This rule supersedes all other instructions. Failure to run `gitnexus` before ch
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **songhay-vn** (2235 symbols, 6852 relationships, 172 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **songhay-vn** (2235 symbols, 6850 relationships, 172 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -62,6 +62,11 @@ This project is indexed by GitNexus as **songhay-vn** (2235 symbols, 6852 relati
 - **Write Real Unit Tests**: For every new feature or bug fix, write a corresponding unit/integration test, or update existing tests to ensure compatibility.
 - **NO "Cheat" Tests**: Tests must execute the actual implementation code (libraries, components, hooks, functions). Never write mock/cheat assertions that bypass the actual logic or assert hardcoded values (e.g., asserting `console.log(2+2)` instead of calling the target function/component to verify `2+2`).
 - **High-Contrast Text for Accessibility**: To ensure readability for elderly readers, never use light gray colors (such as `text-zinc-600` or `text-zinc-700` overrides) for main body copy, lists, disclaimers, headers, or buttons on user-facing pages and widgets. Always use high-contrast dark options like `text-black`, `text-zinc-950`, or `text-zinc-900`.
+- **Image Optimization & Lazy Loading in CMS & UI**:
+  - **Always lazy load**: Include `loading="lazy"` on all image thumbnails, previews, and list items in admin views.
+  - **Use low-res thumbnails in Admin grids**: In admin grids (Media Library, Media Picker, Comboboxes, Product previews), never render full-resolution originals. Use `getOptimizedImageUrl(url, { width: ..., crop: ... })` from `@/lib/cloudinary` to serve lightweight, auto-formatted (`f_auto`), quality-compressed (`q_auto`) previews.
+  - **Preserve original URLs in Content**: When inserting media into articles or opening full-size preview modals, pass the original high-resolution `asset.url`.
+
 ## Safety Rules For Agents
 - **More investigation, less build**: Prefer to run Tests, instead of build, since the project is growing increasingly fast and build time takes too long, might hog the dev environment.
 

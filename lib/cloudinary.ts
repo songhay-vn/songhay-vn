@@ -220,3 +220,47 @@ export function extractCloudinaryPublicId(url: string): string | null {
   const fullPath = filtered.join("/")
   return fullPath.replace(/\.[^/.]+$/, "")
 }
+
+export type ImageOptimizationOptions = {
+  width?: number
+  height?: number
+  crop?: "fill" | "limit" | "fit" | "scale" | "thumb" | "crop"
+  quality?: "auto" | "auto:good" | "auto:eco" | "auto:low" | number
+  format?: "auto" | "webp" | "avif"
+}
+
+export function getOptimizedImageUrl(
+  url: string | null | undefined,
+  options: ImageOptimizationOptions = {}
+): string {
+  if (!url || typeof url !== "string") {
+    return ""
+  }
+
+  if (!url.includes("/upload/")) {
+    return url
+  }
+
+  const {
+    width,
+    height,
+    crop = "limit",
+    quality = "auto",
+    format = "auto",
+  } = options
+
+  const transformParts: string[] = []
+  if (crop) transformParts.push(`c_${crop}`)
+  if (width) transformParts.push(`w_${width}`)
+  if (height) transformParts.push(`h_${height}`)
+  if (quality) transformParts.push(`q_${quality}`)
+  if (format) transformParts.push(`f_${format}`)
+
+  if (transformParts.length === 0) {
+    return url
+  }
+
+  const transformStr = transformParts.join(",")
+  return url.replace("/upload/", `/upload/${transformStr}/`)
+}
+

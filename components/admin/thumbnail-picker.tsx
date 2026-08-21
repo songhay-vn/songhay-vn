@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import { getOptimizedImageUrl } from "@/lib/cloudinary"
 import { MediaPicker } from "@/components/admin/media-picker"
 import type { MediaAsset } from "@/components/admin/media-picker/types"
 import { ImageCropper } from "./image-cropper"
@@ -77,8 +78,9 @@ export function ThumbnailPicker({
           <div className="relative w-full aspect-[12/7] overflow-hidden rounded-md border border-zinc-200 bg-zinc-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={thumbnailUrl}
+              src={getOptimizedImageUrl(thumbnailUrl, { width: 600, crop: "limit" })}
               alt="Thumbnail preview"
+              loading="lazy"
               className="h-full w-full object-cover"
             />
           </div>

@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useMemo, useState } from "react"
+import { getOptimizedImageUrl } from "@/lib/cloudinary"
 import { MediaAsset } from "./types"
 import { Attachment, AttachmentMedia, AttachmentTrigger } from "@/components/ui/attachment"
 import {
@@ -160,7 +161,7 @@ export function LibraryTab({
                 {asset.assetType === "IMAGE" ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={asset.url}
+                    src={getOptimizedImageUrl(asset.url, { width: 360, crop: "limit" })}
                     alt={displayName}
                     loading="lazy"
                     className="w-full h-auto block object-cover"

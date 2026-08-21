@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { Plus, Trash2, Edit3, Globe, EyeOff, Loader2, X, ArrowUp, ArrowDown } from "lucide-react"
+import { getOptimizedImageUrl } from "@/lib/cloudinary"
 
 import type { ProductRow } from "@/app/admin/data-loaders"
 import type { MediaAsset } from "@/components/admin/media-picker/types"
@@ -328,6 +329,7 @@ export function ProductsTab({
                     <img
                       src={addPreviewUrl}
                       alt="Primary Preview"
+                      loading="lazy"
                       className="object-cover w-full h-full"
                     />
                   </div>
@@ -358,6 +360,7 @@ export function ProductsTab({
                         <img
                           src={url}
                           alt={`Gallery preview ${idx + 1}`}
+                          loading="lazy"
                           className="object-cover w-full h-full"
                         />
                         <button
@@ -596,8 +599,9 @@ export function ProductsTab({
                   <div className="mt-2 relative w-32 h-32 rounded border overflow-hidden bg-zinc-50">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={editPreviewUrl || editImageUrl}
+                      src={editPreviewUrl || getOptimizedImageUrl(editImageUrl, { width: 300, crop: "limit" })}
                       alt="Primary Preview"
+                      loading="lazy"
                       className="object-cover w-full h-full"
                     />
                   </div>
@@ -627,8 +631,9 @@ export function ProductsTab({
                       <div key={`existing-${idx}`} className="relative aspect-square rounded border overflow-hidden group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={url}
+                          src={getOptimizedImageUrl(url, { width: 200, height: 200, crop: "fill" })}
                           alt={`Existing gallery ${idx + 1}`}
+                          loading="lazy"
                           className="object-cover w-full h-full"
                         />
                         <button
@@ -648,6 +653,7 @@ export function ProductsTab({
                         <img
                           src={url}
                           alt={`New gallery preview ${idx + 1}`}
+                          loading="lazy"
                           className="object-cover w-full h-full"
                         />
                         <button

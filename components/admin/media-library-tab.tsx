@@ -4,6 +4,7 @@ import Link from "next/link"
 import { type FormEvent, useState } from "react"
 import { ChevronLeft, ChevronRight, Search, Trash2 } from "lucide-react"
 
+import { getOptimizedImageUrl } from "@/lib/cloudinary"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -448,7 +449,7 @@ export function MediaLibraryTab({ isAdmin, rows }: MediaLibraryTabProps) {
                 {asset.assetType === "IMAGE" ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={asset.url}
+                    src={getOptimizedImageUrl(asset.url, { width: 360, crop: "limit" })}
                     alt={asset.displayName || asset.filename}
                     loading="lazy"
                     className="w-full h-auto block object-cover"
