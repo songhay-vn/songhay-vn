@@ -34,7 +34,7 @@ cp "$BASE_DIR/env/build.env" .env
 trap cleanup EXIT
 
 # Run database migrations
-bunx --bun prisma migrate deploy
+bunx --bun prisma@7 migrate deploy
 
 # Restart containers with the newly loaded docker image
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans

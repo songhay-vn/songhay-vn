@@ -73,7 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           # Apply committed migrations to the production DB via the SSH tunnel
-          bunx --bun prisma migrate deploy
+          bunx --bun prisma@7 migrate deploy
 
       - name: Build Next.js app
         run: bun run build

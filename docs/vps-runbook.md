@@ -213,7 +213,7 @@ Run Prisma migration status from source:
 ```bash
 cd /opt/songhay/source
 cp /opt/songhay/env/build.env .env
-bunx --bun prisma migrate status
+bunx --bun prisma@7 migrate status
 rm -f .env
 ```
 
@@ -222,7 +222,7 @@ Apply pending Prisma migrations:
 ```bash
 cd /opt/songhay/source
 cp /opt/songhay/env/build.env .env
-bunx --bun prisma migrate deploy
+bunx --bun prisma@7 migrate deploy
 rm -f .env
 ```
 
