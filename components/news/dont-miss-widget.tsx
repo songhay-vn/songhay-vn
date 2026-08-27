@@ -53,9 +53,7 @@ export function DontMissWidget() {
               Cách tính tuổi sinh học
             </p>
             <p className="max-w-2xl text-sm leading-6 text-zinc-900">
-              Nhập tuổi rồi trả lời nhanh các câu trắc nghiệm về giới tính, giấc
-              ngủ, vận động, dinh dưỡng và stress để nhận tuổi sinh học tham
-              khảo.
+              Nhập tuổi rồi trả lời nhanh các câu trắc nghiệm để biết mình trẻ hay già hơn tuổi thật.
             </p>
             <div className="flex flex-wrap gap-2 text-xs font-semibold text-zinc-900">
               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-1 text-emerald-700">
@@ -81,7 +79,7 @@ export function DontMissWidget() {
               min={BIO_AGE_MIN_AGE}
               max={BIO_AGE_MAX_AGE}
               className="mt-1 h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-base font-black text-zinc-950 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-100"
-              placeholder="50"
+              placeholder="35"
             />
           </label>
           <button
