@@ -104,7 +104,7 @@ Normal deploy is automatic:
    - Rsyncs the updated source code (excluding `.next` and `node_modules`) to `/opt/songhay/source`.
    - Saves, compresses, and transfers the Docker image to the VPS (`docker save | gzip | ssh ... docker load`).
 3. The workflow SSHes into the VPS and executes `/opt/songhay/source/deploy/vps/deploy.sh`.
-4. The deploy script runs Prisma database migrations, restarts the containers, and cleans up old docker images.
+4. The deploy script updates compose and Caddy configs, restarts the containers with the new image, and cleans up old docker images.
 
 GitHub repository secrets required by the workflow:
 
@@ -208,22 +208,17 @@ docker compose -f /opt/songhay/docker-compose.yml exec -T postgres psql -U songh
   "select relname, pg_size_pretty(pg_total_relation_size(relid)) as size from pg_catalog.pg_statio_user_tables order by pg_total_relation_size(relid) desc limit 20;"
 ```
 
-Run Prisma migration status from source:
+Prisma migrations are automatically applied during GitHub Actions deploy via the SSH tunnel before Next.js builds.
 
-```bash
-cd /opt/songhay/source
-cp /opt/songhay/env/build.env .env
+To inspect or apply migrations manually from your local machine, open an SSH tunnel to the VPS PostgreSQL port 5432 and run:
+
+```powershell
+# Open tunnel in a background PowerShell terminal:
+ssh -i "$env:USERPROFILE\.ssh\songhay_vps_deploy" -L 5432:127.0.0.1:5432 deploy@<VPS_HOST_IP>
+
+# In your local project directory:
 bunx --bun prisma@7 migrate status
-rm -f .env
-```
-
-Apply pending Prisma migrations:
-
-```bash
-cd /opt/songhay/source
-cp /opt/songhay/env/build.env .env
 bunx --bun prisma@7 migrate deploy
-rm -f .env
 ```
 
 ## Backups And Restore
