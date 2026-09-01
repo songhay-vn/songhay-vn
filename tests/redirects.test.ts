@@ -20,10 +20,10 @@ mock.module("next/navigation", () => ({
 }))
 
 mock.module("@/app/admin/actions-helpers", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ensurePermission: (cond: boolean, path: string) => {
     if (!cond) throw new Error("forbidden")
   },
+  requireActionPermission: async () => true,
   revalidatePost: mockRevalidatePost,
 }))
 

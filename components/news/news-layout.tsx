@@ -21,6 +21,7 @@ type NewsLayoutProps = {
   containerClassName?: string
   gridClassName?: string
   showSidebar?: boolean
+  customSidebar?: ReactNode
   showZalo?: boolean
   showDontMissSection?: boolean
   showInstituteProducts?: boolean
@@ -39,6 +40,7 @@ export function NewsLayout({
   containerClassName = "flex flex-col gap-5 py-5 md:py-8",
   gridClassName = "grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]",
   showSidebar = true,
+  customSidebar,
   showZalo = true,
   showDontMissSection = true,
   showInstituteProducts = true,
@@ -94,14 +96,20 @@ export function NewsLayout({
           {/* Sidebar */}
           {showSidebar && (
             <aside className="flex flex-col gap-4">
-              <Suspense
-                fallback={
-                  <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />
-                }
-              >
-                <TrendingSidebar />
-              </Suspense>
-              <ClientSideWidgets />
+              {customSidebar ? (
+                customSidebar
+              ) : (
+                <>
+                  <Suspense
+                    fallback={
+                      <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />
+                    }
+                  >
+                    <TrendingSidebar />
+                  </Suspense>
+                  <ClientSideWidgets />
+                </>
+              )}
             </aside>
           )}
         </div>

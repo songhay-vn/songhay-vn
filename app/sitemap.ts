@@ -94,12 +94,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await prisma.product.findMany({
     where: { isIndexed: true },
     select: {
+      type: true,
       slug: true,
       updatedAt: true,
       imageUrl: true,
     },
     orderBy: { updatedAt: "desc" },
   })
+
+  const scienceProducts = products.filter((p) => p.type === "SCIENCE_PRODUCT")
+  const vietGifts = products.filter((p) => p.type === "VIET_GIFT")
 
   const sitemapData: MetadataRoute.Sitemap = []
 
@@ -112,7 +116,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   sitemapData.push({
     url: `${siteUrl}/san-pham`,
-    lastModified: products.length > 0 ? products[0].updatedAt : staticContentLastModified,
+    lastModified: scienceProducts.length > 0 ? scienceProducts[0].updatedAt : staticContentLastModified,
+    changeFrequency: "daily" as const,
+    priority: 0.8,
+  })
+
+  sitemapData.push({
+    url: `${siteUrl}/qua-viet`,
+    lastModified: vietGifts.length > 0 ? vietGifts[0].updatedAt : staticContentLastModified,
     changeFrequency: "daily" as const,
     priority: 0.8,
   })
@@ -139,9 +150,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const rawUrl = product.imageUrl ? toAbsoluteUrl(product.imageUrl) : null
     const cleanUrl = rawUrl ? rawUrl.split("?")[0] : null
     const images = cleanUrl ? [cleanUrl] : []
+    const prefix = product.type === "VIET_GIFT" ? "qua-viet" : "san-pham"
 
     sitemapData.push({
-      url: `${siteUrl}/san-pham/${product.slug}`,
+      url: `${siteUrl}/${prefix}/${product.slug}`,
       lastModified: product.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,

@@ -719,6 +719,14 @@ export async function getNavCategories(): Promise<CategoryWithChildren[]> {
       children: [],
     })
 
+    result.push({
+      id: "qua-viet",
+      name: "Quà Việt",
+      slug: "qua-viet",
+      parentId: null,
+      children: [],
+    })
+
     return result
   } catch (error) {
     console.error(
@@ -806,7 +814,7 @@ export async function getAllCategorySlugs() {
   })
 }
 
-// --- Product Queries ---
+// --- Product Queries (Sản phẩm khoa học & Quà Việt) ---
 
 export async function getProductsForSidebar() {
   "use cache"
@@ -816,7 +824,7 @@ export async function getProductsForSidebar() {
   try {
     const [products, totalCount] = await Promise.all([
       prisma.product.findMany({
-        where: { showOnSidebar: true },
+        where: { showOnSidebar: true, type: "SCIENCE_PRODUCT" },
         select: {
           id: true,
           name: true,
@@ -826,7 +834,7 @@ export async function getProductsForSidebar() {
         orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
         take: 5,
       }),
-      prisma.product.count({ where: { showOnSidebar: true } }),
+      prisma.product.count({ where: { showOnSidebar: true, type: "SCIENCE_PRODUCT" } }),
     ])
 
     return { products, totalCount }
@@ -845,6 +853,7 @@ export async function getAllIndexedProducts() {
 
   try {
     return await prisma.product.findMany({
+      where: { type: "SCIENCE_PRODUCT" },
       select: {
         id: true,
         name: true,
@@ -867,7 +876,9 @@ export async function getProductBySlug(slug: string) {
   cacheLife("hours")
 
   try {
-    return await prisma.product.findUnique({ where: { slug } })
+    return await prisma.product.findFirst({
+      where: { slug, type: "SCIENCE_PRODUCT" },
+    })
   } catch (err) {
     if (isPrismaSchemaMismatchError(err)) {
       return null
@@ -875,4 +886,75 @@ export async function getProductBySlug(slug: string) {
     throw err
   }
 }
+
+export async function getAllIndexedVietGifts() {
+  "use cache"
+  cacheTag("viet-gifts", "products")
+  cacheLife("hours")
+
+  try {
+    return await prisma.product.findMany({
+      where: { type: "VIET_GIFT" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    })
+  } catch (err) {
+    if (isPrismaSchemaMismatchError(err)) {
+      return []
+    }
+    throw err
+  }
+}
+
+export async function getVietGiftBySlug(slug: string) {
+  "use cache"
+  cacheTag("viet-gifts", "products")
+  cacheLife("hours")
+
+  try {
+    return await prisma.product.findFirst({
+      where: { slug, type: "VIET_GIFT" },
+    })
+  } catch (err) {
+    if (isPrismaSchemaMismatchError(err)) {
+      return null
+    }
+    throw err
+  }
+}
+
+export async function getFeaturedVietGiftsForSidebar(limit = 4, excludeSlug?: string) {
+  "use cache"
+  cacheTag("viet-gifts", "products")
+  cacheLife("hours")
+
+  try {
+    return await prisma.product.findMany({
+      where: {
+        type: "VIET_GIFT",
+        isIndexed: true,
+        ...(excludeSlug ? { slug: { not: excludeSlug } } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      take: limit,
+    })
+  } catch (err) {
+    if (isPrismaSchemaMismatchError(err)) {
+      return []
+    }
+    throw err
+  }
+}
+
 

@@ -38,6 +38,9 @@ export async function createProduct(formData: FormData) {
   await requireActionPermission("manage-products", "/admin?tab=products&toast=post_action_forbidden")
 
   const name = String(formData.get("name") || "").trim()
+  const rawType = String(formData.get("type") || "").trim()
+  const type = rawType === "VIET_GIFT" ? "VIET_GIFT" : "SCIENCE_PRODUCT"
+  const zaloUrl = String(formData.get("zaloUrl") || "").trim() || null
   const imageUrl = String(formData.get("imageUrl") || "").trim()
   const imagePublicId = String(formData.get("imagePublicId") || "").trim() || null
   const description = String(formData.get("description") || "").trim() || null
@@ -65,12 +68,14 @@ export async function createProduct(formData: FormData) {
   try {
     product = await prisma.product.create({
       data: {
+        type,
         name,
         slug,
         imageUrl,
         imagePublicId,
         galleryUrls,
         description,
+        zaloUrl,
         sortOrder: nextSortOrder,
         isIndexed: true,
       },
@@ -90,8 +95,11 @@ export async function createProduct(formData: FormData) {
   revalidatePath("/admin")
   revalidatePath("/san-pham")
   revalidatePath("/san-pham/[slug]", "page")
+  revalidatePath("/qua-viet")
+  revalidatePath("/qua-viet/[slug]", "page")
   revalidatePath("/")
   updateTag("products")
+  updateTag("viet-gifts")
   revalidateTag("products", "max")
 
   redirect("/admin?tab=products&toast=product_created")
@@ -102,6 +110,9 @@ export async function updateProduct(formData: FormData) {
 
   const productId = String(formData.get("productId") || "").trim()
   const name = String(formData.get("name") || "").trim()
+  const rawType = String(formData.get("type") || "").trim()
+  const type = rawType === "VIET_GIFT" ? "VIET_GIFT" : "SCIENCE_PRODUCT"
+  const zaloUrl = String(formData.get("zaloUrl") || "").trim() || null
   const imageUrl = String(formData.get("imageUrl") || "").trim()
   const imagePublicId = String(formData.get("imagePublicId") || "").trim() || null
   const description = String(formData.get("description") || "").trim() || null
@@ -132,12 +143,14 @@ export async function updateProduct(formData: FormData) {
   await prisma.product.update({
     where: { id: productId },
     data: {
+      type,
       name,
       slug,
       imageUrl,
       imagePublicId,
       galleryUrls,
       description,
+      zaloUrl,
     },
   })
 
@@ -169,8 +182,14 @@ export async function updateProduct(formData: FormData) {
   if (existing.slug !== slug) {
     revalidatePath(`/san-pham/${existing.slug}`)
   }
+  revalidatePath("/qua-viet")
+  revalidatePath(`/qua-viet/${slug}`)
+  if (existing.slug !== slug) {
+    revalidatePath(`/qua-viet/${existing.slug}`)
+  }
   revalidatePath("/")
   updateTag("products")
+  updateTag("viet-gifts")
   revalidateTag("products", "max")
 
   redirect("/admin?tab=products&toast=product_updated")
@@ -217,8 +236,11 @@ export async function deleteProduct(formData: FormData) {
   revalidatePath("/admin")
   revalidatePath("/san-pham")
   revalidatePath(`/san-pham/${existing.slug}`)
+  revalidatePath("/qua-viet")
+  revalidatePath(`/qua-viet/${existing.slug}`)
   revalidatePath("/")
   updateTag("products")
+  updateTag("viet-gifts")
   revalidateTag("products", "max")
 
   redirect("/admin?tab=products&toast=product_deleted")
@@ -256,8 +278,11 @@ export async function toggleProductIndex(formData: FormData) {
   revalidatePath("/admin")
   revalidatePath("/san-pham")
   revalidatePath(`/san-pham/${product.slug}`)
+  revalidatePath("/qua-viet")
+  revalidatePath(`/qua-viet/${product.slug}`)
   revalidatePath("/")
   updateTag("products")
+  updateTag("viet-gifts")
   revalidateTag("products", "max")
 
   redirect("/admin?tab=products&toast=product_updated")
@@ -283,6 +308,9 @@ export async function updateBulkSidebarSettings(formData: FormData) {
   )
 
   updateTag("products")
+  updateTag("viet-gifts")
   revalidateTag("products", "max")
+  revalidatePath("/qua-viet")
+  revalidatePath("/qua-viet/[slug]", "page")
   redirect("/admin?tab=products&toast=product_updated")
 }

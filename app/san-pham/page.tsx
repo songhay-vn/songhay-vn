@@ -31,7 +31,7 @@ export default async function ProductsListingPage() {
             <p className="text-zinc-500">Hiện chưa có sản phẩm nào.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {products.map((product) => (
               <PostCard
                 key={product.id}
@@ -40,7 +40,7 @@ export default async function ProductsListingPage() {
                 imageUrl={product.imageUrl}
                 aspectRatio="square"
                 showExcerpt={false}
-                className="bg-white border border-zinc-200 p-4"
+                className="bg-white border border-zinc-200 p-2.5 sm:p-4 rounded-xs [&_h3]:text-sm sm:[&_h3]:text-base md:[&_h3]:text-lg"
               />
             ))}
           </div>
