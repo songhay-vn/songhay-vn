@@ -232,9 +232,46 @@ export default async function TermsOfUsePage() {
             Sản phẩm và dịch vụ của chủ thể khác
           </h2>
           <p>
-            Songhay.vn sẽ không chịu trách nhiệm về bất kỳ sự thiệt hại gây ra
-            do sản phẩm dịch vụ được đăng ký hoặc quảng cáo trên website, trực
-            tiếp hoặc gián tiếp.
+            Songhay là website cung cấp nội dung về đời sống, chăm sóc sức khỏe,
+            dưỡng sinh và giới thiệu sản phẩm Việt.
+          </p>
+          <p>
+            Chúng tôi cung cấp kiến thức về sức khỏe, dưỡng sinh, đời sống và lựa
+            chọn tiêu dùng lành mạnh.
+          </p>
+          <p>
+            Sống Hay đồng thời giới thiệu những sản phẩm Việt, sản phẩm OCOP và
+            sản phẩm ứng dụng kết quả nghiên cứu có nguồn gốc rõ ràng.
+          </p>
+          <p>
+            Songhay không trực tiếp bán hàng đối với các sản phẩm được giới
+            thiệu từ đối tác; khách hàng liên hệ trực tiếp với chủ thể sản
+            xuất/đơn vị phân phối theo thông tin được công bố.
+          </p>
+          <h3 className="text-xl font-bold text-zinc-900">
+            Nếu sau này có quảng cáo trả phí:
+          </h3>
+          <ul className="space-y-2 pl-5">
+            <li className="list-disc">
+              Nội dung quảng bá sẽ được nhận diện rõ ràng.
+            </li>
+            <li className="list-disc">
+              Thông báo minh bạch:{" "}
+              <em>
+                &ldquo;Songhay.vn là kênh truyền thông và kết nối nông sản sạch.
+                Quý khách vui lòng liên hệ trực tiếp chủ thương hiệu để nhận báo
+                giá chi tiết và ưu đãi vận chuyển.&rdquo;
+              </em>
+            </li>
+            <li className="list-disc">
+              Sống Hay không chịu trách nhiệm thay cho nghĩa vụ bảo hành/giao
+              dịch giữa người mua và chủ thương hiệu OCOP hay NSX.
+            </li>
+          </ul>
+          <p className="font-semibold text-zinc-950">
+            Songhay.vn sẽ không chịu trách nhiệm về bất kỳ sự thiệt hại gây ra do
+            sản phẩm dịch vụ được đăng ký hoặc quảng cáo trên website, trực tiếp
+            hoặc gián tiếp.
           </p>
         </section>
 

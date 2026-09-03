@@ -78,7 +78,7 @@ export default async function HomePage() {
         showInstituteProducts={false}
         mainBanner={
           <Image
-            src="/site-header-hero-v2.png"
+            src="/site-header-hero-v3.png"
             alt="Sống Hay Hero"
             width={1100}
             height={200}

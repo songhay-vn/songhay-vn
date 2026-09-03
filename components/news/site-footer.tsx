@@ -124,7 +124,7 @@ export async function SiteFooter({
               prefetch={false}
               className="inline-flex text-sm font-semibold text-rose-700 underline underline-offset-2 hover:text-rose-800"
             >
-              Miễn trừ trách nhiệm
+              Miễn trừ trách nhiệm & Quảng cáo
             </Link>
           </div>
           <p className="pt-1 text-sm text-zinc-500">

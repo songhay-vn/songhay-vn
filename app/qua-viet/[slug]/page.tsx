@@ -131,6 +131,28 @@ export default async function VietGiftDetailPage({
             />
           </div>
         )}
+
+        {/* Policy & Terms Footer Links */}
+        <div className="mt-8 border-t border-zinc-200 pt-5 text-sm font-sans text-black">
+          <p className="font-semibold text-zinc-950">
+            Songhay.vn là kênh truyền thông và kết nối nông sản sạch, sản phẩm Việt. Mời bạn tham khảo:
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link
+              href="/dieu-khoan-su-dung"
+              className="font-bold text-rose-700 underline underline-offset-2 hover:text-rose-800"
+            >
+              Điều khoản sử dụng
+            </Link>
+            <span className="text-zinc-400">•</span>
+            <Link
+              href="/mien-tru-trach-nhiem"
+              className="font-bold text-rose-700 underline underline-offset-2 hover:text-rose-800"
+            >
+              Miễn trừ trách nhiệm & Chính sách quảng cáo
+            </Link>
+          </div>
+        </div>
       </article>
     </NewsLayout>
   )
