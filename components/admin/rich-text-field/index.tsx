@@ -168,6 +168,20 @@ export function RichTextField({
       )}
 
       <style jsx global>{`
+        :root {
+          --ck-z-default: 1000;
+          --ck-z-panel: 10000;
+        }
+
+        .ck-body-wrapper {
+          position: relative;
+          z-index: 10000;
+        }
+
+        .ck.ck-balloon-panel {
+          z-index: 10000 !important;
+        }
+
         .ck-full-editor .ck.ck-toolbar {
           border-left: 0;
           border-right: 0;

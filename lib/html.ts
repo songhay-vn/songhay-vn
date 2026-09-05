@@ -172,6 +172,19 @@ function repairHtmlNesting(html: string): string {
     },
   })
 
+  for (const a of root.querySelectorAll("a")) {
+    const href = a.getAttribute("href")?.trim()
+    if (href && !/^((\w+:(\/{2,})?)|(\W))/i.test(href)) {
+      a.setAttribute("href", `https://${href}`)
+      if (!a.getAttribute("target")) {
+        a.setAttribute("target", "_blank")
+      }
+      if (!a.getAttribute("rel")) {
+        a.setAttribute("rel", "noopener noreferrer")
+      }
+    }
+  }
+
   let result = ""
   for (const child of root.childNodes) {
     if (child instanceof NHTMLElement) {

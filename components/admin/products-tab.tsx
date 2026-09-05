@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { Plus } from "lucide-react"
 import type { ProductRow } from "@/app/admin/data-loaders"
 import type { MediaAsset } from "@/components/admin/media-picker/types"
 import { Button } from "@/components/ui/button"
 import { AdminProductCard } from "./products-tab/admin-product-card"
-import { AddProductDialog } from "./products-tab/add-product-dialog"
-import { EditProductDialog } from "./products-tab/edit-product-dialog"
+import { ProductEditorForm } from "./products-tab/product-editor-form"
 import { SidebarSettingsDialog } from "./products-tab/sidebar-settings-dialog"
 
 type ProductsTabProps = {
@@ -21,7 +21,7 @@ export function ProductsTab({
   currentUserId = "",
 }: ProductsTabProps) {
   const [filterType, setFilterType] = useState<"ALL" | "SCIENCE_PRODUCT" | "VIET_GIFT">("ALL")
-  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<"list" | "create" | "edit">("list")
   const [isSidebarSettingsOpen, setIsSidebarSettingsOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<ProductRow | null>(null)
 
@@ -31,6 +31,37 @@ export function ProductsTab({
     if (filterType === "ALL") return true
     return p.type === filterType
   })
+
+  if (viewMode === "create") {
+    return (
+      <ProductEditorForm
+        mode="create"
+        mediaAssets={mediaAssets}
+        currentUserId={currentUserId}
+        onCancel={() => setViewMode("list")}
+        onSuccess={() => setViewMode("list")}
+      />
+    )
+  }
+
+  if (viewMode === "edit" && editingProduct) {
+    return (
+      <ProductEditorForm
+        mode="edit"
+        product={editingProduct}
+        mediaAssets={mediaAssets}
+        currentUserId={currentUserId}
+        onCancel={() => {
+          setViewMode("list")
+          setEditingProduct(null)
+        }}
+        onSuccess={() => {
+          setViewMode("list")
+          setEditingProduct(null)
+        }}
+      />
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -51,12 +82,13 @@ export function ProductsTab({
           >
             Tùy chỉnh Sidebar
           </Button>
-          <AddProductDialog
-            isOpen={isAddOpen}
-            onOpenChange={setIsAddOpen}
-            mediaAssets={mediaAssets}
-            currentUserId={currentUserId}
-          />
+          <Button
+            onClick={() => setViewMode("create")}
+            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm bài mới
+          </Button>
         </div>
       </div>
 
@@ -108,19 +140,14 @@ export function ProductsTab({
             <AdminProductCard
               key={product.id}
               product={product}
-              onEdit={setEditingProduct}
+              onEdit={(prod) => {
+                setEditingProduct(prod)
+                setViewMode("edit")
+              }}
             />
           ))}
         </div>
       )}
-
-      {/* Edit Product Modal */}
-      <EditProductDialog
-        product={editingProduct}
-        onClose={() => setEditingProduct(null)}
-        mediaAssets={mediaAssets}
-        currentUserId={currentUserId}
-      />
 
       {/* Sidebar Settings Modal */}
       <SidebarSettingsDialog

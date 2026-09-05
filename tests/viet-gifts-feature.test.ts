@@ -26,8 +26,17 @@ mock.module("@/app/admin/actions-helpers", () => ({
 }))
 
 mock.module("@/lib/search-console", () => ({
+  getSearchConsoleSiteUrl: () => "https://songhay.vn/",
   getSearchConsoleSitemapUrl: () => "https://songhay.vn/sitemap.xml",
+  getSearchConsoleNewsSitemapUrl: () => "https://songhay.vn/news-sitemap.xml",
   isSearchConsoleConfigured: () => false,
+  getDailyInspectionSoftLimit: () => 1800,
+  inspectUrl: async () => {},
+  submitSitemap: async () => {},
+  parseGoogleServiceAccountKey: () => ({ client_email: "", private_key: "" }),
+  buildUrlInspectionRequestBody: () => ({}),
+  SearchConsoleApiError: class extends Error {},
+  SearchConsoleConfigError: class extends Error {},
 }))
 
 mock.module("@/lib/cloudinary", () => ({
@@ -108,6 +117,8 @@ const {
   getAllIndexedProducts,
   getProductBySlug,
 } = await import("@/lib/queries")
+
+const { ProductsSidebar } = await import("@/components/news/products-sidebar")
 
 describe("Integration & Unit: Quà Việt & Products Suite", () => {
   beforeEach(() => {
@@ -422,6 +433,26 @@ describe("Integration & Unit: Quà Việt & Products Suite", () => {
       expect(mockFindFirst).toHaveBeenCalledWith({
         where: { slug: "nano-curcumin", type: "SCIENCE_PRODUCT" },
       })
+    })
+
+    test("ProductsSidebar returns null when no products are found", async () => {
+      mockFindMany.mockImplementationOnce(() => Promise.resolve([]))
+      mockCount.mockImplementationOnce(() => Promise.resolve(0))
+
+      const element = await ProductsSidebar()
+      expect(element).toBeNull()
+    })
+
+    test("ProductsSidebar renders products and link to /san-pham", async () => {
+      const mockProducts = [
+        { id: "sp-1", name: "Nano Curcumin", slug: "nano-curcumin", imageUrl: "nano.jpg" },
+      ]
+      mockFindMany.mockImplementationOnce(() => Promise.resolve(mockProducts as any))
+      mockCount.mockImplementationOnce(() => Promise.resolve(1))
+
+      const element = await ProductsSidebar()
+      expect(element).not.toBeNull()
+      expect(element?.type).toBe("section")
     })
   })
 })

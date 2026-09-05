@@ -32,6 +32,7 @@ import {
   IndentBlock,
   Italic,
   Link,
+  LinkImage,
   ListProperties,
   MediaEmbed,
   Mention,
@@ -199,7 +200,7 @@ export function CKEditorWrapper({ data, onChange, placeholder, onReady }: CKEdit
       Essentials, Paragraph, Heading, HeadingButtonsUI, ParagraphButtonUI, Alignment, Bold, Italic, Underline,
       Strikethrough, Subscript, Superscript, Code, CodeBlock, RemoveFormat,
       FontFamily, FontSize, FontColor, FontBackgroundColor, Highlight,
-      Link, AutoLink, List, ListProperties, TodoList, Indent, IndentBlock,
+      Link, LinkImage, AutoLink, List, ListProperties, TodoList, Indent, IndentBlock,
       BlockQuote, HorizontalLine, ShowBlocks, FindAndReplace, PasteFromOffice,
       SpecialCharacters, SpecialCharactersEssentials, SpecialCharactersArrows,
       SpecialCharactersCurrency, SpecialCharactersLatin, SpecialCharactersMathematical,
@@ -228,10 +229,14 @@ export function CKEditorWrapper({ data, onChange, placeholder, onReady }: CKEdit
         { model: "heading3", view: "h3", title: "Heading 3", class: "ck-heading_heading3" },
       ],
     },
-    link: { addTargetToExternalLinks: true },
+    link: {
+      addTargetToExternalLinks: true,
+      defaultProtocol: "https://",
+    },
     image: {
       toolbar: [
         "toggleImageCaption", "imageTextAlternative", "|",
+        "linkImage", "|",
         "imageStyle:inline", "imageStyle:block", "imageStyle:side", "|", "resizeImage",
       ],
     },

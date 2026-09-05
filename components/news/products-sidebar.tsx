@@ -1,8 +1,13 @@
+import { cacheTag, cacheLife } from "next/cache"
 import Link from "next/link"
 import { getProductsForSidebar } from "@/lib/queries"
 import { PostCard } from "./post-card"
 
 export async function ProductsSidebar() {
+  "use cache"
+  cacheTag("products")
+  cacheLife("hours")
+
   const { products, totalCount } = await getProductsForSidebar()
 
   if (products.length === 0) return null

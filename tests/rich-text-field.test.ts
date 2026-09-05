@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import { getPlainTextFromHtml } from "@/app/admin/actions-helpers"
+import { normalizeArticleHtml } from "@/lib/html"
 
 describe("Unit: Rich Text & Form Content", () => {
   test("getPlainTextFromHtml extracts plain text from rich HTML content", () => {
@@ -75,5 +76,23 @@ describe("Unit: Rich Text & Form Content", () => {
         isDraftTarget: false,
       })
     ).toEqual({ success: true })
+  })
+
+  test("getPlainTextFromHtml handles linked text and images correctly", () => {
+    const htmlWithLinkedText = '<p>Check out <a href="https://example.com" target="_blank" rel="noopener noreferrer">this link</a> for more details.</p>'
+    expect(getPlainTextFromHtml(htmlWithLinkedText)).toBe("Check out this link for more details.")
+
+    const htmlWithLinkedImage = '<figure class="image"><a href="https://example.com/banner"><img src="https://example.com/image.jpg" alt="Banner" /></a><figcaption>Caption</figcaption></figure>'
+    expect(getPlainTextFromHtml(htmlWithLinkedImage)).toBe("Caption")
+  })
+
+  test("normalizeArticleHtml auto-prefixes https:// to links without protocol", () => {
+    const rawHtml = '<p>Visit <a href="example.com">Example</a> or <a href="https://google.com">Google</a> or <a href="/tin-tuc">Internal</a></p>'
+    const normalized = normalizeArticleHtml(rawHtml)
+    expect(normalized).toContain('href="https://example.com"')
+    expect(normalized).toContain('target="_blank"')
+    expect(normalized).toContain('rel="noopener noreferrer"')
+    expect(normalized).toContain('href="https://google.com"')
+    expect(normalized).toContain('href="/tin-tuc"')
   })
 })
